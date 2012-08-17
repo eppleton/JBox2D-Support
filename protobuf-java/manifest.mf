@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.google.protobuf
+OpenIDE-Module-Localizing-Bundle: com/google/protobuf/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

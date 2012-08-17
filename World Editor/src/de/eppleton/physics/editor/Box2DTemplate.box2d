@@ -1,0 +1,209 @@
+gravity {
+  x: 0.0
+  y: -10.0
+}
+allow_sleep: true
+warm_starting: true
+continuous_physics: true
+bodies {
+  type: DYNAMIC
+  position {
+    x: 0.0
+    y: 4.0
+  }
+  angle: 0.0
+  linear_velocity {
+    x: 0.0
+    y: 0.0
+  }
+  angular_velocity: 0.0
+  force {
+    x: 0.0
+    y: 0.0
+  }
+  torque: 0.0
+  mass: 4.0
+  I: 2.6666667
+  linear_damping: 0.0
+  angular_damping: 0.0
+  bullet: false
+  allow_sleep: true
+  awake: true
+  active: true
+  fixed_rotation: false
+  fixtures {
+    restitution: 0.0
+    friction: 0.3
+    density: 1.0
+    sensor: false
+    filter {
+      category_bits: 1
+      mask_bits: 65535
+      group_index: 0
+    }
+    shape {
+      type: POLYGON
+      radius: 0.01
+      points {
+        x: -1.0
+        y: -1.0
+      }
+      points {
+        x: 1.0
+        y: -1.0
+      }
+      points {
+        x: 1.0
+        y: 1.0
+      }
+      points {
+        x: -1.0
+        y: 1.0
+      }
+      normals {
+        x: 0.0
+        y: -1.0
+      }
+      normals {
+        x: 1.0
+        y: 0.0
+      }
+      normals {
+        x: 0.0
+        y: 1.0
+      }
+      normals {
+        x: -1.0
+        y: 0.0
+      }
+      centroid {
+        x: 0.0
+        y: 0.0
+      }
+    }
+  }
+}
+bodies {
+  type: STATIC
+  position {
+    x: 5.0
+    y: 5.0
+  }
+  angle: 0.0
+  linear_velocity {
+    x: 0.0
+    y: 0.0
+  }
+  angular_velocity: 0.0
+  force {
+    x: 0.0
+    y: 0.0
+  }
+  torque: 0.0
+  mass: 0.0
+  I: 0.0
+  linear_damping: 0.0
+  angular_damping: 0.0
+  bullet: true
+  allow_sleep: true
+  awake: true
+  active: true
+  fixed_rotation: false
+  fixtures {
+    restitution: 0.0
+    friction: 0.2
+    density: 1.0
+    sensor: false
+    filter {
+      category_bits: 1
+      mask_bits: 65535
+      group_index: 0
+    }
+    shape {
+      type: CIRCLE
+      center {
+        x: 0.0
+        y: 0.0
+      }
+      radius: 1.0
+    }
+  }
+}
+bodies {
+  type: STATIC
+  position {
+    x: 0.0
+    y: -10.0
+  }
+  angle: 0.0
+  linear_velocity {
+    x: 0.0
+    y: 0.0
+  }
+  angular_velocity: 0.0
+  force {
+    x: 0.0
+    y: 0.0
+  }
+  torque: 0.0
+  mass: 0.0
+  I: 0.0
+  linear_damping: 0.0
+  angular_damping: 0.0
+  bullet: false
+  allow_sleep: true
+  awake: true
+  active: true
+  fixed_rotation: false
+  fixtures {
+    restitution: 0.0
+    friction: 0.2
+    density: 0.0
+    sensor: false
+    filter {
+      category_bits: 1
+      mask_bits: 65535
+      group_index: 0
+    }
+    shape {
+      type: POLYGON
+      radius: 0.01
+      points {
+        x: -50.0
+        y: -10.0
+      }
+      points {
+        x: 50.0
+        y: -10.0
+      }
+      points {
+        x: 50.0
+        y: 10.0
+      }
+      points {
+        x: -50.0
+        y: 10.0
+      }
+      normals {
+        x: 0.0
+        y: -1.0
+      }
+      normals {
+        x: 1.0
+        y: 0.0
+      }
+      normals {
+        x: 0.0
+        y: 1.0
+      }
+      normals {
+        x: -1.0
+        y: 0.0
+      }
+      centroid {
+        x: 0.0
+        y: 0.0
+      }
+    }
+  }
+}

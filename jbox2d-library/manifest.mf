@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.jbox2d
+OpenIDE-Module-Localizing-Bundle: org/jbox2d/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
