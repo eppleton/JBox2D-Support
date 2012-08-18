@@ -23,7 +23,6 @@ public class Box2DPaletteController {
 
     private static Box2DPaletteController palette = null;
 
-    @MimeRegistration(mimeType = "text/x-box2d", service = PaletteController.class)
     public static PaletteController createPalette() {
         try {
             if (null == palette) {
@@ -43,7 +42,9 @@ public class Box2DPaletteController {
                 null, 
                 //Drag and Drop Handler:  
                 new DragAndDropHandler(true) {
-                    @Override public void customize(ExTransferable et, Lookup lkp) {}
+                    @Override public void customize(ExTransferable et, Lookup lkp) {
+                        
+                    }
                 });
             }
         } catch (IOException ex) {

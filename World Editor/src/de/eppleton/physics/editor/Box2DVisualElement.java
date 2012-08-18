@@ -4,6 +4,7 @@
  */
 package de.eppleton.physics.editor;
 
+import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.Callback;
 import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.BorderLayout;
@@ -12,16 +13,21 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.text.Document;
 import org.jbox2d.dynamics.World;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.spi.palette.PaletteController;
 import org.openide.awt.UndoRedo;
+import org.openide.text.DataEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.util.Lookup.Result;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
@@ -32,8 +38,9 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DVisual",
 position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")
-public final class Box2DVisualElement extends JPanel implements MultiViewElement, LookupListener{
+public final class Box2DVisualElement extends JPanel implements MultiViewElement, LookupListener {
 
+    private PaletteController paletteController;
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
@@ -49,9 +56,13 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
         name = obj.getPrimaryFile().getName();
         setLayout(new BorderLayout());
         add(jScrollPane, BorderLayout.CENTER);
-        
+        paletteController = Box2DPaletteController.createPalette();
+        DataEditorSupport cookie = getLookup().lookup(DataEditorSupport.class);
+        Document d = cookie.getOpenedPanes()[0].getDocument();
+        obj.setDocument(d);
         lookupResult = lkp.lookupResult(World.class);
         lookupResult.addLookupListener(this);
+        getLookup();
     }
 
     private void update() {
@@ -66,8 +77,6 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
             jScrollPane.setViewportView(scene.createView());
         }
     }
-
-    
 
     @Override
     public String getName() {
@@ -113,7 +122,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public Lookup getLookup() {
-        return obj.getLookup();
+        return new ProxyLookup(obj.getLookup(), Lookups.fixed(paletteController));
     }
 
     @Override

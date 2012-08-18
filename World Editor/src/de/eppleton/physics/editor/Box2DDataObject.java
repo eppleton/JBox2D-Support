@@ -119,7 +119,6 @@ public class Box2DDataObject extends MultiDataObject {
         super(pf, loader);
         registerEditor("text/x-box2d", true);
         updater = new Updater(this);
-        
     }
     
     @Override

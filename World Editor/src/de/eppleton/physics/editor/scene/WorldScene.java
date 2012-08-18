@@ -4,15 +4,31 @@
  */
 package de.eppleton.physics.editor.scene;
 
+import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import javax.swing.JComponent;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
+import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.openide.text.ActiveEditorDrop;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -31,6 +47,40 @@ public class WorldScene extends ObjectScene {
         this.callback = callback;
         scale(world);
         super.getActions().addAction(ActionFactory.createZoomAction());
+        super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProvider() {
+            @Override
+            public ConnectorState isAcceptable(Widget widget, Point point, Transferable transferable) {
+                try {
+                    if (transferable.isDataFlavorSupported(ActiveEditorDrop.FLAVOR)
+                            && (transferable.getTransferData(ActiveEditorDrop.FLAVOR) instanceof B2DActiveEditorDrop)) {
+
+                        return ConnectorState.ACCEPT;
+                    }
+                } catch (UnsupportedFlavorException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                return ConnectorState.REJECT;
+            }
+
+            @Override
+            public void accept(Widget widget, Point point, Transferable transferable) {
+                DataFlavor[] transferDataFlavors = transferable.getTransferDataFlavors();
+                for (DataFlavor dataFlavor : transferDataFlavors) {
+                    try {
+                        Object transferData = transferable.getTransferData(dataFlavor);
+                    } catch (UnsupportedFlavorException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+                Widget w = new LabelWidget(WorldScene.this, "Test");
+                WorldScene.this.addChild(w);
+                w.setPreferredLocation(widget.convertLocalToScene(point));
+            }
+        }));
         updateBodies();
     }
 
@@ -66,31 +116,35 @@ public class WorldScene extends ObjectScene {
     public float getMaxX(Body body) {
         float maxX = body.getPosition().x;
         if (body.m_fixtureList.getShape() instanceof PolygonShape) {
-            Vec2[] vertices = ((PolygonShape)body.m_fixtureList.getShape()).getVertices();
+            Vec2[] vertices = ((PolygonShape) body.m_fixtureList.getShape()).getVertices();
             float maxVX = 0;
             for (Vec2 vec2 : vertices) {
-                if (vec2.x > maxVX ) maxVX = vec2.x;
+                if (vec2.x > maxVX) {
+                    maxVX = vec2.x;
+                }
             }
             maxX += maxVX;
         }
         if (body.m_fixtureList.getShape() instanceof CircleShape) {
-            maxX += ((CircleShape)body.m_fixtureList.getShape()).m_radius;
+            maxX += ((CircleShape) body.m_fixtureList.getShape()).m_radius;
         }
         return maxX;
     }
-    
+
     public float getMaxY(Body body) {
         float maxY = body.getPosition().y;
         if (body.m_fixtureList.getShape() instanceof PolygonShape) {
-            Vec2[] vertices = ((PolygonShape)body.m_fixtureList.getShape()).getVertices();
+            Vec2[] vertices = ((PolygonShape) body.m_fixtureList.getShape()).getVertices();
             float maxVY = 0;
             for (Vec2 vec2 : vertices) {
-                if (vec2.y > maxVY ) maxVY = vec2.x;
+                if (vec2.y > maxVY) {
+                    maxVY = vec2.x;
+                }
             }
             maxY += maxVY;
         }
         if (body.m_fixtureList.getShape() instanceof CircleShape) {
-            maxY += ((CircleShape)body.m_fixtureList.getShape()).m_radius;
+            maxY += ((CircleShape) body.m_fixtureList.getShape()).m_radius;
         }
         return maxY;
     }
