@@ -4,14 +4,30 @@
  */
 package de.eppleton.physics.editor;
 
+import de.eppleton.jbox2d.PatchedTestbedController;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.World;
+import org.jbox2d.testbed.framework.TestList;
+import org.jbox2d.testbed.framework.TestbedModel;
+import org.jbox2d.testbed.framework.TestbedTest;
+import org.jbox2d.testbed.framework.j2d.TestPanelJ2D;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
@@ -27,19 +43,45 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DSimulator",
 position = 3000)
 @NbBundle.Messages("LBL_Box2D_Simulator=Simulator")
-public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement {
+public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement, LookupListener {
 
+    private Lookup.Result<World> lookupResult;
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
+    private TestbedModel model;
+    private PatchedTestbedController controller;
 
     /**
      * Creates new form Box2DSimulatorElement
      */
-    public Box2DSimulatorElement(Lookup lkp) {
+    public Box2DSimulatorElement(final Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
-        //initComponents();
+        lookupResult = lkp.lookupResult(World.class);
+        lookupResult.addLookupListener(this);
+
+    }
+
+    private void update() {
+        removeAll();
+        if (getLookup().lookup(World.class) == null) {
+            return;
+        }
+        final String name = obj.getName();
+        model = new TestbedModel();
+        model.addCategory("Bla");
+        model.addTest(new TestbedTestImpl(getLookup().lookup(World.class), name));
+        TestList.populateModel(model);
+        TestPanelJ2D panel = new TestPanelJ2D(model);
+        model.setDebugDraw(panel.getDebugDraw());
+        controller = new PatchedTestbedController(model, panel);
+        //TestbedSidePanel side = new TestbedSidePanel(model, controller);
+        setLayout(new BorderLayout());
+
+        add((Component) panel, "Center");
+        // add(new JScrollPane(side), "East");
+
     }
 
     /**
@@ -99,10 +141,17 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentHidden() {
+        if (controller != null) {
+            controller.stop();
+        }
     }
 
     @Override
     public void componentActivated() {
+        if (controller != null && !controller.isAnimating()) {
+            controller.playTest(0);
+            controller.start();
+        }
     }
 
     @Override
@@ -122,5 +171,42 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        update();
+    }
+
+    private class TestbedTestImpl extends TestbedTest {
+
+        private final String name;
+        private World world;
+
+        public TestbedTestImpl(World world, String name) {
+            super();
+            this.name = name;
+            this.world = world;
+        }
+
+        @Override
+        public String getTestName() {
+            return name;
+        }
+
+        // this is a hack to set our World as the tests world...
+        @Override
+        public void init(TestbedModel argModel) {
+            super.init(argModel);
+            m_world = world;
+            init(world, false);
+        }
+
+        @Override
+        public void initTest(boolean bln) {
+//            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+
     }
 }
