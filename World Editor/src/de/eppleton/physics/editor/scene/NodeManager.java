@@ -4,7 +4,6 @@
  */
 package de.eppleton.physics.editor.scene;
 
-import com.sun.xml.internal.ws.message.source.PayloadSourceMessage;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -126,7 +124,7 @@ public class NodeManager {
             }
             circle.setPreferredLocation(new Point((int) ((body.getPosition().x + offset_x) * scale),
                     (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
-//            
+            scene.validate();
             return circle;
         }
 
@@ -151,14 +149,20 @@ public class NodeManager {
                     int newX = widget.getPreferredLocation().x;
                     int newY = widget.getPreferredLocation().y;
                     if ((newX != x || newY != y)) {
-                        System.out.println("old "+payload.getPosition());
-                        payload.getPosition().x = ((float) newX / (float) scale) - offset_x;
-                        payload.getPosition().y = -1* (((float) newY / (float) scale) - offset_y);
-                        System.out.println("new "+payload.getPosition());
+                      //  System.out.println("old "+payload.getPosition());
+                        payload.getPosition().x = sceneToWorld(newX, scale, offset_x, false);
+                        payload.getPosition().y = sceneToWorld(newY, scale, offset_y, true);
+                       // System.out.println("new "+payload.getPosition());
+                        
                         scene.fireChange();
                     }
                 }
             }
         });
+        
+    }
+    
+    public static float sceneToWorld(int value, int scale, float offset, boolean invert){
+        return  (((float) value / (float) scale) - offset) * (invert?-1:1);
     }
 }

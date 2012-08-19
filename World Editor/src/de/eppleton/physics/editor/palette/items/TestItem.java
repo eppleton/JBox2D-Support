@@ -4,20 +4,22 @@
  */
 package de.eppleton.physics.editor.palette.items;
 
+import de.eppleton.jbox2d.CircleShapeBuilder;
 import javax.swing.text.JTextComponent;
-import org.openide.text.ActiveEditorDrop;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.World;
 
 /**
  *
  * @author antonepple
  */
-public class TestItem implements B2DActiveEditorDrop {
+public class TestItem extends B2DActiveEditorDrop {
 
     public TestItem() {
     }
 
     @Override
-    public boolean handleTransfer(JTextComponent targetComponent) {
-        return false;
-    }
+    public Body createBody(World world) {
+        return new CircleShapeBuilder(world).radius(2.0F).build();
+    } 
 }

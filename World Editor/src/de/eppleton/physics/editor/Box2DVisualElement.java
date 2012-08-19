@@ -40,7 +40,6 @@ position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")
 public final class Box2DVisualElement extends JPanel implements MultiViewElement, LookupListener {
 
-    private PaletteController paletteController;
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
@@ -49,14 +48,15 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     private final String name;
     private boolean syncDocument = false;
     private Result<World> lookupResult;
+    private PaletteController paletteController;
 
     public Box2DVisualElement(Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
         name = obj.getPrimaryFile().getName();
+        paletteController = Box2DPaletteController.createPalette();
         setLayout(new BorderLayout());
         add(jScrollPane, BorderLayout.CENTER);
-        paletteController = Box2DPaletteController.createPalette();
         DataEditorSupport cookie = getLookup().lookup(DataEditorSupport.class);
         Document d = cookie.getOpenedPanes()[0].getDocument();
         obj.setDocument(d);
@@ -68,6 +68,9 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     private void update() {
         World world = obj.getLookup().lookup(World.class);
         if (world != null) {
+            if (scene != null && scene.getWorld() == world) {
+                return;
+            }
             scene = new WorldScene(world, new Callback() {
                 @Override
                 public void changed() {

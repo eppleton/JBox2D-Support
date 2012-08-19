@@ -4,12 +4,22 @@
  */
 package de.eppleton.physics.editor.palette.items;
 
+import de.eppleton.jbox2d.CircleShapeBuilder;
+import javax.swing.text.JTextComponent;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.World;
 import org.openide.text.ActiveEditorDrop;
 
 /**
  *
  * @author antonepple
  */
-public interface B2DActiveEditorDrop extends ActiveEditorDrop{ 
+public abstract class B2DActiveEditorDrop implements ActiveEditorDrop{ 
     
+       @Override
+    public boolean handleTransfer(JTextComponent targetComponent) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public abstract Body createBody(World world);
 }
