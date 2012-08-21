@@ -5,6 +5,7 @@
 package de.eppleton.physics.editor.nodes;
 
 import java.lang.reflect.InvocationTargetException;
+import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -17,22 +18,28 @@ import org.openide.util.lookup.Lookups;
  *
  * @author antonepple
  */
-public class BodyNode extends AbstractNode{
+public class BodyNode extends AbstractNode {
 
     public BodyNode(Body body) {
         super(Children.LEAF, Lookups.fixed(body));
-        setName(body.getType().name()+" Body");
+        Shape shape = body.getFixtureList().getShape();
+        String name = body.getType().name();
+        if (shape != null) {
+            name += " "+shape.getType().name();
+        } else {
+            name += " Body";
+        }
+        setName(name);
     }
 
     @Override
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
         Set properties = sheet.get(Sheet.PROPERTIES);
-        if (properties == null){
+        if (properties == null) {
             properties = sheet.createPropertiesSet();
         }
         properties.put(new PropertySupport.ReadWrite<Float>("x", Float.class, "x", "X coordinate of position") {
-
             @Override
             public Float getValue() throws IllegalAccessException, InvocationTargetException {
                 return getLookup().lookup(Body.class).getPosition().x;
@@ -43,8 +50,7 @@ public class BodyNode extends AbstractNode{
                 getLookup().lookup(Body.class).getPosition().x = val;
             }
         });
-             properties.put(new PropertySupport.ReadWrite<Float>("y", Float.class, "y", "y coordinate of position") {
-
+        properties.put(new PropertySupport.ReadWrite<Float>("y", Float.class, "y", "y coordinate of position") {
             @Override
             public Float getValue() throws IllegalAccessException, InvocationTargetException {
                 return getLookup().lookup(Body.class).getPosition().y;
@@ -56,10 +62,7 @@ public class BodyNode extends AbstractNode{
             }
         });
         sheet.put(properties);
-        
+
         return sheet;
     }
-    
-    
-    
 }
