@@ -121,7 +121,11 @@ public class WorldScene extends ObjectScene implements LookupListener {
     public void resultChanged(LookupEvent ev) {
         Collection<? extends Body> allInstances = lookupResult.allInstances();
         HashSet hashSet = new HashSet();
-        hashSet.addAll(allInstances);
+        for (Body body : allInstances) {
+            if (getObjects().contains(body)){
+                hashSet.add(body);
+            }
+        }      
         this.setSelectedObjects(hashSet);
         getView().repaint();
     }
