@@ -10,6 +10,7 @@ import java.awt.Component;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
+import javax.swing.text.BadLocationException;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -25,6 +26,7 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -60,27 +62,30 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         assert obj != null;
         lookupResult = lkp.lookupResult(World.class);
         lookupResult.addLookupListener(this);
-
     }
 
     private void update() {
-        removeAll();
-        if (getLookup().lookup(World.class) == null) {
-            return;
-        }
-        final String name = obj.getName();
-        model = new TestbedModel();
-        model.addCategory("Bla");
-        model.addTest(new TestbedTestImpl(getLookup().lookup(World.class), name));
-        TestList.populateModel(model);
-        TestPanelJ2D panel = new TestPanelJ2D(model);
-        model.setDebugDraw(panel.getDebugDraw());
-        controller = new PatchedTestbedController(model, panel);
-        //TestbedSidePanel side = new TestbedSidePanel(model, controller);
-        setLayout(new BorderLayout());
+        try {
+            removeAll();
+            if (getLookup().lookup(World.class) == null) {
+                return;
+            }
+            final String name = obj.getName();
+            model = new TestbedModel();
+            model.addCategory("Bla");
+            model.addTest(new TestbedTestImpl(obj.getWorldCopy(), name));
+            TestList.populateModel(model);
+            TestPanelJ2D panel = new TestPanelJ2D(model);
+            model.setDebugDraw(panel.getDebugDraw());
+            controller = new PatchedTestbedController(model, panel);
+            //TestbedSidePanel side = new TestbedSidePanel(model, controller);
+            setLayout(new BorderLayout());
 
-        add((Component) panel, "Center");
-        // add(new JScrollPane(side), "East");
+            add((Component) panel, "Center");
+            // add(new JScrollPane(side), "East");
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
 
     }
 

@@ -110,39 +110,39 @@ position = 300)
     position = 1400)
 })
 public class Box2DDataObject extends MultiDataObject {
-    
+
     private DocumentListenerImpl documentListenerImpl;
     private Document document;
     private final Updater updater;
-    
+
     public Box2DDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("text/x-box2d", true);
         updater = new Updater(this);
     }
-    
+
     @Override
     protected Node createNodeDelegate() {
         super.createNodeDelegate();
         return new DataNode(this, Children.create(new Box2DChildfactory(this), true));
     }
-    
+
     @Override
     protected int associateLookup() {
         return 1;
     }
-    
+
     public void setDocument(Document d) {
-        
+
         if (document == null) {
             documentListenerImpl = new DocumentListenerImpl();
             d.addDocumentListener(documentListenerImpl);
         }
         document = d;
         updateFromDocument();
-        
+
     }
-    
+
     public void updateDocument() {
         document.removeDocumentListener(documentListenerImpl);
         try {
@@ -152,15 +152,26 @@ public class Box2DDataObject extends MultiDataObject {
             Exceptions.printStackTrace(ex);
         }
         document.addDocumentListener(documentListenerImpl);
-        
+
     }
-    
+
     private String serializeWorld(World world) {
         PbSerializer s = new PbSerializer();
         Box2D.PbWorld.Builder serializeWorld = s.serializeWorld(world);
         return serializeWorld.build().toString();
     }
-    
+
+    /**
+     * This gives you a new copy of the current world parsed directly from the
+     * string. Can be used for simulation purposes, otherwise the state of the
+     * world in the editors would be affected.
+     *
+     * @return
+     */
+    public World getWorldCopy() throws BadLocationException {
+        return parseWorld(document.getText(document.getStartPosition().getOffset(), document.getEndPosition().getOffset()));
+    }
+
     private World parseWorld(String worldDescription) {
         World deserializedWorld = null;
         try {
@@ -174,7 +185,7 @@ public class Box2DDataObject extends MultiDataObject {
         }
         return deserializedWorld;
     }
-    
+
     private void updateFromDocument() {
         try {
             World world = parseWorld(document.getText(document.getStartPosition().getOffset(), document.getEndPosition().getOffset()));
@@ -185,7 +196,7 @@ public class Box2DDataObject extends MultiDataObject {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     @MultiViewElement.Registration(
         displayName = "#LBL_Box2D_EDITOR",
     iconBase = "de/eppleton/physics/editor/tar.png",
@@ -205,25 +216,25 @@ public class Box2DDataObject extends MultiDataObject {
             }
         };
     }
-    
+
     private static class Box2DChildfactory extends ChildFactory<Body> implements LookupListener {
-        
+
         private final Result<World> lookupResult;
         Box2DDataObject b2D;
-        
+
         public Box2DChildfactory(Box2DDataObject aThis) {
             this.b2D = aThis;
             lookupResult = b2D.getLookup().lookupResult(World.class);
             lookupResult.addLookupListener(this);
         }
-        
+
         @Override
         protected boolean createKeys(List<Body> toPopulate) {
             World world = b2D.getLookup().lookup(World.class);
             if (world == null) {
                 return true;
             }
-            
+
             Body nextBody = world.getBodyList();
             while (nextBody != null) {
                 toPopulate.add(nextBody);
@@ -231,7 +242,7 @@ public class Box2DDataObject extends MultiDataObject {
             }
             return true;
         }
-        
+
         @Override
         protected Node createNodeForKey(Body key) {
             try {
@@ -241,48 +252,48 @@ public class Box2DDataObject extends MultiDataObject {
             }
             return null;
         }
-        
+
         @Override
         public void resultChanged(LookupEvent ev) {
             refresh(true);
         }
     }
-    
+
     private class DocumentListenerImpl implements DocumentListener {
-        
+
         public DocumentListenerImpl() {
         }
-        
+
         @Override
         public void insertUpdate(DocumentEvent de) {
             updater.documentChange();
         }
-        
+
         @Override
         public void removeUpdate(DocumentEvent de) {
             updater.documentChange();
         }
-        
+
         @Override
         public void changedUpdate(DocumentEvent de) {
             updater.documentChange();
         }
     }
-    
+
     private static class Updater implements Runnable {
-        
+
         private static final RequestProcessor RP = new RequestProcessor(Updater.class);
         private final RequestProcessor.Task UPDATE = RP.create(this);
         private final Box2DDataObject bddo;
-        
+
         public Updater(Box2DDataObject bddo) {
             this.bddo = bddo;
         }
-        
+
         public void documentChange() {
             UPDATE.schedule(1000);
         }
-        
+
         public void run() {
             bddo.updateFromDocument();
         }
