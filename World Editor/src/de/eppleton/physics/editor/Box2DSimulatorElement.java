@@ -7,16 +7,12 @@ package de.eppleton.physics.editor;
 import de.eppleton.jbox2d.PatchedTestbedController;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.testbed.framework.TestList;
 import org.jbox2d.testbed.framework.TestbedModel;
@@ -27,6 +23,7 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -53,6 +50,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     private transient MultiViewElementCallback callback;
     private TestbedModel model;
     private PatchedTestbedController controller;
+    private boolean started = false;
 
     /**
      * Creates new form Box2DSimulatorElement
@@ -80,13 +78,40 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             controller = new PatchedTestbedController(model, panel);
             //TestbedSidePanel side = new TestbedSidePanel(model, controller);
             setLayout(new BorderLayout());
-
-            add((Component) panel, "Center");
+            initToolBar();
+            add((Component) panel, BorderLayout.CENTER);
+            add(toolbar, BorderLayout.NORTH);
             // add(new JScrollPane(side), "East");
+            revalidate();
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
 
+    public void initToolBar() {
+        toolbar.removeAll();
+        toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_stop.png", true)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                started = false;
+                controller.stop();
+                update();
+            }
+        });
+        toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_pause.png", true)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                started = false;
+                controller.stop();
+            }
+        });
+        toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_play.png", true)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                started = true;
+                play();
+            }
+        });
     }
 
     /**
@@ -153,9 +178,10 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentActivated() {
-        if (controller != null && !controller.isAnimating()) {
-            controller.playTest(0);
-            controller.start();
+        update();
+        play();
+        if (started) {
+            controller.stop();
         }
     }
 
@@ -181,6 +207,13 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     @Override
     public void resultChanged(LookupEvent ev) {
         update();
+    }
+
+    private void play() {
+        if (controller != null && !controller.isAnimating()) {
+            controller.playTest(0);
+            controller.start();
+        }
     }
 
     private class TestbedTestImpl extends TestbedTest {
@@ -211,7 +244,5 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         public void initTest(boolean bln) {
 //            throw new UnsupportedOperationException("Not supported yet.");
         }
-
-
     }
 }

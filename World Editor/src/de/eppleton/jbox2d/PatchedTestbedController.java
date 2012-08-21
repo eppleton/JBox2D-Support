@@ -267,6 +267,7 @@ public class PatchedTestbedController implements Runnable{
   public synchronized void stop() {
     animating = false;
   }
+  
 
   public void run() {
     long beforeTime, afterTime, updateTime, timeDiff, sleepTime, timeSpent;
