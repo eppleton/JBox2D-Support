@@ -5,6 +5,7 @@
 package de.eppleton.physics.editor;
 
 import com.google.protobuf.TextFormat;
+import de.eppleton.physics.editor.nodes.BodyNode;
 import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
@@ -245,12 +246,7 @@ public class Box2DDataObject extends MultiDataObject {
 
         @Override
         protected Node createNodeForKey(Body key) {
-            try {
-                return new BeanNode(key);
-            } catch (IntrospectionException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            return null;
+            return new BodyNode(key);
         }
 
         @Override

@@ -6,16 +6,12 @@ package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.geom.AffineTransform;
-import java.beans.BeanInfo;
 import java.io.IOException;
-import javax.swing.JComponent;
+import java.util.Collection;
+import java.util.HashSet;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
@@ -24,22 +20,25 @@ import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.nodes.Node;
-import org.openide.nodes.NodeTransfer;
 import org.openide.text.ActiveEditorDrop;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup.Result;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
+import org.openide.util.Utilities;
 
 /**
  *
  * @author antonepple
  */
-public class WorldScene extends ObjectScene {
+public class WorldScene extends ObjectScene implements LookupListener {
 
     World world;
     private int scale = 300;
     private float offsetX = 0;
     private float offsetY = 0;
     private final Callback callback;
+    private Result<Body> lookupResult;
 
     public WorldScene(final World world, Callback callback) {
         this.world = world;
@@ -75,6 +74,8 @@ public class WorldScene extends ObjectScene {
             }
         }));
         updateBodies();
+        lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
+        lookupResult.addLookupListener(this);
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
@@ -114,5 +115,14 @@ public class WorldScene extends ObjectScene {
 
     public World getWorld() {
         return world;
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        Collection<? extends Body> allInstances = lookupResult.allInstances();
+        HashSet hashSet = new HashSet();
+        hashSet.addAll(allInstances);
+        this.setSelectedObjects(hashSet);
+        getView().repaint();
     }
 }
