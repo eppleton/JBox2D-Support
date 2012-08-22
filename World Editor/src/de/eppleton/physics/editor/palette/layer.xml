@@ -4,6 +4,7 @@
         <folder name="Box2DPalette">
             <folder name="Shapes">
                 <file name="Test.xml" url="Test.xml"/>
-            </folder>
+                <file name="TestItem.b2i" url="TestItem.b2i"/>
         </folder>
+    </folder>
 </filesystem>

@@ -4,7 +4,7 @@
 
 <editor_palette_item version="1.0">
 
-    <class name="de.eppleton.physics.editor.palette.items.TestItem" />
+    <class  name="de.eppleton.physics.editor.palette.items.TestItem"  ></class>
 
     <icon16 urlvalue="de/eppleton/physics/editor/palette/resources/ledblue.png" />
     <icon32 urlvalue="de/eppleton/physics/editor/palette/resources/ledblue24.png" />
