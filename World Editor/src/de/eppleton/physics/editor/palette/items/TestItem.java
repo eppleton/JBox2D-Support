@@ -5,7 +5,6 @@
 package de.eppleton.physics.editor.palette.items;
 
 import de.eppleton.jbox2d.CircleShapeBuilder;
-import javax.swing.text.JTextComponent;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 

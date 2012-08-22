@@ -5,12 +5,13 @@
 package de.eppleton.physics.editor;
 
 import com.google.protobuf.TextFormat;
+import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.nodes.BodyNode;
-import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -32,7 +33,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -45,6 +45,7 @@ import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
+import sun.org.mozilla.javascript.internal.Synchronizer;
 
 @Messages({
     "LBL_Box2D_LOADER=Files of Box2D"
@@ -112,14 +113,16 @@ position = 300)
 })
 public class Box2DDataObject extends MultiDataObject {
 
-    private DocumentListenerImpl documentListenerImpl;
-    private Document document;
-    private final Updater updater;
+    ViewSynchronizer synchronizer;
 
     public Box2DDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("text/x-box2d", true);
-        updater = new Updater(this);
+        synchronizer = new ViewSynchronizer();
+        getCookieSet().assign(ViewSynchronizer.class, synchronizer);
+        // start by parsing the world directly from the file
+        World parsedWorld = WorldUtilities.parseWorld(pf.asText());
+        synchronizer.setWorld(parsedWorld);
     }
 
     @Override
@@ -133,71 +136,6 @@ public class Box2DDataObject extends MultiDataObject {
         return 1;
     }
 
-    public void setDocument(Document d) {
-
-        if (document == null) {
-            documentListenerImpl = new DocumentListenerImpl();
-            d.addDocumentListener(documentListenerImpl);
-        }
-        document = d;
-        updateFromDocument();
-
-    }
-
-    public void updateDocument() {
-        document.removeDocumentListener(documentListenerImpl);
-        try {
-            document.remove(document.getStartPosition().getOffset(), document.getLength());
-            document.insertString(0, serializeWorld(getLookup().lookup(World.class)), null);
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        document.addDocumentListener(documentListenerImpl);
-
-    }
-
-    private String serializeWorld(World world) {
-        PbSerializer s = new PbSerializer();
-        Box2D.PbWorld.Builder serializeWorld = s.serializeWorld(world);
-        return serializeWorld.build().toString();
-    }
-
-    /**
-     * This gives you a new copy of the current world parsed directly from the
-     * string. Can be used for simulation purposes, otherwise the state of the
-     * world in the editors would be affected.
-     *
-     * @return
-     */
-    public World getWorldCopy() throws BadLocationException {
-        return parseWorld(document.getText(document.getStartPosition().getOffset(), document.getEndPosition().getOffset()));
-    }
-
-    private World parseWorld(String worldDescription) {
-        World deserializedWorld = null;
-        try {
-            final Box2D.PbWorld.Builder builder = Box2D.PbWorld.newBuilder();
-            TextFormat.merge(worldDescription, builder);
-            Box2D.PbWorld pbWorld = builder.build();
-            PbDeserializer d = new PbDeserializer();
-            deserializedWorld = d.deserializeWorld(pbWorld);
-        } catch (Exception ex) {
-            //Exceptions.printStackTrace(ex);
-        }
-        return deserializedWorld;
-    }
-
-    private void updateFromDocument() {
-        try {
-            World world = parseWorld(document.getText(document.getStartPosition().getOffset(), document.getEndPosition().getOffset()));
-            if (world != null) {
-                getCookieSet().assign(World.class, world);
-            }
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
     @MultiViewElement.Registration(
         displayName = "#LBL_Box2D_EDITOR",
     iconBase = "de/eppleton/physics/editor/tar.png",
@@ -207,31 +145,23 @@ public class Box2DDataObject extends MultiDataObject {
     position = 1000)
     @Messages("LBL_Box2D_EDITOR=Source")
     public static MultiViewEditorElement createEditor(Lookup lkp) {
-        return new MultiViewEditorElement(lkp) {
-            @Override
-            public void componentActivated() {
-                super.componentActivated();
-                DataEditorSupport cookie = getLookup().lookup(DataEditorSupport.class);
-                Document d = cookie.getOpenedPanes()[0].getDocument();
-                getLookup().lookup(Box2DDataObject.class).setDocument(d);
-            }
-        };
+        return new Box2DEditor(lkp);
     }
 
-    private static class Box2DChildfactory extends ChildFactory<Body> implements LookupListener {
+    private static class Box2DChildfactory extends ChildFactory<Body> implements PropertyChangeListener {
 
-        private final Result<World> lookupResult;
         Box2DDataObject b2D;
+        private ViewSynchronizer synchronizer;
 
         public Box2DChildfactory(Box2DDataObject aThis) {
             this.b2D = aThis;
-            lookupResult = b2D.getLookup().lookupResult(World.class);
-            lookupResult.addLookupListener(this);
+            synchronizer= b2D.getLookup().lookup(ViewSynchronizer.class);
+            synchronizer.addPropertyChangeListener(this);
         }
 
         @Override
         protected boolean createKeys(List<Body> toPopulate) {
-            World world = b2D.getLookup().lookup(World.class);
+            World world = synchronizer.getWorld();
             if (world == null) {
                 return true;
             }
@@ -250,48 +180,32 @@ public class Box2DDataObject extends MultiDataObject {
         }
 
         @Override
-        public void resultChanged(LookupEvent ev) {
+        public void propertyChange(PropertyChangeEvent evt) {
             refresh(true);
         }
     }
 
-    private class DocumentListenerImpl implements DocumentListener {
+    public static class ViewSynchronizer {
 
-        public DocumentListenerImpl() {
+        private World oldWorld;
+        PropertyChangeSupport p = new PropertyChangeSupport(this);
+        public static String WORLD_CHANGED = "world changed";
+
+        public void addPropertyChangeListener(PropertyChangeListener l) {
+            p.addPropertyChangeListener(l);
         }
 
-        @Override
-        public void insertUpdate(DocumentEvent de) {
-            updater.documentChange();
+        public void removePropertyChangelistener(PropertyChangeListener l) {
+            p.removePropertyChangeListener(l);
         }
 
-        @Override
-        public void removeUpdate(DocumentEvent de) {
-            updater.documentChange();
+        public void setWorld(World newWorld) {
+            p.firePropertyChange(WORLD_CHANGED, oldWorld, newWorld);
+            oldWorld = newWorld;
         }
 
-        @Override
-        public void changedUpdate(DocumentEvent de) {
-            updater.documentChange();
-        }
-    }
-
-    private static class Updater implements Runnable {
-
-        private static final RequestProcessor RP = new RequestProcessor(Updater.class);
-        private final RequestProcessor.Task UPDATE = RP.create(this);
-        private final Box2DDataObject bddo;
-
-        public Updater(Box2DDataObject bddo) {
-            this.bddo = bddo;
-        }
-
-        public void documentChange() {
-            UPDATE.schedule(1000);
-        }
-
-        public void run() {
-            bddo.updateFromDocument();
+        public World getWorld() {
+            return oldWorld;
         }
     }
 }

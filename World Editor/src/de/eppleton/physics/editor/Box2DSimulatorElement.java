@@ -5,14 +5,17 @@
 package de.eppleton.physics.editor;
 
 import de.eppleton.jbox2d.PatchedTestbedController;
+import de.eppleton.jbox2d.WorldUtilities;
+import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
-import javax.swing.text.BadLocationException;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.testbed.framework.TestList;
 import org.jbox2d.testbed.framework.TestbedModel;
@@ -22,11 +25,8 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
@@ -42,15 +42,16 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DSimulator",
 position = 3000)
 @NbBundle.Messages("LBL_Box2D_Simulator=Simulator")
-public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement, LookupListener {
+public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement, PropertyChangeListener {
 
-    private Lookup.Result<World> lookupResult;
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
     private TestbedModel model;
     private PatchedTestbedController controller;
     private boolean started = false;
+    private World world;
+    private ViewSynchronizer synchronizer;
 
     /**
      * Creates new form Box2DSimulatorElement
@@ -58,34 +59,31 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     public Box2DSimulatorElement(final Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
-        lookupResult = lkp.lookupResult(World.class);
-        lookupResult.addLookupListener(this);
+        synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
+        synchronizer.addPropertyChangeListener(this);
+
     }
 
-    private void update() {
-        try {
-            removeAll();
-            if (getLookup().lookup(World.class) == null) {
-                return;
-            }
-            final String name = obj.getName();
-            model = new TestbedModel();
-            model.addCategory("Bla");
-            model.addTest(new TestbedTestImpl(obj.getWorldCopy(), name));
-            TestList.populateModel(model);
-            TestPanelJ2D panel = new TestPanelJ2D(model);
-            model.setDebugDraw(panel.getDebugDraw());
-            controller = new PatchedTestbedController(model, panel);
-            //TestbedSidePanel side = new TestbedSidePanel(model, controller);
-            setLayout(new BorderLayout());
-            initToolBar();
-            add((Component) panel, BorderLayout.CENTER);
-            add(toolbar, BorderLayout.NORTH);
-            // add(new JScrollPane(side), "East");
-            revalidate();
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+    private void update(World newWorld) {
+        this.world = newWorld;
+        removeAll();
+        final String name = obj.getName();
+        model = new TestbedModel();
+        model.addCategory("Bla");
+
+        model.addTest(new TestbedTestImpl(newWorld, name));
+        TestList.populateModel(model);
+        TestPanelJ2D panel = new TestPanelJ2D(model);
+        model.setDebugDraw(panel.getDebugDraw());
+        controller = new PatchedTestbedController(model, panel);
+        //TestbedSidePanel side = new TestbedSidePanel(model, controller);
+        setLayout(new BorderLayout());
+        initToolBar();
+        add((Component) panel, BorderLayout.CENTER);
+        //add(toolbar, BorderLayout.NORTH);
+        // add(new JScrollPane(side), "East");
+        revalidate();
+
     }
 
     public void initToolBar() {
@@ -95,7 +93,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             public void actionPerformed(ActionEvent e) {
                 started = false;
                 controller.stop();
-                update();
+                update(WorldUtilities.copy(synchronizer.getWorld()));
             }
         });
         toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_pause.png", true)) {
@@ -178,11 +176,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentActivated() {
-        update();
-        play();
-        if (started) {
-            controller.stop();
-        }
+        if (synchronizer.getWorld()!=null)update(WorldUtilities.copy(synchronizer.getWorld()));
     }
 
     @Override
@@ -204,15 +198,17 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         return CloseOperationState.STATE_OK;
     }
 
-    @Override
-    public void resultChanged(LookupEvent ev) {
-        update();
-    }
-
     private void play() {
         if (controller != null && !controller.isAnimating()) {
             controller.playTest(0);
             controller.start();
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName() == ViewSynchronizer.WORLD_CHANGED) {
+            update(WorldUtilities.copy((World) evt.getNewValue()));
         }
     }
 

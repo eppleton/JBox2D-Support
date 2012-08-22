@@ -27,8 +27,12 @@ public class BodyNode extends AbstractNode {
 
     public BodyNode(Body body) {
         super(Children.LEAF, Lookups.fixed(body));
-        Shape shape = body.getFixtureList().getShape();
-        String name = body.getType().name();
+        updateName();
+    }
+
+    private void updateName() {
+        Shape shape = getLookup().lookup(Body.class).getFixtureList().getShape();
+        String name = getLookup().lookup(Body.class).getType().name();
         if (shape != null) {
             name += " " + shape.getType().name();
         } else {
@@ -78,6 +82,22 @@ public class BodyNode extends AbstractNode {
                 getLookup().lookup(Body.class).m_sweep.a = val;
             }
         });
+        properties.put(
+                new PropertySupport.ReadWrite<BodyType>("type", BodyType.class, "type", "type") {
+                    @Override
+                    public BodyType getValue() throws IllegalAccessException, InvocationTargetException {
+                        return getLookup().lookup(Body.class).getType();
+                    }
+
+                    @Override
+                    public void setValue(BodyType val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                        getLookup().lookup(Body.class).setType(val);
+                        updateName();
+                        fireNameChange("", getName());
+                    }
+                });
+//                    properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), BodyType.class, "type"));
+
 
 
 //        properties.put(new PropertySupport.ReadWrite<Float>("friction", Float.class, "friction", "friction") {
@@ -104,7 +124,6 @@ public class BodyNode extends AbstractNode {
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), boolean.class, "isSleepingAllowed", "setSleepingAllowed"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), float.class, "friction"));
 
-            properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), BodyType.class, "type"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), float.class, "LinearDamping"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), float.class, "restitution"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), boolean.class, "isSensor", "setSensor"));
@@ -128,7 +147,7 @@ public class BodyNode extends AbstractNode {
                                     circleShape.m_radius = val;
                                 }
                             });
-                }else if (shape instanceof PolygonShape) {
+                } else if (shape instanceof PolygonShape) {
                     shapeProperties.setName("Polygon");
                     shapeProperties.setDisplayName("Polygon");
                     shapeProperties.setShortDescription("Polygon specific Properties");

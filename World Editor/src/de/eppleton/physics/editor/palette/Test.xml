@@ -6,8 +6,8 @@
 
     <class name="de.eppleton.physics.editor.palette.items.TestItem" />
 
-    <icon16 urlvalue="de/eppleton/physics/editor/palette/resources/button_accept.png" />
-    <icon32 urlvalue="de/eppleton/physics/editor/palette/resources/button_accept 2.png" />
+    <icon16 urlvalue="de/eppleton/physics/editor/palette/resources/ledblue.png" />
+    <icon32 urlvalue="de/eppleton/physics/editor/palette/resources/ledblue24.png" />
    
     <description localizing-bundle="de.eppleton.physics.editor.palette.items.Bundle"
                display-name-key="NAME_box2d-Test"

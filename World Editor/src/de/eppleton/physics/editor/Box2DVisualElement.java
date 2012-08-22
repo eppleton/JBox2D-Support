@@ -4,28 +4,27 @@
  */
 package de.eppleton.physics.editor;
 
+import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.Callback;
 import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.text.Document;
 import org.jbox2d.dynamics.World;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.spi.palette.PaletteController;
 import org.openide.awt.UndoRedo;
-import org.openide.text.DataEditorSupport;
 import org.openide.util.Lookup;
-import org.openide.util.Lookup.Result;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
@@ -38,7 +37,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DVisual",
 position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")
-public final class Box2DVisualElement extends JPanel implements MultiViewElement, LookupListener {
+public final class Box2DVisualElement extends JPanel implements MultiViewElement, PropertyChangeListener {
 
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
@@ -46,10 +45,11 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     private final JScrollPane jScrollPane = new JScrollPane();
     private WorldScene scene;
     private final String name;
-    private boolean syncDocument = false;
-    private Result<World> lookupResult;
     private PaletteController paletteController;
-
+    private ViewSynchronizer synchronizer;
+    private VisualUpdater updater;
+    private World world;
+    
     public Box2DVisualElement(Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
@@ -57,28 +57,29 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
         paletteController = Box2DPaletteController.createPalette();
         setLayout(new BorderLayout());
         add(jScrollPane, BorderLayout.CENTER);
-        DataEditorSupport cookie = getLookup().lookup(DataEditorSupport.class);
-        Document d = cookie.getOpenedPanes()[0].getDocument();
-        obj.setDocument(d);
-        lookupResult = lkp.lookupResult(World.class);
-        lookupResult.addLookupListener(this);
-        getLookup();
+        synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
+        synchronizer.addPropertyChangeListener(this);
+        if (synchronizer.getWorld() != null) {
+            update(synchronizer.getWorld());
+        }
+        updater = new VisualUpdater(this);
     }
 
-    private void update() {
-        World world = obj.getLookup().lookup(World.class);
+    private void update(final World world) {
         if (world != null) {
+            this.world = world;
             if (scene != null && scene.getWorld() == world) {
                 return;
             }
-            scene = new WorldScene(world, new Callback() {
-                @Override
-                public void changed() {
-                    syncDocument = true;
-                }
-            });
+            scene = new WorldScene(world, new CallbackImpl());
             jScrollPane.setViewportView(scene.createView());
         }
+    }
+
+    public void fireChange() {
+        synchronizer.removePropertyChangelistener(Box2DVisualElement.this);
+        synchronizer.setWorld(world);
+        synchronizer.addPropertyChangeListener(Box2DVisualElement.this);
     }
 
     @Override
@@ -142,15 +143,10 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public void componentHidden() {
-        if (syncDocument) {
-            obj.updateDocument();
-            syncDocument = false;
-        }
     }
 
     @Override
     public void componentActivated() {
-        update();
     }
 
     @Override
@@ -173,7 +169,36 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     }
 
     @Override
-    public void resultChanged(LookupEvent ev) {
-        update();
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName() == Box2DDataObject.ViewSynchronizer.WORLD_CHANGED) {
+            update((World) evt.getNewValue());
+        }
+    }
+
+    private static class VisualUpdater implements Runnable {
+
+        private static final RequestProcessor RP = new RequestProcessor(VisualUpdater.class);
+        private final RequestProcessor.Task UPDATE = RP.create(this);
+        private final Box2DVisualElement editorElementImpl;
+
+        public VisualUpdater(Box2DVisualElement bddo) {
+            this.editorElementImpl = bddo;
+        }
+
+        public void worldChange() {
+            UPDATE.schedule(1000);
+        }
+
+        public void run() {
+            editorElementImpl.fireChange();
+        }
+    }
+
+    private class CallbackImpl implements Callback {
+
+        @Override
+        public void changed() {
+            updater.worldChange();
+        }
     }
 }
