@@ -4,24 +4,18 @@
  */
 package de.eppleton.physics.editor;
 
-import com.google.protobuf.TextFormat;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.nodes.BodyNode;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.box2d.proto.Box2D;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
-import org.jbox2d.serialization.pb.PbDeserializer;
-import org.jbox2d.serialization.pb.PbSerializer;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
@@ -37,16 +31,9 @@ import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.Lookup.Result;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
-import sun.org.mozilla.javascript.internal.Synchronizer;
 
 @Messages({
     "LBL_Box2D_LOADER=Files of Box2D"
@@ -156,7 +143,7 @@ public class Box2DDataObject extends MultiDataObject {
 
         public Box2DChildfactory(Box2DDataObject aThis) {
             this.b2D = aThis;
-            synchronizer= b2D.getLookup().lookup(ViewSynchronizer.class);
+            synchronizer = b2D.getLookup().lookup(ViewSynchronizer.class);
             synchronizer.addPropertyChangeListener(this);
         }
 
@@ -187,25 +174,30 @@ public class Box2DDataObject extends MultiDataObject {
     }
 
     public static class ViewSynchronizer {
-    private static Logger LOGGER = Logger.getLogger(ViewSynchronizer.class.getName());
 
+        private static Logger LOGGER = Logger.getLogger(ViewSynchronizer.class.getName());
         private World oldWorld;
         PropertyChangeSupport p = new PropertyChangeSupport(this);
         public static String WORLD_CHANGED = "world changed";
 
         public void addPropertyChangeListener(PropertyChangeListener l) {
-            p.addPropertyChangeListener(WORLD_CHANGED,l);
+            LOGGER.info("added Listener " + l);
+            p.addPropertyChangeListener(WORLD_CHANGED, l);
         }
 
         public void removePropertyChangelistener(PropertyChangeListener l) {
-            p.removePropertyChangeListener(l);
+            LOGGER.info("removed Listener " + l);
+            p.removePropertyChangeListener(WORLD_CHANGED,l);
         }
 
         public void setWorld(World newWorld) {
+            assert newWorld != null;
             LOGGER.info("Updating World");
-            
             oldWorld = newWorld;
-         
+            PropertyChangeListener[] propertyChangeListeners = p.getPropertyChangeListeners();
+            for (PropertyChangeListener propertyChangeListener : propertyChangeListeners) {
+                LOGGER.info("Currently registered Listener " + propertyChangeListener);
+            }
             p.firePropertyChange(WORLD_CHANGED, null, newWorld);
         }
 

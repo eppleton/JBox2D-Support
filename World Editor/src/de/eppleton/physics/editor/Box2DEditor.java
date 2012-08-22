@@ -9,6 +9,7 @@ import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -27,11 +28,11 @@ import org.openide.util.RequestProcessor;
 public class Box2DEditor extends MultiViewEditorElement implements PropertyChangeListener {
 
     private static Logger LOGGER = Logger.getLogger(MultiViewEditorElement.class.getName());
-    private Updater updater;
-    private DocumentListenerImpl documentListenerImpl;
-    private Document document;
-    private Lookup lkp;
-    private ViewSynchronizer synchronizer;
+    private transient Updater updater;
+    private transient DocumentListenerImpl documentListenerImpl;
+    private transient Document document;
+    private transient Lookup lkp;
+    private transient ViewSynchronizer synchronizer;
 
 //    private Document document;
     public Box2DEditor(Lookup lookup) {
@@ -54,16 +55,24 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
         document.addDocumentListener(documentListenerImpl);
     }
 
-    public synchronized void updateDocument(World world) {
-        if (document == null)initDocument();   
-        document.removeDocumentListener(documentListenerImpl);
-        try {
-            document.remove(document.getStartPosition().getOffset(), document.getLength());
-            document.insertString(0, WorldUtilities.serializeWorld(world), null);
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        document.addDocumentListener(documentListenerImpl);
+    public synchronized void updateDocument(final World world) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (document == null) {
+                    initDocument();
+                }
+                document.removeDocumentListener(documentListenerImpl);
+                try {
+                    document.remove(document.getStartPosition().getOffset(), document.getLength());
+                    document.insertString(0, WorldUtilities.serializeWorld(world), null);
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                document.addDocumentListener(documentListenerImpl);
+            }
+        });
+
 
     }
 
@@ -76,7 +85,7 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
             Exceptions.printStackTrace(ex);
         }
         if (parsedWorld != null) {
-            synchronizer.setWorld(null);
+            synchronizer.setWorld(parsedWorld);
         }
         synchronizer.addPropertyChangeListener(this);
     }

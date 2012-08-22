@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -44,6 +45,7 @@ position = 3000)
 @NbBundle.Messages("LBL_Box2D_Simulator=Simulator")
 public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement, PropertyChangeListener {
 
+    private static Logger LOGGER = Logger.getLogger(Box2DSimulatorElement.class.getName());
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
@@ -61,16 +63,16 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         assert obj != null;
         synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
         synchronizer.addPropertyChangeListener(this);
-
+        
     }
-
+    
     private void update(World newWorld) {
         this.world = newWorld;
         removeAll();
         final String name = obj.getName();
         model = new TestbedModel();
         model.addCategory("Bla");
-
+        
         model.addTest(new TestbedTestImpl(newWorld, name));
         TestList.populateModel(model);
         TestPanelJ2D panel = new TestPanelJ2D(model);
@@ -83,9 +85,9 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         //add(toolbar, BorderLayout.NORTH);
         // add(new JScrollPane(side), "East");
         revalidate();
-
+        
     }
-
+    
     public void initToolBar() {
         toolbar.removeAll();
         toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_stop.png", true)) {
@@ -139,90 +141,97 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     public JComponent getVisualRepresentation() {
         return this;
     }
-
+    
     @Override
     public JComponent getToolbarRepresentation() {
         return toolbar;
     }
-
+    
     @Override
     public Action[] getActions() {
         return new Action[0];
     }
-
+    
     @Override
     public Lookup getLookup() {
         return obj.getLookup();
     }
-
+    
     @Override
     public void componentOpened() {
     }
-
+    
     @Override
     public void componentClosed() {
     }
-
+    
     @Override
     public void componentShowing() {
     }
-
+    
     @Override
     public void componentHidden() {
         if (controller != null) {
             controller.stop();
         }
     }
-
+    
     @Override
     public void componentActivated() {
-        if (synchronizer.getWorld()!=null)update(WorldUtilities.copy(synchronizer.getWorld()));
+        if (synchronizer.getWorld() != null) {
+            update(WorldUtilities.copy(synchronizer.getWorld()));
+        }
     }
-
+    
     @Override
     public void componentDeactivated() {
     }
-
+    
     @Override
     public UndoRedo getUndoRedo() {
         return UndoRedo.NONE;
     }
-
+    
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
     }
-
+    
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
     }
-
+    
     private void play() {
         if (controller != null && !controller.isAnimating()) {
             controller.playTest(0);
             controller.start();
         }
     }
-
+    
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName() == ViewSynchronizer.WORLD_CHANGED) {
-            update(WorldUtilities.copy((World) evt.getNewValue()));
+            World world = (World) evt.getNewValue();
+            if (world != null) {
+                update(WorldUtilities.copy(world));
+            } else {
+                LOGGER.warning("new World is null");
+            }
         }
     }
-
+    
     private class TestbedTestImpl extends TestbedTest {
-
+        
         private final String name;
         private World world;
-
+        
         public TestbedTestImpl(World world, String name) {
             super();
             this.name = name;
             this.world = world;
         }
-
+        
         @Override
         public String getTestName() {
             return name;
@@ -235,7 +244,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             m_world = world;
             init(world, false);
         }
-
+        
         @Override
         public void initTest(boolean bln) {
 //            throw new UnsupportedOperationException("Not supported yet.");
