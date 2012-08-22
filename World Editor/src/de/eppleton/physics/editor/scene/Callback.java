@@ -10,6 +10,6 @@ package de.eppleton.physics.editor.scene;
  */
 public interface Callback {
  
-    public void changed();
+     void changed();
     
 }

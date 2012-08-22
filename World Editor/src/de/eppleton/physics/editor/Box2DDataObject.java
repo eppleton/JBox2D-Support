@@ -113,6 +113,7 @@ public class Box2DDataObject extends MultiDataObject {
         synchronizer.setWorld(parsedWorld);
     }
 
+    //TODO better move nodes to Visual Editor...
     @Override
     protected Node createNodeDelegate() {
         super.createNodeDelegate();
@@ -187,7 +188,7 @@ public class Box2DDataObject extends MultiDataObject {
 
         public void removePropertyChangelistener(PropertyChangeListener l) {
             LOGGER.info("removed Listener " + l);
-            p.removePropertyChangeListener(WORLD_CHANGED,l);
+            p.removePropertyChangeListener(WORLD_CHANGED, l);
         }
 
         public void setWorld(World newWorld) {
