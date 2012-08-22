@@ -12,6 +12,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -186,13 +187,14 @@ public class Box2DDataObject extends MultiDataObject {
     }
 
     public static class ViewSynchronizer {
+    private static Logger LOGGER = Logger.getLogger(ViewSynchronizer.class.getName());
 
         private World oldWorld;
         PropertyChangeSupport p = new PropertyChangeSupport(this);
         public static String WORLD_CHANGED = "world changed";
 
         public void addPropertyChangeListener(PropertyChangeListener l) {
-            p.addPropertyChangeListener(l);
+            p.addPropertyChangeListener(WORLD_CHANGED,l);
         }
 
         public void removePropertyChangelistener(PropertyChangeListener l) {
@@ -200,8 +202,11 @@ public class Box2DDataObject extends MultiDataObject {
         }
 
         public void setWorld(World newWorld) {
-            p.firePropertyChange(WORLD_CHANGED, oldWorld, newWorld);
+            LOGGER.info("Updating World");
+            
             oldWorld = newWorld;
+         
+            p.firePropertyChange(WORLD_CHANGED, null, newWorld);
         }
 
         public World getWorld() {

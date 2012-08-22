@@ -83,8 +83,6 @@ public class NewEmptyJUnitTest {
         PbBody.Builder serializeWorld = s.serializeBody(body);
 
         System.out.println("serializeWorld.toString() " + serializeWorld.build().toString());
-        Properties p = new Properties();
-        String string = 
         
     }
 }

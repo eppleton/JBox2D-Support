@@ -11,6 +11,7 @@ import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -38,6 +39,7 @@ preferredID = "Box2DVisual",
 position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")
 public final class Box2DVisualElement extends JPanel implements MultiViewElement, PropertyChangeListener {
+    private static Logger LOGGER = Logger.getLogger(Box2DVisualElement.class.getName());
 
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
@@ -171,6 +173,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName() == Box2DDataObject.ViewSynchronizer.WORLD_CHANGED) {
+            LOGGER.info(">> Update Visual Editor");
             update((World) evt.getNewValue());
         }
     }

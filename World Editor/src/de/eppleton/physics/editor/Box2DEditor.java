@@ -8,6 +8,7 @@ import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -25,6 +26,7 @@ import org.openide.util.RequestProcessor;
  */
 public class Box2DEditor extends MultiViewEditorElement implements PropertyChangeListener {
 
+    private static Logger LOGGER = Logger.getLogger(MultiViewEditorElement.class.getName());
     private Updater updater;
     private DocumentListenerImpl documentListenerImpl;
     private Document document;
@@ -36,20 +38,24 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
         super(lookup);
         lkp = lookup;
         updater = new Updater(this);
+        synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
+        synchronizer.addPropertyChangeListener(this);
     }
 
     @Override
     public void componentActivated() {
         super.componentActivated();
+    }
+
+    private void initDocument() {
         DataEditorSupport cookie = getLookup().lookup(DataEditorSupport.class);
         document = cookie.getOpenedPanes()[0].getDocument();
         documentListenerImpl = new DocumentListenerImpl();
         document.addDocumentListener(documentListenerImpl);
-        synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
-        synchronizer.addPropertyChangeListener(this);
     }
 
-    public void updateDocument(World world) {
+    public synchronized void updateDocument(World world) {
+        if (document == null)initDocument();   
         document.removeDocumentListener(documentListenerImpl);
         try {
             document.remove(document.getStartPosition().getOffset(), document.getLength());
@@ -63,7 +69,7 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
 
     private void updateFromDocument() {
         synchronizer.removePropertyChangelistener(this);
-        World parsedWorld  = null;
+        World parsedWorld = null;
         try {
             parsedWorld = WorldUtilities.parseWorld(document.getText(0, document.getLength()));
         } catch (BadLocationException ex) {
@@ -77,7 +83,9 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName() == Box2DDataObject.ViewSynchronizer.WORLD_CHANGED) {
+        LOGGER.info("Received PropertyChange in Editor");
+        if (evt.getPropertyName() == null ? Box2DDataObject.ViewSynchronizer.WORLD_CHANGED == null : evt.getPropertyName().equals(Box2DDataObject.ViewSynchronizer.WORLD_CHANGED)) {
+            LOGGER.info("Updating Editor");
             updateDocument((World) evt.getNewValue());
         }
     }

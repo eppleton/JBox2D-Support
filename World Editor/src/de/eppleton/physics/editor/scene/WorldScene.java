@@ -66,6 +66,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
                             && (transferable.getTransferData(ActiveEditorDrop.FLAVOR) instanceof B2DActiveEditorDrop)) {
                         B2DActiveEditorDrop transferData = (B2DActiveEditorDrop) transferable.getTransferData(ActiveEditorDrop.FLAVOR);
                         handleTransfer(widget.convertLocalToScene(point), transferData);
+                        fireChange();
+
                     }
                 } catch (UnsupportedFlavorException | IOException ex) {
                     Exceptions.printStackTrace(ex);
@@ -122,10 +124,10 @@ public class WorldScene extends ObjectScene implements LookupListener {
         Collection<? extends Body> allInstances = lookupResult.allInstances();
         HashSet hashSet = new HashSet();
         for (Body body : allInstances) {
-            if (getObjects().contains(body)){
+            if (getObjects().contains(body)) {
                 hashSet.add(body);
             }
-        }      
+        }
         this.setSelectedObjects(hashSet);
         getView().repaint();
     }
