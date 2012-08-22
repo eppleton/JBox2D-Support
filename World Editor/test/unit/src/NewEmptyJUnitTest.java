@@ -6,6 +6,8 @@
 import com.google.protobuf.TextFormat;
 import de.eppleton.jbox2d.CircleShapeBuilder;
 import java.io.IOException;
+import java.util.Properties;
+import org.box2d.proto.Box2D.PbBody;
 import org.box2d.proto.Box2D.PbWorld.Builder;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
@@ -64,7 +66,7 @@ public class NewEmptyJUnitTest {
         groundBody.createFixture(groundBox, 0);
 
         new CircleShapeBuilder(world).position(5, 5).radius(1).density(1).bullet(true).build();
-        
+
         // Dynamic Body
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyType.DYNAMIC;
@@ -78,8 +80,11 @@ public class NewEmptyJUnitTest {
         fixtureDef.friction = 0.3f;
         body.createFixture(fixtureDef);
         PbSerializer s = new PbSerializer();
-        Builder serializeWorld = s.serializeWorld(world);
+        PbBody.Builder serializeWorld = s.serializeBody(body);
+
+        System.out.println("serializeWorld.toString() " + serializeWorld.build().toString());
+        Properties p = new Properties();
+        String string = 
         
-        System.out.println("serializeWorld.toString() "+serializeWorld.build().toString());
     }
 }
