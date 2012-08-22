@@ -23,6 +23,8 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.spi.palette.PaletteController;
 import org.openide.awt.UndoRedo;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor;
@@ -38,9 +40,9 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DVisual",
 position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")
-public final class Box2DVisualElement extends JPanel implements MultiViewElement, PropertyChangeListener {
-    private static Logger LOGGER = Logger.getLogger(Box2DVisualElement.class.getName());
+public final class Box2DVisualElement extends JPanel implements MultiViewElement, PropertyChangeListener, ExplorerManager.Provider {
 
+    private static Logger LOGGER = Logger.getLogger(Box2DVisualElement.class.getName());
     private Box2DDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
@@ -51,7 +53,8 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     private ViewSynchronizer synchronizer;
     private VisualUpdater updater;
     private World world;
-    
+    private ExplorerManager em = new ExplorerManager();
+
     public Box2DVisualElement(Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
@@ -73,7 +76,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
             if (scene != null && scene.getWorld() == world) {
                 return;
             }
-            scene = new WorldScene(world, new CallbackImpl());
+            scene = new WorldScene(em, world, new CallbackImpl());
             jScrollPane.setViewportView(scene.createView());
         }
     }
@@ -128,7 +131,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public Lookup getLookup() {
-        return new ProxyLookup(obj.getLookup(), Lookups.fixed(paletteController));
+        return new ProxyLookup(obj.getLookup(), Lookups.fixed(paletteController), ExplorerUtils.createLookup(em, getActionMap()));
     }
 
     @Override
@@ -176,6 +179,11 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
             LOGGER.info(">> Update Visual Editor");
             update((World) evt.getNewValue());
         }
+    }
+
+    @Override
+    public ExplorerManager getExplorerManager() {
+        return em;
     }
 
     private static class VisualUpdater implements Runnable {

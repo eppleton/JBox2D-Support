@@ -45,4 +45,8 @@ public final class WorldUtilities {
         final String worldString = serializeWorld(world);
         return parseWorld(worldString);
     }
+    
+    public static float sceneToWorld(int value, int scale, float offset, boolean invert) {
+        return (((float) value / (float) scale) - offset) * (invert ? -1 : 1);
+    }
 }

@@ -6,15 +6,22 @@ package de.eppleton.physics.editor.scene;
 
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
 import java.awt.Point;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.SelectProvider;
+import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 
 /**
  * NodeManager gives you a NodeProvider, which will create and configure JavaFX
@@ -88,7 +95,7 @@ public class NodeManager {
                 }
                 points.add(new Point(points.get(0).x, points.get(0).y));
                 polygon.setControlPoints(points, false);
-                addWidgetToScene(polygon, scene, body, offset_x, offset_Y, scale);
+                scene.addWidgetToScene(polygon, body, offset_x, offset_Y, scale);
 
 
             } else {
@@ -119,8 +126,7 @@ public class NodeManager {
 
             if (circle == null) {
                 circle = new CircleWidget(scene, (int) (shape.m_radius * scale));
-                addWidgetToScene(circle, scene, body, offset_x, offset_Y, scale);
-
+                scene.addWidgetToScene(circle, body, offset_x, offset_Y, scale);
             }
             circle.setPreferredLocation(new Point((int) ((body.getPosition().x + offset_x) * scale),
                     (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
@@ -135,34 +141,5 @@ public class NodeManager {
         }
     }
 
-    private static void addWidgetToScene(final Widget widget, final WorldScene scene, final Body payload, final float offset_x, final float offset_y, final int scale) {
-        scene.addChild(widget);
-        scene.addObject(payload, widget);
-        widget.getActions().addAction(ActionFactory.createMoveAction());
-        widget.getActions().addAction(ActionFactory.createResizeAction());
-        widget.addDependency(new Widget.Dependency() {
-            int x, y;
-
-            @Override
-            public void revalidateDependency() {
-                if (widget.getPreferredLocation() != null) {
-                    int newX = widget.getPreferredLocation().x;
-                    int newY = widget.getPreferredLocation().y;
-                    if ((newX != x || newY != y)) {
-                      //  System.out.println("old "+payload.getPosition());
-                        payload.getPosition().x = sceneToWorld(newX, scale, offset_x, false);
-                        payload.getPosition().y = sceneToWorld(newY, scale, offset_y, true);
-                       // System.out.println("new "+payload.getPosition());
-                        
-                        scene.fireChange();
-                    }
-                }
-            }
-        });
-        
-    }
     
-    public static float sceneToWorld(int value, int scale, float offset, boolean invert){
-        return  (((float) value / (float) scale) - offset) * (invert?-1:1);
-    }
 }
