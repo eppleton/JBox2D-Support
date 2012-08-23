@@ -18,7 +18,7 @@ public class TestItem extends B2DActiveEditorDrop {
     }
 
     @Override
-    public Body createBody(World world) {
-        return new CircleShapeBuilder(world).radius(2.0F).build();
+    public Body[] createBodies(World world) {
+        return new Body[]{new CircleShapeBuilder(world).radius(2.0F).build()};
     } 
 }

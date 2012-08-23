@@ -6,7 +6,6 @@ package de.eppleton.physics.editor.palette.items;
 
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.TextFormat.ParseException;
-import de.eppleton.jbox2d.CircleShapeBuilder;
 import java.io.IOException;
 import java.util.Properties;
 import org.box2d.proto.Box2D;
@@ -14,8 +13,6 @@ import org.box2d.proto.Box2D.PbBody;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.serialization.pb.PbDeserializer;
-import org.netbeans.core.spi.multiview.MultiViewElement;
-import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -28,9 +25,7 @@ import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
 
 @Messages({
     "LBL_B2dPaletteItem_LOADER=Files of B2dPaletteItem"
@@ -108,13 +103,13 @@ public class B2dPaletteItemDataObject extends MultiDataObject {
         final String body = properties.getProperty("body");
         B2DActiveEditorDrop b2DActiveEditorDrop = new B2DActiveEditorDrop() {
             @Override
-            public Body createBody(World world) {
+            public Body[] createBodies(World world) {
                 try {
                     final Box2D.PbBody.Builder builder = Box2D.PbBody.newBuilder();
                     TextFormat.merge(body, builder);
                     PbBody build = builder.build();
                     PbDeserializer d = new PbDeserializer();
-                    return d.deserializeBody(world, build);
+                    return new Body[]{d.deserializeBody(world, build)};
                 } catch (ParseException ex) {
                     Exceptions.printStackTrace(ex);
                 }

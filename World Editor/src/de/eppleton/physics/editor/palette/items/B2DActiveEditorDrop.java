@@ -15,11 +15,14 @@ import org.openide.text.ActiveEditorDrop;
  * @author antonepple
  */
 public abstract class B2DActiveEditorDrop implements ActiveEditorDrop{ 
+    public enum DropType{
+        WORLD,JOINT,BODY,SHAPE,FIXTURE
+    }
     
-       @Override
+    @Override
     public boolean handleTransfer(JTextComponent targetComponent) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public abstract Body createBody(World world);
+    public abstract Body[] createBodies(World world);
 }

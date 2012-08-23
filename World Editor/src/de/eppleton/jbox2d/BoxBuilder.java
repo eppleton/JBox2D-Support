@@ -33,7 +33,7 @@ public class BoxBuilder extends BodyBuilder<BoxBuilder, PolygonShape> {
     @Override
     public Body build() {
         shape.setAsBox(halfWidth, halfHeight);
-        shape.m_vertexCount = 4;
+        shape.m_count=4;
         return super.build();
     }
     

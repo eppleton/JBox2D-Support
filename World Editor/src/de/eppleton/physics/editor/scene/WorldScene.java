@@ -71,9 +71,11 @@ public class WorldScene extends ObjectScene implements LookupListener {
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
-        Body newBody = transferData.createBody(world);
-        newBody.getPosition().x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
-        newBody.getPosition().y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, true);
+        Body [] newBodies = transferData.createBodies(world);
+        for (Body newBody : newBodies) {
+            newBody.getPosition().x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
+            newBody.getPosition().y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, true);
+        } 
         updateBodies();
     }
 

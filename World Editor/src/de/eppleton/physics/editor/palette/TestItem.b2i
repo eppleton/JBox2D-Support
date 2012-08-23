@@ -1,4 +1,4 @@
-displayname=bla
+displayname=Box
 iconbase=de/eppleton/physics/editor/palette/items/wizard.png
 body=type: DYNAMIC\n\
 position {\n\

@@ -1,0 +1,110 @@
+displayname=Flipper
+iconbase=de/eppleton/physics/editor/palette/items/wizard.png
+body=type: DYNAMIC\n\
+position {\n\
+  x: 2.25\n\
+  y: 3.73\n\
+}\n\
+angle: 0.0\n\
+linear_velocity {\n\
+  x: 0.0\n\
+  y: 0.0\n\
+}\n\
+angular_velocity: 0.0\n\
+force {\n\
+  x: 0.0\n\
+  y: 0.0\n\
+}\n\
+torque: 0.0\n\
+mass: 0.021035535\n\
+I: 1.3928708E-4\n\
+linear_damping: 0.0\n\
+angular_damping: 0.0\n\
+bullet: false\n\
+allow_sleep: true\n\
+awake: true\n\
+active: true\n\
+fixed_rotation: false\n\
+fixtures {\n\
+  restitution: 0.5\n\
+  friction: 0.0\n\
+  density: 1.0\n\
+  sensor: false\n\
+  filter {\n\
+    category_bits: 1\n\
+    mask_bits: 65535\n\
+    group_index: 0\n\
+  }\n\
+  shape {\n\
+    type: POLYGON\n\
+    radius: 0.01\n\
+    points {\n\
+      x: 0.15\n\
+      y: 0.0\n\
+    }\n\
+    points {\n\
+      x: 0.125\n\
+      y: 0.025\n\
+    }\n\
+    points {\n\
+      x: -0.10000001\n\
+      y: 0.05\n\
+    }\n\
+    points {\n\
+      x: -0.13535535\n\
+      y: 0.03535534\n\
+    }\n\
+    points {\n\
+      x: -0.15\n\
+      y: 0.0\n\
+    }\n\
+    points {\n\
+      x: -0.13535535\n\
+      y: -0.03535534\n\
+    }\n\
+    points {\n\
+      x: -0.10000001\n\
+      y: -0.05\n\
+    }\n\
+    points {\n\
+      x: 0.125\n\
+      y: -0.025\n\
+    }\n\
+    normals {\n\
+      x: 0.7071067\n\
+      y: 0.7071068\n\
+    }\n\
+    normals {\n\
+      x: 0.110431515\n\
+      y: 0.99388367\n\
+    }\n\
+    normals {\n\
+      x: -0.3826834\n\
+      y: 0.9238796\n\
+    }\n\
+    normals {\n\
+      x: -0.9238796\n\
+      y: 0.38268322\n\
+    }\n\
+    normals {\n\
+      x: -0.9238796\n\
+      y: -0.38268322\n\
+    }\n\
+    normals {\n\
+      x: -0.3826834\n\
+      y: -0.9238796\n\
+    }\n\
+    normals {\n\
+      x: 0.110431515\n\
+      y: -0.99388367\n\
+    }\n\
+    normals {\n\
+      x: 0.7071067\n\
+      y: -0.7071068\n\
+    }\n\
+    centroid {\n\
+      x: -0.016227288\n\
+      y: 8.647222E-11\n\
+    }\n\
+  }\n\
+}
