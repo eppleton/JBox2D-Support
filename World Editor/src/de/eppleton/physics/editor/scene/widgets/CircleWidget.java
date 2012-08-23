@@ -47,7 +47,7 @@ public class CircleWidget extends Widget {
     @Override
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         super.notifyStateChanged(previousState, state);
-        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(8) : BorderFactory.createEmptyBorder(8));
+        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
         if (state.isSelected()) {
             setBackground(Color.BLUE);
         } else {
@@ -58,5 +58,9 @@ public class CircleWidget extends Widget {
 
     public void setRadius(int r) {
         this.diameter = r*2;
+    }
+
+    public int getRadius() {
+        return diameter/2;
     }
 }

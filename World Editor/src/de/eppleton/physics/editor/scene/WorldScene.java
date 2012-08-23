@@ -19,12 +19,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
+import org.netbeans.api.visual.action.ResizeProvider;
 import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.model.ObjectScene;
@@ -52,6 +54,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
     private Result<Body> lookupResult;
     private ExplorerManager em;
     private final WidgetAction selectAction;
+    private ResizeProvider resizeProvider;
 
     public WorldScene(final ExplorerManager em,
             final World world, Callback callback) {
@@ -89,12 +92,12 @@ public class WorldScene extends ObjectScene implements LookupListener {
     void addWidgetToScene(final Widget widget, final Body payload, final float offset_x, final float offset_y, final int scale) {
         addChild(widget);
         addObject(payload, widget);
-        widget.getActions().addAction(ActionFactory.createResizeAction());
+        widget.getActions().addAction(ActionFactory.createResizeAction(null, resizeProvider));
         widget.getActions().addAction(ActionFactory.createMoveAction());
         widget.getActions().addAction(selectAction);
         widget.addDependency(
                 new Widget.Dependency() {
-                    int x, y;
+                    int x, y, width, height;
 
                     @Override
                     public void revalidateDependency() {
@@ -111,7 +114,19 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 fireChange();
                             }
                         }
-                     
+                        Rectangle bounds = widget.getBounds();
+                        if (bounds != null) {
+                            int newHeight = bounds.height;
+                            int newWidth = bounds.width;
+                            if (newHeight != height || newWidth != width) {
+                                Shape shape = payload.getFixtureList().getShape();
+                                if (shape instanceof CircleShape && widget instanceof CircleWidget) {
+                                    shape.m_radius = (float) ((CircleWidget) widget).getRadius() / (float) scale;
+                                    fireChange();
+                                }
+                            }
+                        }
+
 
                     }
                 });
