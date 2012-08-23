@@ -6,10 +6,14 @@ package de.eppleton.physics.editor.palette.items;
 
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.TextFormat.ParseException;
+import de.eppleton.jbox2d.Deserializer;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 import org.box2d.proto.Box2D;
 import org.box2d.proto.Box2D.PbBody;
+import org.box2d.proto.Box2D.PbWorld;
+import org.box2d.proto.Box2D.PbWorld.Builder;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.serialization.pb.PbDeserializer;
@@ -102,7 +106,7 @@ public class B2dPaletteItemDataObject extends MultiDataObject {
         getCookieSet().assign(Properties.class, properties);
         final String body = properties.getProperty("body");
         B2DActiveEditorDrop b2DActiveEditorDrop = new B2DActiveEditorDrop() {
-            @Override
+            /*@Override
             public Body[] createBodies(World world) {
                 try {
                     final Box2D.PbBody.Builder builder = Box2D.PbBody.newBuilder();
@@ -115,6 +119,20 @@ public class B2dPaletteItemDataObject extends MultiDataObject {
                 }
                 return null;
 
+            }*/
+
+            @Override
+            public HashMap<Integer, Body> addBodies(World world) {
+                try {
+                    Builder builder = Box2D.PbWorld.newBuilder();
+                    TextFormat.merge(body, builder);
+                    PbWorld build = builder.build();
+                    Deserializer deserializer = new Deserializer();
+                    return deserializer.addToWorld(world, build);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                } 
+                return null;
             }
         };
         getCookieSet().assign(B2DActiveEditorDrop.class, b2DActiveEditorDrop);

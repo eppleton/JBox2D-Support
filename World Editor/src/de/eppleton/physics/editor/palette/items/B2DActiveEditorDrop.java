@@ -4,7 +4,7 @@
  */
 package de.eppleton.physics.editor.palette.items;
 
-import de.eppleton.jbox2d.CircleShapeBuilder;
+import java.util.HashMap;
 import javax.swing.text.JTextComponent;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
@@ -24,5 +24,5 @@ public abstract class B2DActiveEditorDrop implements ActiveEditorDrop{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public abstract Body[] createBodies(World world);
+    public abstract HashMap<Integer, Body> addBodies(World world);
 }

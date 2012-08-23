@@ -4,7 +4,6 @@
         <folder name="Box2DPalette">
             <folder name="Shapes">
                 <file name="Flipper.b2i" url="Flipper.b2i"/>
-            <file name="Test.xml" url="Test.xml"/>
                 <file name="TestItem.b2i" url="TestItem.b2i"/>
         </folder>
     </folder>

@@ -4,6 +4,7 @@
  */
 package de.eppleton.physics.editor.scene;
 
+import com.sun.istack.internal.logging.Logger;
 import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -46,7 +48,8 @@ import org.openide.util.Utilities;
  */
 public class WorldScene extends ObjectScene implements LookupListener {
 
-    World world;
+    private static Logger LOGGER = Logger.getLogger(WorldScene.class);
+    private World world;
     private int scale = 300;
     private float offsetX = 0;
     private float offsetY = 0;
@@ -71,27 +74,60 @@ public class WorldScene extends ObjectScene implements LookupListener {
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
-        Body [] newBodies = transferData.createBodies(world);
-        for (Body newBody : newBodies) {
-            newBody.getPosition().x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
-            newBody.getPosition().y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, true);
-        } 
+        LOGGER.info("handle Transfer: get Bodies");
+
+        HashMap<Integer, Body> addBodies = transferData.addBodies(world);
+        LOGGER.info("retrieved Bodies");
+        float x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
+        float y = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
+        LOGGER.info("Configuring the Bodies");
+
+        configureBodies(addBodies, x, y);
+        /*for (Body newBody : newBodies) {
+         newBody.getPosition().x = 
+         newBody.getPosition().y = ≈
+         } */
+        LOGGER.info("Updateing the scene");
+
         updateBodies();
+        LOGGER.info("Ready updateing the scene");
+    }
+
+    private void configureBodies(HashMap<Integer, Body> bodies, float x, float y) {
+        Collection<Body> values = bodies.values();
+        float minX = Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        for (Body body : values) {
+            minX = body.getPosition().x < minX ? body.getPosition().x : minX;
+            minY = body.getPosition().y < minY ? body.getPosition().y : minY;
+        }
+        for (Body body : values) {
+            body.getPosition().x = body.getPosition().x - minX + x;
+            body.getPosition().y = body.getPosition().y - minY + y;
+        }
     }
 
     private void updateBodies() {
+        LOGGER.info("updateing");
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
-            Shape shape = nextBody.getFixtureList().getShape();
-            NodeProvider nodeProvider = NodeManager.getNodeProvider(nextBody, shape);
-            Widget widget = super.findWidget(nextBody);
-            nodeProvider.configureNode(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);
+            if (nextBody.getFixtureList() != null) {
+                Shape shape = nextBody.getFixtureList().getShape();
+                NodeProvider nodeProvider = NodeManager.getNodeProvider(nextBody, shape);
+                Widget widget = super.findWidget(nextBody);
+                nodeProvider.configureNode(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);
+            }
             nextBody = nextBody.getNext();
         }
+        LOGGER.info("update ready");
         repaint();
     }
 
-    void addWidgetToScene(final Widget widget, final Body payload, final float offset_x, final float offset_y, final int scale) {
+    void addWidgetToScene(final Widget widget,
+            final Body payload,
+            final float offset_x,
+            final float offset_y,
+            final int scale) {
         addChild(widget);
         addObject(payload, widget);
         widget.getActions().addAction(ActionFactory.createResizeAction(null, resizeProvider));
