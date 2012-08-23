@@ -7,7 +7,9 @@ package de.eppleton.physics.editor.scene;
 import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
+import de.eppleton.physics.editor.scene.widgets.CircleWidget;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyVetoException;
@@ -63,7 +65,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
         updateBodies();
         lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
         lookupResult.addLookupListener(this);
-        
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
@@ -88,8 +89,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
     void addWidgetToScene(final Widget widget, final Body payload, final float offset_x, final float offset_y, final int scale) {
         addChild(widget);
         addObject(payload, widget);
-        widget.getActions().addAction(ActionFactory.createMoveAction());
         widget.getActions().addAction(ActionFactory.createResizeAction());
+        widget.getActions().addAction(ActionFactory.createMoveAction());
         widget.getActions().addAction(selectAction);
         widget.addDependency(
                 new Widget.Dependency() {
@@ -97,6 +98,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
 
                     @Override
                     public void revalidateDependency() {
+
                         if (widget.getPreferredLocation() != null) {
                             int newX = widget.getPreferredLocation().x;
                             int newY = widget.getPreferredLocation().y;
@@ -109,6 +111,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 fireChange();
                             }
                         }
+                     
+
                     }
                 });
 
@@ -184,7 +188,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
 
                 if (object instanceof Node) {
                     Set selected = scene.getSelectedObjects();
-                    ArrayList <Node>selectedNodes = new ArrayList<Node>();
+                    ArrayList<Node> selectedNodes = new ArrayList<Node>();
                     for (Object object1 : selected) {
                         if (object1 instanceof Node) {
                             selectedNodes.add((Node) object1);

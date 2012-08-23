@@ -6,7 +6,6 @@ package de.eppleton.physics.editor.scene;
 
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
-import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.Widget;
 
 /**

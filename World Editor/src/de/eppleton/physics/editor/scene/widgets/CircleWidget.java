@@ -15,36 +15,48 @@ import org.netbeans.api.visual.widget.Widget;
 
 public class CircleWidget extends Widget {
 
-    private int r;
+    private int diameter;
 
     public CircleWidget(Scene scene, int radius) {
         super(scene);
-        r = radius;
+        setRadius(radius);
     }
 
+    @Override
     protected Rectangle calculateClientArea() {
-        return new Rectangle(-r, -r, 2 * r + 1, 2 * r + 1);
+        return new Rectangle(0, 0, diameter + 1, diameter + 1);
     }
 
+    @Override
     protected void paintWidget() {
+        Rectangle bounds = getBounds();
+        int x = bounds.x + getBorder().getInsets().left;
+        int y = bounds.y + getBorder().getInsets().top;
+        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right;
+        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom;
+        diameter = height > width? width : height;
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
         g.setPaint(getBackground());
-        g.fillOval(-r, -r, 2 * r, 2 * r);
+        g.fillOval(x,y, diameter, diameter);
         g.setColor(getForeground());
-        g.drawOval(-r, -r, 2 * r, 2 * r);
+        g.drawOval(x,y, diameter, diameter);
         g.setPaint(paint);
     }
 
     @Override
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         super.notifyStateChanged(previousState, state);
-        setBorder (state.isSelected () ? BorderFactory.createResizeBorder (4) : BorderFactory.createEmptyBorder (4));
+        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(8) : BorderFactory.createEmptyBorder(8));
         if (state.isSelected()) {
             setBackground(Color.BLUE);
         } else {
             setBackground(Color.WHITE);
         }
-       
+
+    }
+
+    public void setRadius(int r) {
+        this.diameter = r*2;
     }
 }
