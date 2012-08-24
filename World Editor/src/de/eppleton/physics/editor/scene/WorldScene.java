@@ -25,6 +25,7 @@ import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.joints.Joint;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -32,6 +33,7 @@ import org.netbeans.api.visual.action.ResizeProvider;
 import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
@@ -107,7 +109,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         }
     }
 
-    private void updateBodies() {
+    public void updateBodies() {
         LOGGER.info("updateing");
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
@@ -119,55 +121,69 @@ public class WorldScene extends ObjectScene implements LookupListener {
             }
             nextBody = nextBody.getNext();
         }
+        if (getView() != null && getView().isShowing()) {
+            Joint nextJoint = world.getJointList();
+            while (nextJoint != null) {
+                JointProvider jointProvider = JointManager.getJointProvider(nextJoint);
+                ConnectionWidget widget = (ConnectionWidget) super.findWidget(nextJoint);
+                jointProvider.configureWidget(this, widget, nextJoint, offsetX, offsetY, scale);
+                nextJoint = nextJoint.getNext();
+
+            }
+        }
         LOGGER.info("update ready");
         repaint();
     }
 
     void addWidgetToScene(final Widget widget,
-            final Body payload,
+            final Object payload,
             final float offset_x,
             final float offset_y,
             final int scale) {
         addChild(widget);
         addObject(payload, widget);
-        widget.getActions().addAction(ActionFactory.createResizeAction(null, resizeProvider));
-        widget.getActions().addAction(ActionFactory.createMoveAction());
-        widget.getActions().addAction(selectAction);
-        widget.addDependency(
-                new Widget.Dependency() {
-                    int x, y, width, height;
+        if (payload instanceof Body) {
 
-                    @Override
-                    public void revalidateDependency() {
+            widget.getActions().addAction(ActionFactory.createResizeAction(null, resizeProvider));
+            widget.getActions().addAction(ActionFactory.createMoveAction());
+            widget.getActions().addAction(selectAction);
+            widget.addDependency(
+                    new Widget.Dependency() {
+                        int x, y, width, height;
 
-                        if (widget.getPreferredLocation() != null) {
-                            int newX = widget.getPreferredLocation().x;
-                            int newY = widget.getPreferredLocation().y;
-                            if ((newX != x || newY != y)) {
-                                //  System.out.println("old "+payload.getPosition());
-                                payload.getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
-                                payload.getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
-                                // System.out.println("new "+payload.getPosition());
+                        @Override
+                        public void revalidateDependency() {
 
-                                fireChange();
-                            }
-                        }
-                        Rectangle bounds = widget.getBounds();
-                        if (bounds != null) {
-                            int newHeight = bounds.height;
-                            int newWidth = bounds.width;
-                            if (newHeight != height || newWidth != width) {
-                                Shape shape = payload.getFixtureList().getShape();
-                                if (shape instanceof CircleShape && widget instanceof CircleWidget) {
-                                    shape.m_radius = (float) ((CircleWidget) widget).getRadius() / (float) scale;
+                            if (widget.getPreferredLocation() != null) {
+                                int newX = widget.getPreferredLocation().x;
+                                int newY = widget.getPreferredLocation().y;
+                                if ((newX != x || newY != y)) {
+                                    //  System.out.println("old "+payload.getPosition());
+                                    ((Body) payload).getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
+                                    ((Body) payload).getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
+                                    // System.out.println("new "+payload.getPosition());
+
                                     fireChange();
                                 }
                             }
+                            Rectangle bounds = widget.getBounds();
+                            if (bounds != null) {
+                                int newHeight = bounds.height;
+                                int newWidth = bounds.width;
+                                if (newHeight != height || newWidth != width) {
+                                    Shape shape = ((Body) payload).getFixtureList().getShape();
+                                    if (shape instanceof CircleShape && widget instanceof CircleWidget) {
+                                        shape.m_radius = (float) ((CircleWidget) widget).getRadius() / (float) scale;
+
+                                    }
+                                }
+                            }
+
+
                         }
-
-
-                    }
-                });
+                    });
+        }
+        fireChange();
 
     }
 

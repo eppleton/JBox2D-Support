@@ -56,6 +56,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     private ExplorerManager em = new ExplorerManager();
 
     public Box2DVisualElement(Lookup lkp) {
+        updater = new VisualUpdater(this);
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
         name = obj.getPrimaryFile().getName();
@@ -67,7 +68,6 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
         if (synchronizer.getWorld() != null) {
             update(synchronizer.getWorld());
         }
-        updater = new VisualUpdater(this);
     }
 
     private void update(final World world) {
@@ -144,6 +144,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public void componentShowing() {
+        scene.updateBodies();
     }
 
     @Override
@@ -166,6 +167,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
+        callback.updateTitle(name);
     }
 
     @Override

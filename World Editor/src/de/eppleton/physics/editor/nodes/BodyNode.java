@@ -31,12 +31,16 @@ public class BodyNode extends AbstractNode {
     }
 
     private void updateName() {
-        Shape shape = getLookup().lookup(Body.class).getFixtureList().getShape();
         String name = getLookup().lookup(Body.class).getType().name();
-        if (shape != null) {
-            name += " " + shape.getType().name();
-        } else {
-            name += " Body";
+        if (getLookup().lookup(Body.class) != null) {
+            if (getLookup().lookup(Body.class).getFixtureList() != null) {
+                Shape shape = getLookup().lookup(Body.class).getFixtureList().getShape();
+                if (shape != null) {
+                    name += " " + shape.getType().name();
+                } else {
+                    name += " Body";
+                }
+            }
         }
         setName(name);
     }

@@ -5,23 +5,15 @@
 package de.eppleton.physics.editor.scene;
 
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
+import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
 import java.awt.Point;
-import java.beans.PropertyVetoException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
-import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.action.SelectProvider;
-import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.Widget;
-import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 
 /**
  * NodeManager gives you a NodeProvider, which will create and configure JavaFX
@@ -78,36 +70,36 @@ public class NodeManager {
         return null;
     }
 
-    public static class DefaultPolygonProvider implements PolygonProvider<ConnectionWidget> {
+    public static class DefaultPolygonProvider implements PolygonProvider<PolygonWidget> {
 
         @Override
-        public ConnectionWidget configureNode(WorldScene scene, ConnectionWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
+        public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
             if (polygon == null) {
-                polygon = new ConnectionWidget(scene);
-                ArrayList<Point> points = new ArrayList<Point>();
+
+                int[] xPoints = new int[shape.getVertexCount()];
+                int[] yPoints = new int[shape.getVertexCount()];
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
                     Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
-                    points.add(
-                            new Point(
-                            (int) ((transformed.x + offset_x) * scale),
-                            (int) (((transformed.y * -1) + offset_Y) * scale)));
+                    xPoints[i] =
+                            (int) ((transformed.x + offset_x) * scale);
+                    yPoints[i] = ((int) ((transformed.y * -1) + offset_Y) * scale);
                 }
-                points.add(new Point(points.get(0).x, points.get(0).y));
-                polygon.setControlPoints(points, false);
+                polygon = new PolygonWidget(scene, xPoints, yPoints);
                 scene.addWidgetToScene(polygon, body, offset_x, offset_Y, scale);
 
 
             } else {
+                int[] xPoints = new int[shape.getVertexCount()];
+                int[] yPoints = new int[shape.getVertexCount()];
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
                     Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
-
-                    polygon.getControlPoints().get(i).x =
+                    xPoints[i] =
                             (int) ((transformed.x + offset_x) * scale);
-                    polygon.getControlPoints().get(i).y = (int) (((transformed.y * -1) + offset_Y) * scale);
-
+                    yPoints[i] = ((int) ((transformed.y * -1) + offset_Y) * scale);
                 }
+                polygon.setPolygonPoints(xPoints, yPoints);
             }
             return polygon;
         }
@@ -140,6 +132,4 @@ public class NodeManager {
             return shape instanceof CircleShape;
         }
     }
-
-    
 }
