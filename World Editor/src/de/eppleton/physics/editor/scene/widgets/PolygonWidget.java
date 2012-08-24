@@ -23,7 +23,7 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public class PolygonWidget extends Widget {
 
-    private Shape shape;
+    private Polygon shape;
 
     public PolygonWidget(Scene scene, int[] xPoints, int[] yPoints) {
         super(scene);
@@ -46,7 +46,7 @@ public class PolygonWidget extends Widget {
         int y = bounds.y + getBorder().getInsets().top;
         int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right;
         int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom;
-
+        //shape.translate(x+getLocation().x, y+getLocation().y);
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
         g.setPaint(getBackground());

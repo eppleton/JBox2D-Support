@@ -4,6 +4,7 @@
  */
 package de.eppleton.physics.editor.scene;
 
+import de.eppleton.physics.editor.scene.widgets.FixedPointOnWidgetAnchor;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -43,16 +44,15 @@ class JointManager {
                 nextJoint.getAnchorA(anchorA);
                 nextJoint.getAnchorB(anchorB);
 
-                widget.setSourceAnchor(AnchorFactory.createCenterAnchor(bodyA));
-                widget.setTargetAnchor(AnchorFactory.createCenterAnchor(bodyB));
+                widget.setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
+                        (int) ((anchorA.x + offsetX) * scale),
+                        (int) (((anchorA.y * -1) + offsetY) * scale))));
+                widget.setTargetAnchor(new FixedPointOnWidgetAnchor(bodyB, new Point(
+                        (int) ((anchorB.x + offsetX) * scale),
+                        (int) (((anchorB.y * -1) + offsetY) * scale))));
 
-//                        new Point(
-//                        (int) ((anchorA.x + offsetX) * scale),
-//                        (int) (((anchorA.y * -1) + offsetY) * scale));
-//                points.add(
-//                        new Point(
-//                        (int) ((anchorB.x + offsetX) * scale),
-//                        (int) (((anchorB.y * -1) + offsetY) * scale)));
+                        
+                
 
                 //widget.setControlPoints(points, false);
                 
