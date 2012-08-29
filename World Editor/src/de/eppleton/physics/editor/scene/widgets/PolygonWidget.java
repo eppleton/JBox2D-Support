@@ -4,14 +4,17 @@
  */
 package de.eppleton.physics.editor.scene.widgets;
 
+import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.Shape;
+import java.util.ArrayList;
 import java.util.List;
+import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Scene;
@@ -23,38 +26,44 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public class PolygonWidget extends Widget {
 
-    private Polygon shape;
+    private ArrayList<Point> points;
 
-    public PolygonWidget(Scene scene, int[] xPoints, int[] yPoints) {
+    public PolygonWidget(Scene scene, List<Point> points) {
         super(scene);
-        setPolygonPoints(xPoints, yPoints);
+        this.points = new ArrayList<>(points);
     }
 
-    public void setPolygonPoints(int[] xPoints, int[] yPoints) {
-        shape = new Polygon(xPoints, yPoints, xPoints.length);
+    public ArrayList<Point> getPoints() {
+        return points;
     }
 
-        @Override
+    @Override
     protected Rectangle calculateClientArea() {
-        return shape.getBounds();
+        Rectangle bounds =null;
+        for (Point point : points) {
+            if (bounds==null) bounds = new Rectangle(point);
+            else bounds.add(point);
+        }
+        return bounds;
+        //return shape.getBounds();
     }
-    
+
     @Override
     protected void paintWidget() {
-        Rectangle bounds = getBounds();
-        int x = bounds.x + getBorder().getInsets().left;
-        int y = bounds.y + getBorder().getInsets().top;
-        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right;
-        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom;
-        //shape.translate(x+getLocation().x, y+getLocation().y);
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
-        g.setPaint(getBackground());
-        g.fill(shape);
-        //g.fillOval(x,y, diameter, diameter);
         g.setColor(getForeground());
-        g.draw(shape);
-//        g.drawOval(x,y, diameter, diameter);
+        int x = points.get(0).x;
+        int y = points.get(0).y;
+        for (int i = 1; i < points.size(); i++) {
+            int xTo = points.get(i).x;
+            int yTo = points.get(i).y;
+            g.drawLine(x, y, xTo, yTo);
+            x = xTo;
+            y = yTo;
+        }
+        g.drawLine(x, y, points.get(0).x, points.get(0).y);
+        g.drawOval(0, 0, 2, 2);
         g.setPaint(paint);
     }
 

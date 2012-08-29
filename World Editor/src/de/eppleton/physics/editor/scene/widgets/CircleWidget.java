@@ -24,7 +24,8 @@ public class CircleWidget extends Widget {
 
     @Override
     protected Rectangle calculateClientArea() {
-        return new Rectangle(0, 0, diameter + 1, diameter + 1);
+        int r = diameter/2;
+        return new Rectangle(-r,-r, diameter + 1, diameter + 1);
     }
 
     @Override
@@ -32,8 +33,8 @@ public class CircleWidget extends Widget {
         Rectangle bounds = getBounds();
         int x = bounds.x + getBorder().getInsets().left;
         int y = bounds.y + getBorder().getInsets().top;
-        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right;
-        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom;
+        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right -1;
+        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom -1;
         diameter = height > width? width : height;
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();

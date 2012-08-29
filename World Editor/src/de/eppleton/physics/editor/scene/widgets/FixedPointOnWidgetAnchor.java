@@ -26,7 +26,6 @@ public class FixedPointOnWidgetAnchor extends Anchor {
 
     @Override
     public Result compute(Entry entry) {
-        System.out.println("compute the location");
         return new Result(getPointInSceneLocation(), Anchor.DIRECTION_ANY);
     }
 
@@ -34,7 +33,6 @@ public class FixedPointOnWidgetAnchor extends Anchor {
         Rectangle bounds = getRelatedWidget().getBounds();
         int x = getRelatedWidget().getLocation().x + bounds.x;
         int y = getRelatedWidget().getLocation().y + bounds.y;
-        System.out.println("bounds.x "+x);
         return new Point(x + px, y + py);
     }
 }

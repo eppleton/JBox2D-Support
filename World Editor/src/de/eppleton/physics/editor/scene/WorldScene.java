@@ -110,7 +110,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
     }
 
     public void updateBodies() {
-        LOGGER.info("updateing");
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
             if (nextBody.getFixtureList() != null) {
@@ -154,15 +153,14 @@ public class WorldScene extends ObjectScene implements LookupListener {
                         @Override
                         public void revalidateDependency() {
 
-                            if (widget.getPreferredLocation() != null) {
-                                int newX = widget.getPreferredLocation().x;
-                                int newY = widget.getPreferredLocation().y;
+                            if (widget.getLocation() != null ) {
+                                int newX = widget.getLocation().x ;
+                                int newY = widget.getLocation().y ;
                                 if ((newX != x || newY != y)) {
                                     //  System.out.println("old "+payload.getPosition());
                                     ((Body) payload).getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
                                     ((Body) payload).getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
                                     // System.out.println("new "+payload.getPosition());
-
                                     fireChange();
                                 }
                             }

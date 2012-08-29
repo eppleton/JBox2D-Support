@@ -125,17 +125,17 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
 
         @Override
         public void insertUpdate(DocumentEvent de) {
-            updater.documentChange();
+            //updater.documentChange();
         }
 
         @Override
         public void removeUpdate(DocumentEvent de) {
-            updater.documentChange();
+          //  updater.documentChange();
         }
 
         @Override
         public void changedUpdate(DocumentEvent de) {
-            updater.documentChange();
+           // updater.documentChange();
         }
     }
 }
