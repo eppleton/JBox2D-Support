@@ -76,28 +76,35 @@ public class NodeManager {
         public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
             if (polygon == null) {
 
-               ArrayList <Point> points = new ArrayList<>();
+                ArrayList<Point> points = new ArrayList<>();
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
-                    Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);      
+                    // Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2); 
+                    Vec2 transformed = vec2;
                     points.add(new Point(
-                            (int) ((transformed.x+ offset_x)  * scale),
-                   ((int) ((transformed.y * -1)+ offset_Y)  * scale)));
+                            (int) ((transformed.x) * scale),
+                            ((int) ((transformed.y * -1)) * scale)));
                 }
 //                int addX = normalize(xPoints);
 //                int addY = normalize(yPoints);
                 polygon = new PolygonWidget(scene, points);
-                
+                polygon.setPreferredLocation(new Point(
+                        (int) ((body.getPosition().x + offset_x) * scale),
+                        ((int) ((body.getPosition().y * -1) + offset_Y) * scale)));
                 scene.addWidgetToScene(polygon, body, offset_x, offset_Y, scale);
 
-            } else {          
+            } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
-                    Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
-                    polygon.getPoints().get(i).x = (int) ((transformed.x + offset_x) * scale);
-                    polygon.getPoints().get(i).y = (int) ((transformed.y * -1)+ offset_Y) * scale;
-                }              
-                
+                    // Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
+                    Vec2 transformed = vec2;
+                    polygon.getPoints().get(i).x = (int) ((transformed.x) * scale);
+                    polygon.getPoints().get(i).y = (int) ((transformed.y * -1)) * scale;
+                }
+                polygon.setPreferredLocation(new Point(
+                        (int) ((body.getPosition().x + offset_x) * scale),
+                        ((int) ((body.getPosition().y * -1) + offset_Y) * scale)));
+
             }
             return polygon;
         }
@@ -144,10 +151,7 @@ public class NodeManager {
             return shape instanceof CircleShape;
         }
     }
-    
-    private void dump(){
-        
-    
+
+    private void dump() {
     }
-    
 }
