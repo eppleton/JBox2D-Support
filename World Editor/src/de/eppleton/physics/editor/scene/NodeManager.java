@@ -79,14 +79,16 @@ public class NodeManager {
                 ArrayList<Point> points = new ArrayList<>();
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
-                    // Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2); 
-                    Vec2 transformed = vec2;
+                     Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2); 
+                     transformed.x = transformed.x - body.getPosition().x;
+                     transformed.y = transformed.y - body.getPosition().y;
+                            
+//                    Vec2 transformed = vec2;
                     points.add(new Point(
                             (int) ((transformed.x) * scale),
                             ((int) ((transformed.y * -1)) * scale)));
                 }
-//                int addX = normalize(xPoints);
-//                int addY = normalize(yPoints);
+
                 polygon = new PolygonWidget(scene, points);
                 polygon.setPreferredLocation(new Point(
                         (int) ((body.getPosition().x + offset_x) * scale),
@@ -96,8 +98,10 @@ public class NodeManager {
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 vec2 = shape.getVertex(i);
-                    // Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
-                    Vec2 transformed = vec2;
+                    Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
+                    transformed.x = transformed.x - body.getPosition().x;
+                     transformed.y = transformed.y - body.getPosition().y;
+                    //Vec2 transformed = vec2;
                     polygon.getPoints().get(i).x = (int) ((transformed.x) * scale);
                     polygon.getPoints().get(i).y = (int) ((transformed.y * -1)) * scale;
                 }
