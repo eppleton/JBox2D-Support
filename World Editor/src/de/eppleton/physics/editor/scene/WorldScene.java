@@ -14,6 +14,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,11 +23,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.Joint;
+import org.jbox2d.dynamics.joints.JointEdge;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -51,6 +56,7 @@ import org.openide.util.Utilities;
  */
 public class WorldScene extends ObjectScene implements LookupListener {
 
+    public static final String DELETE_ACTION = "deleteAction";
     private static Logger LOGGER = Logger.getLogger(WorldScene.class);
     private World world;
     private int scale = 300;
@@ -66,7 +72,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
             final World world, Callback callback) {
         this.em = em;
         this.world = world;
-        world.step( 1.0f / 60 , 1,1);
+        world.step(1.0f / 60, 1, 1);
         this.callback = callback;
         this.setBackground(Color.BLACK);
         selectAction = ActionFactory.createSelectAction(new SelectProviderImpl(em));
@@ -76,6 +82,11 @@ public class WorldScene extends ObjectScene implements LookupListener {
         updateBodies();
         lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
         lookupResult.addLookupListener(this);
+
+    }
+
+    private void deleteSelectedNodes() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
@@ -156,9 +167,9 @@ public class WorldScene extends ObjectScene implements LookupListener {
                         @Override
                         public void revalidateDependency() {
 
-                            if (widget.getLocation() != null ) {
-                                int newX = widget.getLocation().x ;
-                                int newY = widget.getLocation().y ;
+                            if (widget.getLocation() != null) {
+                                int newX = widget.getLocation().x;
+                                int newY = widget.getLocation().y;
                                 if ((newX != x || newY != y)) {
                                     //  System.out.println("old "+payload.getPosition());
                                     ((Body) payload).getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
@@ -305,5 +316,46 @@ public class WorldScene extends ObjectScene implements LookupListener {
             }
 
         }
+    }
+
+    @Override
+    public JComponent createView() {
+        super.createView();
+        addKeyboardActions();
+        return getView();
+    }
+
+    private void deleteselectedWidgets() {
+        Set<?> selectedObjects = getSelectedObjects();
+        for (Object object : selectedObjects) {
+            Widget w = findWidget(object);
+            this.removeChild(w);
+            if (object instanceof Body) {
+                JointEdge jointList = ((Body) object).getJointList();
+                while (jointList != null) {
+                    Widget findWidget = findWidget(jointList.joint);
+                    if (findWidget != null) {
+                        this.removeChild(findWidget);
+                    }
+                    jointList=jointList.next;
+                }
+                world.destroyBody((Body) object);
+
+            } else if (object instanceof Joint) {
+                world.destroyJoint((Joint) object);
+            }
+        }
+    }
+
+    public void addKeyboardActions() {
+        getView().setFocusable(true);
+        getActions().addAction(new MouseClickedAction(getView()));
+
+        getView().getInputMap().put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0), "deleteSelectedWidgets");
+        getView().getActionMap().put("deleteSelectedWidgets", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                deleteselectedWidgets();
+            }
+        });
     }
 }
