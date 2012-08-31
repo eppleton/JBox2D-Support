@@ -9,6 +9,7 @@ import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
@@ -67,6 +68,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         this.world = world;
         world.step( 1.0f / 60 , 1,1);
         this.callback = callback;
+        this.setBackground(Color.BLACK);
         selectAction = ActionFactory.createSelectAction(new SelectProviderImpl(em));
         Box2DUtilities.scaleToFit(world, this);
         super.getActions().addAction(ActionFactory.createZoomAction());

@@ -4,17 +4,15 @@
  */
 package de.eppleton.physics.editor.scene.widgets;
 
-import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
-import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Scene;
@@ -27,9 +25,16 @@ import org.netbeans.api.visual.widget.Widget;
 public class PolygonWidget extends Widget {
 
     private ArrayList<Point> points;
-
+    private Shape shape;
     public PolygonWidget(Scene scene, List<Point> points) {
         super(scene);
+        int [] xpoints = new int[points.size()];
+        int [] ypoints = new int[points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            xpoints[i] = points.get(i).x;
+            ypoints[i] = points.get(i).y;
+        }
+        shape = new Polygon(xpoints, ypoints, points.size());
         this.points = new ArrayList<>(points);
     }
 
@@ -52,7 +57,13 @@ public class PolygonWidget extends Widget {
     protected void paintWidget() {
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
-        g.setColor(getForeground());
+        Color fg= getForeground();
+        Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
+        g.setPaint(c);
+        g.fill(shape);
+        g.setColor(fg);
+        g.draw(shape);
+        /*
         int x = points.get(0).x;
         int y = points.get(0).y;
         for (int i = 1; i < points.size(); i++) {
@@ -62,8 +73,7 @@ public class PolygonWidget extends Widget {
             x = xTo;
             y = yTo;
         }
-        g.drawLine(x, y, points.get(0).x, points.get(0).y);
-        g.drawOval(0, 0, 2, 2);
+        g.drawLine(x, y, points.get(0).x, points.get(0).y);*/
         g.setPaint(paint);
     }
 

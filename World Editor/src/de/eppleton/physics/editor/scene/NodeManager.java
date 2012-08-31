@@ -6,6 +6,7 @@ package de.eppleton.physics.editor.scene;
 
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
 import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -14,7 +15,7 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
-import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.jbox2d.dynamics.BodyType;
 
 /**
  * NodeManager gives you a NodeProvider, which will create and configure JavaFX
@@ -28,6 +29,11 @@ public class NodeManager {
     private static ArrayList<PolygonProvider> polygonProviders = new ArrayList<PolygonProvider>();
     private static PolygonProvider DEFAULT_POLYGON_PROVIDER;
     private static CircleProvider DEFAULT_CIRCLE_PROVIDER;
+    private static Color STATIC_BODY_COLOR = new Color(0.5f, 0.9f, 0.3f);
+    private static Color ACTIVE_BODY_COLOR = new Color(0.5f, 0.5f, 0.3f);
+    private static Color KINEMATIC_BODY_COLOR = new Color(0.5f, 0.5f, 0.9f);
+    private static Color AWAKE_BODY_COLOR = new Color(0.9f, 0.7f, 0.7f);
+    private static Color SLEEPING_BODY_COLOR = new Color(0.5f, 0.5f, 0.5f);
 
     public static void addCircleProvider(CircleProvider provider) {
         circleProviders.add(provider);
@@ -77,20 +83,15 @@ public class NodeManager {
         public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
             Transform xf = body.getTransform();
             if (polygon == null) {
-                System.out.println("scale "+scale);
                 ArrayList<Point> points = new ArrayList<>();
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();
-                    System.out.println("Originalpunkt: " + shape.m_vertices[i]);
                     Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
-                    System.out.println("Transformiert: " + transformed);
                     transformed.x = transformed.x - body.getPosition().x;
                     transformed.y = transformed.y - body.getPosition().y;
-                    System.out.println("Relat. zu Loc: " + transformed);
                     Point point = new Point(
                             (int) ((transformed.x) * scale),
                             (int) ((transformed.y * -1) * scale));
-                    System.out.println("Screen coord: " + point);
 
                     points.add(point);
                 }
@@ -99,12 +100,11 @@ public class NodeManager {
 
                 polygon = new PolygonWidget(scene, points);
                 Point point = new Point(
-                                      (int) ((body.getPosition().x + offset_x) * scale),
-                                      (int) (((body.getPosition().y * -1) + offset_Y) * scale));
+                        (int) ((body.getPosition().x + offset_x) * scale),
+                        (int) (((body.getPosition().y * -1) + offset_Y) * scale));
                 polygon.setPreferredLocation(point);
                 // polygon.setPreferredLocation(new Point(0, 0));
                 scene.addWidgetToScene(polygon, body, offset_x, offset_Y, scale);
-                System.out.println("SPolygon pos: " + point);
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();
@@ -120,6 +120,17 @@ public class NodeManager {
                         (int) ((body.getPosition().x + offset_x) * scale),
                         (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
 
+            }
+            if (body.isActive()==false) {
+                polygon.setForeground(ACTIVE_BODY_COLOR);
+            } else if (body.getType() == BodyType.STATIC) {
+                polygon.setForeground(STATIC_BODY_COLOR);
+            } else if (body.getType() == BodyType.KINEMATIC) {
+                polygon.setForeground(KINEMATIC_BODY_COLOR);
+            } else if (body.isAwake() == false) {
+                polygon.setForeground(SLEEPING_BODY_COLOR);
+            } else {
+                polygon.setForeground(AWAKE_BODY_COLOR);
             }
             return polygon;
         }
@@ -160,6 +171,19 @@ public class NodeManager {
             Transform.mulToOutUnsafe(xf, shape.m_p, center);
             circle.setPreferredLocation(new Point((int) ((center.x + offset_x) * scale),
                     (int) (((center.y * -1) + offset_Y) * scale)));
+            if (body.isActive()==false) {
+                circle.setForeground(ACTIVE_BODY_COLOR);
+            } else if (body.getType() == BodyType.STATIC) {
+                circle.setForeground(STATIC_BODY_COLOR);
+            } else if (body.getType() == BodyType.KINEMATIC) {
+                circle.setForeground(KINEMATIC_BODY_COLOR);
+            } else if (body.isAwake() == false) {
+                circle.setForeground(SLEEPING_BODY_COLOR);
+            } else {
+                circle.setForeground(AWAKE_BODY_COLOR);
+            }
+
+
             scene.validate();
             return circle;
         }

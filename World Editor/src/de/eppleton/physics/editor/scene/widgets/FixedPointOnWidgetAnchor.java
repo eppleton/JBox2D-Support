@@ -35,4 +35,6 @@ public class FixedPointOnWidgetAnchor extends Anchor {
         int y = getRelatedWidget().getLocation().y + bounds.y;
         return new Point(x + px, y + py);
     }
+    
+    
 }

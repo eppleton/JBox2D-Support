@@ -38,9 +38,11 @@ public class CircleWidget extends Widget {
         diameter = height > width? width : height;
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
-        g.setPaint(getBackground());
+        Color fg= getForeground();
+        Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
+        g.setPaint(c);
         g.fillOval(x,y, diameter, diameter);
-        g.setColor(getForeground());
+        g.setColor(fg);
         g.drawOval(x,y, diameter, diameter);
         g.setPaint(paint);
     }

@@ -24,7 +24,7 @@ import org.netbeans.api.visual.widget.Widget;
  */
 class JointManager {
 
-    private static Color TRANSPARENT_GREEN = new Color(100, 255, 100, 100);
+    private static Color LINE_COLOR = new Color(0.5f, 0.8f, 0.8f);
     private static JointProvider DUMMYPROVIDER = new JointProvider() {
         @Override
         public void configureWidget(WorldScene aThis, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
@@ -36,7 +36,7 @@ class JointManager {
         public void configureWidget(WorldScene scene, ConnectionWidget widget, Joint joint, float offsetX, float offsetY, int scale) {
             if (widget == null) {
                 widget = new ConnectionWidget(scene);
-                widget.setForeground(TRANSPARENT_GREEN);
+                widget.setLineColor(LINE_COLOR);
          
               
 //                ArrayList<Point> points = new ArrayList<Point>();
@@ -46,8 +46,7 @@ class JointManager {
                 Vec2 anchorB = new Vec2();
                 joint.getAnchorA(anchorA);
                 joint.getAnchorB(anchorB);
-                System.out.println("anchorA "+anchorA);
-                System.out.println("anchorB "+anchorB);
+      
 
                 widget.setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
                         (int) ((anchorA.x + offsetX) * scale),
