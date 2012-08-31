@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.widget.ConnectionWidget;
@@ -74,40 +75,50 @@ public class NodeManager {
 
         @Override
         public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
+            Transform xf = body.getTransform();
             if (polygon == null) {
-
+                System.out.println("scale "+scale);
                 ArrayList<Point> points = new ArrayList<>();
                 for (int i = 0; i < shape.getVertexCount(); i++) {
-                    Vec2 vec2 = shape.getVertex(i);
-                     Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2); 
-                     transformed.x = transformed.x - body.getPosition().x;
-                     transformed.y = transformed.y - body.getPosition().y;
-                            
-//                    Vec2 transformed = vec2;
-                    points.add(new Point(
+                    Vec2 transformed = new Vec2();
+                    System.out.println("Originalpunkt: " + shape.m_vertices[i]);
+                    Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
+                    System.out.println("Transformiert: " + transformed);
+                    transformed.x = transformed.x - body.getPosition().x;
+                    transformed.y = transformed.y - body.getPosition().y;
+                    System.out.println("Relat. zu Loc: " + transformed);
+                    Point point = new Point(
                             (int) ((transformed.x) * scale),
-                            ((int) ((transformed.y * -1)) * scale)));
+                            (int) ((transformed.y * -1) * scale));
+                    System.out.println("Screen coord: " + point);
+
+                    points.add(point);
                 }
+
+
 
                 polygon = new PolygonWidget(scene, points);
-                polygon.setPreferredLocation(new Point(
-                        (int) ((body.getPosition().x + offset_x) * scale),
-                        ((int) ((body.getPosition().y * -1) + offset_Y) * scale)));
+                Point point = new Point(
+                                      (int) ((body.getPosition().x + offset_x) * scale),
+                                      (int) (((body.getPosition().y * -1) + offset_Y) * scale));
+                polygon.setPreferredLocation(point);
+                // polygon.setPreferredLocation(new Point(0, 0));
                 scene.addWidgetToScene(polygon, body, offset_x, offset_Y, scale);
-
+                System.out.println("SPolygon pos: " + point);
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
-                    Vec2 vec2 = shape.getVertex(i);
-                    Vec2 transformed = org.jbox2d.common.Transform.mul(body.m_xf, vec2);
+                    Vec2 transformed = new Vec2();
+                    Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
+
                     transformed.x = transformed.x - body.getPosition().x;
-                     transformed.y = transformed.y - body.getPosition().y;
+                    transformed.y = transformed.y - body.getPosition().y;
                     //Vec2 transformed = vec2;
                     polygon.getPoints().get(i).x = (int) ((transformed.x) * scale);
-                    polygon.getPoints().get(i).y = (int) ((transformed.y * -1)) * scale;
+                    polygon.getPoints().get(i).y = (int) ((transformed.y * -1) * scale);
                 }
                 polygon.setPreferredLocation(new Point(
                         (int) ((body.getPosition().x + offset_x) * scale),
-                        ((int) ((body.getPosition().y * -1) + offset_Y) * scale)));
+                        (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
 
             }
             return polygon;
@@ -140,11 +151,15 @@ public class NodeManager {
         public CircleWidget configureNode(WorldScene scene, CircleWidget circle, Body body, CircleShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
 
             if (circle == null) {
+
                 circle = new CircleWidget(scene, (int) (shape.m_radius * scale));
                 scene.addWidgetToScene(circle, body, offset_x, offset_Y, scale);
             }
-            circle.setPreferredLocation(new Point((int) ((body.getPosition().x + offset_x) * scale),
-                    (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
+            Transform xf = body.getTransform();
+            Vec2 center = new Vec2();
+            Transform.mulToOutUnsafe(xf, shape.m_p, center);
+            circle.setPreferredLocation(new Point((int) ((center.x + offset_x) * scale),
+                    (int) (((center.y * -1) + offset_Y) * scale)));
             scene.validate();
             return circle;
         }

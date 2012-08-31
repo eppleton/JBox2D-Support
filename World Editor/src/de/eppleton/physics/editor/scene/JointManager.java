@@ -8,7 +8,9 @@ import de.eppleton.physics.editor.scene.widgets.FixedPointOnWidgetAnchor;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
+import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.dynamics.joints.JointType;
 import org.netbeans.api.visual.anchor.Anchor;
@@ -31,18 +33,21 @@ class JointManager {
     };
     private static JointProvider DISTANCEPROVIDER = new JointProvider() {
         @Override
-        public void configureWidget(WorldScene scene, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
+        public void configureWidget(WorldScene scene, ConnectionWidget widget, Joint joint, float offsetX, float offsetY, int scale) {
             if (widget == null) {
                 widget = new ConnectionWidget(scene);
                 widget.setForeground(TRANSPARENT_GREEN);
-
+         
+              
 //                ArrayList<Point> points = new ArrayList<Point>();
-                Widget bodyA = scene.findWidget(nextJoint.m_bodyA);
-                Widget bodyB = scene.findWidget(nextJoint.m_bodyB);
+                Widget bodyA = scene.findWidget(joint.m_bodyA);
+                Widget bodyB = scene.findWidget(joint.m_bodyB);
                 Vec2 anchorA = new Vec2();
                 Vec2 anchorB = new Vec2();
-                nextJoint.getAnchorA(anchorA);
-                nextJoint.getAnchorB(anchorB);
+                joint.getAnchorA(anchorA);
+                joint.getAnchorB(anchorB);
+                System.out.println("anchorA "+anchorA);
+                System.out.println("anchorB "+anchorB);
 
                 widget.setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
                         (int) ((anchorA.x + offsetX) * scale),
@@ -51,12 +56,7 @@ class JointManager {
                         (int) ((anchorB.x + offsetX) * scale),
                         (int) (((anchorB.y * -1) + offsetY) * scale))));
 
-                        
-                
-
-                //widget.setControlPoints(points, false);
-                
-                scene.addWidgetToScene(widget, nextJoint, offsetX, offsetY, scale);
+                scene.addWidgetToScene(widget, joint, offsetX, offsetY, scale);
             }
 
 

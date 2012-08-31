@@ -65,6 +65,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
             final World world, Callback callback) {
         this.em = em;
         this.world = world;
+        world.step( 1.0f / 60 , 1,1);
         this.callback = callback;
         selectAction = ActionFactory.createSelectAction(new SelectProviderImpl(em));
         Box2DUtilities.scaleToFit(world, this);
