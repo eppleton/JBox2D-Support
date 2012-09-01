@@ -8,6 +8,7 @@ import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
+import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -84,7 +85,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
         addChild(backgroundLayer);
         mainLayer = new LayerWidget(this);
         addChild(mainLayer);
-
         connectionLayer = new LayerWidget(this);
         addChild(connectionLayer);
         addChild(interractionLayer);
@@ -173,7 +173,11 @@ public class WorldScene extends ObjectScene implements LookupListener {
             final float offset_x,
             final float offset_y,
             final int scale) {
-        mainLayer.addChild(widget);
+        if (widget instanceof ConnectionWidget) {
+            connectionLayer.addChild(widget);
+        } else {
+            mainLayer.addChild(widget);
+        }
         addObject(payload, widget);
         if (payload instanceof Body) {
 
@@ -368,22 +372,48 @@ public class WorldScene extends ObjectScene implements LookupListener {
         Set<?> selectedObjects = getSelectedObjects();
         for (Object object : selectedObjects) {
             Widget w = findWidget(object);
-            mainLayer.removeChild(w);
-            if (object instanceof Body) {
-                JointEdge jointList = ((Body) object).getJointList();
-                while (jointList != null) {
-                    Widget findWidget = findWidget(jointList.joint);
-                    if (findWidget != null) {
-                        mainLayer.removeChild(findWidget);
-                    }
-                    jointList = jointList.next;
+            if (w != null) {
+                if (w.getParentWidget() != null) {
+                    w.getParentWidget().removeChild(w);
+                } else {
+                    System.out.println("found no parent for " + w);
+                    System.out.println(" with Object " + object);
                 }
-                world.destroyBody((Body) object);
+                if (object instanceof Body) {
+                    JointEdge jointList = ((Body) object).getJointList();
+                    while (jointList != null) {
+                        Widget findWidget = findWidget(jointList.joint);
+                        if (findWidget != null) {
+                            findWidget.getParentWidget().removeChild(findWidget);
+                        } else {
+                            System.out.println(
+                                    "Found no widget for jointList.joint " + jointList.joint);
+                        }
+                        jointList = jointList.next;
+                    }
+                    world.destroyBody((Body) object);
 
-            } else if (object instanceof Joint) {
-                world.destroyJoint((Joint) object);
+                } else if (object instanceof Joint) {
+                    Joint joint = world.getJointList();
+                    boolean stillThere = false;
+                    while (joint != null) {
+                        if (joint == object) {
+                            stillThere = true;
+                            break;
+                        }
+                        joint = joint.getNext();
+                    }
+                    if (stillThere)world.destroyJoint((Joint) object);
+                }
+            } else {
+                System.out.println(
+                        "Found no widget for Object " + object);
             }
         }
+
+        repaint();
+        revalidate(false);
+        validate();
     }
 
     public void addKeyboardActions() {
@@ -396,6 +426,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
                 deleteselectedWidgets();
             }
         });
+
+
     }
 
     private class MultiMoveProvider implements MoveProvider {
