@@ -83,7 +83,7 @@ public class NodeManager {
         public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) {//, Transform[] transform) {
             Transform xf = body.getTransform();
             if (polygon == null) {
-                ArrayList<Point> points = new ArrayList<>();
+                ArrayList<Point> points = new ArrayList<Point>();
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();
                     Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
@@ -95,8 +95,6 @@ public class NodeManager {
 
                     points.add(point);
                 }
-
-
 
                 polygon = new PolygonWidget(scene, points);
                 Point point = new Point(

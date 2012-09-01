@@ -19,7 +19,7 @@ public class Box2DUtilities {
 
     public static float getMaxX(Body body) {
         float maxX = body.getPosition().x;
-        if (body.getFixtureList()!=null && body.m_fixtureList.getShape() instanceof PolygonShape) {
+        if (body.getFixtureList() != null && body.m_fixtureList.getShape() instanceof PolygonShape) {
             Vec2[] vertices = ((PolygonShape) body.m_fixtureList.getShape()).getVertices();
             float maxVX = 0;
             for (Vec2 vec2 : vertices) {
@@ -29,7 +29,7 @@ public class Box2DUtilities {
             }
             maxX += maxVX;
         }
-        if (body.getFixtureList()!=null && body.m_fixtureList.getShape() instanceof CircleShape) {
+        if (body.getFixtureList() != null && body.m_fixtureList.getShape() instanceof CircleShape) {
             maxX += ((CircleShape) body.m_fixtureList.getShape()).m_radius;
         }
         return maxX;
@@ -37,7 +37,7 @@ public class Box2DUtilities {
 
     public static float getMaxY(Body body) {
         float maxY = body.getPosition().y;
-        if (body.getFixtureList()!=null && body.m_fixtureList.getShape() instanceof PolygonShape) {
+        if (body.getFixtureList() != null && body.m_fixtureList.getShape() instanceof PolygonShape) {
             Vec2[] vertices = ((PolygonShape) body.m_fixtureList.getShape()).getVertices();
             float maxVY = 0;
             for (Vec2 vec2 : vertices) {
@@ -47,7 +47,7 @@ public class Box2DUtilities {
             }
             maxY += maxVY;
         }
-        if (body.getFixtureList()!=null && body.m_fixtureList.getShape() instanceof CircleShape) {
+        if (body.getFixtureList() != null && body.m_fixtureList.getShape() instanceof CircleShape) {
             maxY += ((CircleShape) body.m_fixtureList.getShape()).m_radius;
         }
         return maxY;
@@ -72,12 +72,14 @@ public class Box2DUtilities {
             if (Box2DUtilities.getMaxY(nextBody) > maxY) {
                 maxY = Box2DUtilities.getMaxY(nextBody);
             }
-            worldScene.setOffsetX((minX < 0) ? -minX : 0);
-            worldScene.setOffsetY((minY < 0) ? -minY : 0);
-            float width = maxX - minX;
-            float height = maxY - minY;
-            worldScene.setScale((int) (600 / ((width > height) ? width : height)));
+
             nextBody = nextBody.getNext();
         }
+        worldScene.setOffsetX((minX < 0) ? -minX : 0);
+        worldScene.setOffsetY((minY < 0) ? -minY : 0);
+        float width = maxX - minX;
+        float height = maxY - minY;
+        worldScene.setOffsetY(worldScene.getOffsetY()+height);
+        worldScene.setScale((int) (600 / ((width > height) ? width : height)));
     }
 }

@@ -4,42 +4,48 @@
  */
 package de.eppleton.physics.editor.scene;
 
-import com.sun.istack.internal.logging.Logger;
 import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.dynamics.joints.JointEdge;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
+import org.netbeans.api.visual.action.MoveProvider;
 import org.netbeans.api.visual.action.ResizeProvider;
 import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
@@ -57,7 +63,7 @@ import org.openide.util.Utilities;
 public class WorldScene extends ObjectScene implements LookupListener {
 
     public static final String DELETE_ACTION = "deleteAction";
-    private static Logger LOGGER = Logger.getLogger(WorldScene.class);
+    private static Logger LOGGER = Logger.getLogger(WorldScene.class.getName());
     private World world;
     private int scale = 300;
     private float offsetX = 0;
@@ -67,26 +73,35 @@ public class WorldScene extends ObjectScene implements LookupListener {
     private ExplorerManager em;
     private final WidgetAction selectAction;
     private ResizeProvider resizeProvider;
+    private LayerWidget mainLayer;
+    private LayerWidget connectionLayer;
+    private LayerWidget interractionLayer = new LayerWidget(this);
+    private LayerWidget backgroundLayer = new LayerWidget(this);
+    private WidgetAction moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
 
     public WorldScene(final ExplorerManager em,
             final World world, Callback callback) {
+        addChild(backgroundLayer);
+        mainLayer = new LayerWidget(this);
+        addChild(mainLayer);
+
+        connectionLayer = new LayerWidget(this);
+        addChild(connectionLayer);
+        addChild(interractionLayer);
+        getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         this.em = em;
-        this.world = world;
-        world.step(1.0f / 60, 1, 1);
         this.callback = callback;
-        this.setBackground(Color.BLACK);
+        this.world = world;
         selectAction = ActionFactory.createSelectAction(new SelectProviderImpl(em));
+        world.step(1.0f / 60, 1, 1);
+        this.setBackground(Color.BLACK);
         Box2DUtilities.scaleToFit(world, this);
         super.getActions().addAction(ActionFactory.createZoomAction());
         super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
         updateBodies();
         lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
         lookupResult.addLookupListener(this);
-
-    }
-
-    private void deleteSelectedNodes() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        initGrids();
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
@@ -127,10 +142,15 @@ public class WorldScene extends ObjectScene implements LookupListener {
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
             if (nextBody.getFixtureList() != null) {
-                Shape shape = nextBody.getFixtureList().getShape();
-                NodeProvider nodeProvider = NodeManager.getNodeProvider(nextBody, shape);
-                Widget widget = super.findWidget(nextBody);
-                nodeProvider.configureNode(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);
+                Fixture fixture = nextBody.getFixtureList();
+                while (fixture != null) {
+                    Shape shape = nextBody.getFixtureList().getShape();
+
+                    NodeProvider nodeProvider = NodeManager.getNodeProvider(nextBody, shape);
+                    Widget widget = super.findWidget(nextBody);
+                    nodeProvider.configureNode(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);}
+                    fixture = fixture.getNext();
+                }
             }
             nextBody = nextBody.getNext();
         }
@@ -153,12 +173,12 @@ public class WorldScene extends ObjectScene implements LookupListener {
             final float offset_x,
             final float offset_y,
             final int scale) {
-        addChild(widget);
+        mainLayer.addChild(widget);
         addObject(payload, widget);
         if (payload instanceof Body) {
 
             widget.getActions().addAction(ActionFactory.createResizeAction(null, resizeProvider));
-            widget.getActions().addAction(ActionFactory.createMoveAction());
+            widget.getActions().addAction(moveAction);
             widget.getActions().addAction(selectAction);
             widget.addDependency(
                     new Widget.Dependency() {
@@ -232,6 +252,25 @@ public class WorldScene extends ObjectScene implements LookupListener {
         getView().repaint();
     }
 
+    public float getOffsetY() {
+        return offsetY;
+    }
+
+    public void initGrids() {
+        Image sourceImage = Utilities.loadImage("de/eppleton/physics/editor/scene/resources/paper_grid17.png"); // NOI18N
+        int width = sourceImage.getWidth(null);
+        int height = sourceImage.getHeight(null);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.drawImage(sourceImage, 0, 0, null);
+        graphics.dispose();
+        TexturePaint PAINT_BACKGROUND = new TexturePaint(image, new Rectangle(0, 0, width, height));
+        setBackground(PAINT_BACKGROUND);
+        repaint();
+        revalidate(false);
+        validate();
+    }
+
     private static class SelectProviderImpl implements SelectProvider {
 
         private final ExplorerManager em;
@@ -295,7 +334,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
                         && (transferable.getTransferData(ActiveEditorDrop.FLAVOR) instanceof B2DActiveEditorDrop)) {
                     return ConnectorState.ACCEPT;
                 }
-            } catch (UnsupportedFlavorException | IOException ex) {
+            } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
             return ConnectorState.REJECT;
@@ -311,7 +350,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
                     fireChange();
 
                 }
-            } catch (UnsupportedFlavorException | IOException ex) {
+            } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
 
@@ -329,15 +368,15 @@ public class WorldScene extends ObjectScene implements LookupListener {
         Set<?> selectedObjects = getSelectedObjects();
         for (Object object : selectedObjects) {
             Widget w = findWidget(object);
-            this.removeChild(w);
+            mainLayer.removeChild(w);
             if (object instanceof Body) {
                 JointEdge jointList = ((Body) object).getJointList();
                 while (jointList != null) {
                     Widget findWidget = findWidget(jointList.joint);
                     if (findWidget != null) {
-                        this.removeChild(findWidget);
+                        mainLayer.removeChild(findWidget);
                     }
-                    jointList=jointList.next;
+                    jointList = jointList.next;
                 }
                 world.destroyBody((Body) object);
 
@@ -357,5 +396,45 @@ public class WorldScene extends ObjectScene implements LookupListener {
                 deleteselectedWidgets();
             }
         });
+    }
+
+    private class MultiMoveProvider implements MoveProvider {
+
+        private HashMap<Widget, Point> originals = new HashMap<Widget, Point>();
+        private Point original;
+
+        public void movementStarted(Widget widget) {
+            Object object = findObject(widget);
+            originals.put(widget, widget.getPreferredLocation());
+            for (Object o : getSelectedObjects()) {
+
+                Widget w = findWidget(o);
+                if (w != null & !(w instanceof ConnectionWidget)) {
+                    originals.put(w, w.getPreferredLocation());
+                }
+
+            }
+
+        }
+
+        public void movementFinished(Widget widget) {
+            originals.clear();
+            original = null;
+        }
+
+        public Point getOriginalLocation(Widget widget) {
+            original = widget.getPreferredLocation();
+            return original;
+        }
+
+        public void setNewLocation(Widget widget, Point location) {
+            int dx = location.x - original.x;
+            int dy = location.y - original.y;
+            for (Map.Entry<Widget, Point> entry : originals.entrySet()) {
+                Point point = entry.getValue();
+
+                entry.getKey().setPreferredLocation(new Point(point.x + dx, point.y + dy));
+            }
+        }
     }
 }

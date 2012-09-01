@@ -35,7 +35,7 @@ public class PolygonWidget extends Widget {
             ypoints[i] = points.get(i).y;
         }
         shape = new Polygon(xpoints, ypoints, points.size());
-        this.points = new ArrayList<>(points);
+        this.points = new ArrayList<Point>(points);
     }
 
     public ArrayList<Point> getPoints() {
