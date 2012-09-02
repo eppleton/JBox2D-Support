@@ -194,8 +194,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 int newX = widget.getLocation().x;
                                 int newY = widget.getLocation().y;
                                 if ((newX != x || newY != y)) {
-                                    System.out.println("#x " + x + "->" + newX);
-                                    System.out.println("#y " + y + "->" + newY);
+//                                    System.out.println("#x " + x + "->" + newX);
+//                                    System.out.println("#y " + y + "->" + newY);
                                     //  System.out.println("old "+payload.getPosition());
                                     ((Body) payload).getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
                                     ((Body) payload).getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
@@ -210,8 +210,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 int newHeight = bounds.height;
                                 int newWidth = bounds.width;
                                 if (newHeight != height || newWidth != width) {
-                                    System.out.println("#height " + height + "->" + newHeight);
-                                    System.out.println("#width " + width + "->" + newWidth);
+//                                    System.out.println("#height " + height + "->" + newHeight);
+//                                    System.out.println("#width " + width + "->" + newWidth);
                                     Shape shape = ((Body) payload).getFixtureList().getShape();
                                     if (shape instanceof CircleShape && widget instanceof CircleWidget) {
                                         shape.m_radius = (float) ((CircleWidget) widget).getRadius() / (float) scale;
@@ -230,6 +230,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
     }
 
     void fireChange() {
+        validate();
         callback.changed();
     }
 
@@ -406,28 +407,42 @@ public class WorldScene extends ObjectScene implements LookupListener {
         }
         for (Body body : bodiesToDestroy) {
             Widget w = findWidget(body);
+            System.out.println("1. destroy Body " + body);
             if (w != null) {
                 Widget parentWidget = w.getParentWidget();
                 if (parentWidget != null) {
+                    System.out.println("2.remove widget from parent " + w);
                     parentWidget.removeChild(w);
                 } else {
                     System.out.println("Could not find a ParentWidget for selected body's widget, that smells like a bug!");
                 }
+                System.out.println("3.remove object from scene " + body);
+
                 this.removeObject(body);
 
                 // first we'll remove all the Joints of this body
-                JointEdge jointList = body.getJointList();
-                while (jointList != null) {
-                    Widget findWidget = findWidget(jointList.joint);
+                Joint joint = body.getJointList().joint;
+                while (joint != null) {
+                    System.out.println("4. Checking Joint " + joint);
+                    Widget findWidget = findWidget(joint);
                     if (findWidget != null && findWidget.getParentWidget() != null) {
+                        System.out.println("5. Removing Joint widget from parent " + joint);
+
                         findWidget.getParentWidget().removeChild(findWidget);
-                        world.destroyJoint(jointList.joint);
-                        this.removeObject(jointList.joint);
+                        System.out.println("6. Removing Joint object from scene " + joint);
+
+                        this.removeObject(joint);
+                        System.out.println("7. destroy joint  " + joint);
+
+                        world.destroyJoint(joint);
                     } else {
                         System.out.println("Either widget not found or ParentWidget is null for a joint of this body, that smells like a bug!");
                     }
-                    jointList = jointList.next;
+                    joint = joint.getNext();
+                    System.out.println("7.5 joint next "+joint);
                 }
+                System.out.println("8. now destroy the body "+body);
+
                 world.destroyBody(body);
             } else {
                 System.out.println("Could not find a Widget for selected Body, that smells like a bug!");
