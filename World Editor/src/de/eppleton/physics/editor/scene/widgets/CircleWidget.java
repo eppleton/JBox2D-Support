@@ -47,18 +47,7 @@ public class CircleWidget extends Widget {
         g.setPaint(paint);
     }
 
-    @Override
-    protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
-        super.notifyStateChanged(previousState, state);
-        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
-        if (state.isSelected()) {
-            setBackground(Color.BLUE);
-        } else {
-            setBackground(Color.WHITE);
-        }
-
-    }
-
+ 
     public void setRadius(int r) {
         this.diameter = r*2;
     }

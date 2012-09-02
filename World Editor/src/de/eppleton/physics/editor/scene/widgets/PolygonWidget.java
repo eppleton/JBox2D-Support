@@ -76,16 +76,16 @@ public class PolygonWidget extends Widget {
         g.drawLine(x, y, points.get(0).x, points.get(0).y);*/
         g.setPaint(paint);
     }
+//
+//    @Override
+//    protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
+//        super.notifyStateChanged(previousState, state);
+//        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
+//        if (state.isSelected()) {
+//            setBackground(Color.BLUE);
+//        } else {
+//            setBackground(Color.WHITE);
+//        }
 
-    @Override
-    protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
-        super.notifyStateChanged(previousState, state);
-        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
-        if (state.isSelected()) {
-            setBackground(Color.BLUE);
-        } else {
-            setBackground(Color.WHITE);
-        }
-
-    }
+//    }
 }

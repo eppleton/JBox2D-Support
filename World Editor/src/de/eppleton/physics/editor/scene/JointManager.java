@@ -37,16 +37,19 @@ class JointManager {
             if (widget == null) {
                 widget = new ConnectionWidget(scene);
                 widget.setLineColor(LINE_COLOR);
-         
-              
+
+
 //                ArrayList<Point> points = new ArrayList<Point>();
                 Widget bodyA = scene.findWidget(joint.m_bodyA);
                 Widget bodyB = scene.findWidget(joint.m_bodyB);
+                System.out.println("Configure Joint Body A " + bodyA);
+                System.out.println("Configure Joint Body B " + bodyB);
+
                 Vec2 anchorA = new Vec2();
                 Vec2 anchorB = new Vec2();
                 joint.getAnchorA(anchorA);
                 joint.getAnchorB(anchorB);
-      
+
 
                 widget.setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
                         (int) ((anchorA.x + offsetX) * scale),
@@ -55,7 +58,7 @@ class JointManager {
                         (int) ((anchorB.x + offsetX) * scale),
                         (int) (((anchorB.y * -1) + offsetY) * scale))));
 
-                scene.addWidgetToScene(widget, joint, offsetX, offsetY, scale);
+                scene.addConnection(widget, joint);
             }
 
 
