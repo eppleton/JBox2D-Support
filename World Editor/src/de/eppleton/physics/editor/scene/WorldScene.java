@@ -375,23 +375,22 @@ public class WorldScene extends ObjectScene implements LookupListener {
             if (w != null) {
                 if (w.getParentWidget() != null) {
                     w.getParentWidget().removeChild(w);
-                } else {
-                    System.out.println("found no parent for " + w);
-                    System.out.println(" with Object " + object);
                 }
                 if (object instanceof Body) {
                     JointEdge jointList = ((Body) object).getJointList();
                     while (jointList != null) {
                         Widget findWidget = findWidget(jointList.joint);
-                        if (findWidget != null) {
+                        if (findWidget != null && findWidget.getParentWidget()!=null) {
                             findWidget.getParentWidget().removeChild(findWidget);
-                        } else {
-                            System.out.println(
-                                    "Found no widget for jointList.joint " + jointList.joint);
                         }
                         jointList = jointList.next;
                     }
-                    world.destroyBody((Body) object);
+                    
+                    if (world.getBodyCount() >=0 && world.isLocked()) {
+                        world.destroyBody((Body) object);
+                    }else {
+                        System.out.println("Body count is zero or World is locked (whatever that means...)");
+                    }
 
                 } else if (object instanceof Joint) {
                     Joint joint = world.getJointList();
@@ -403,17 +402,17 @@ public class WorldScene extends ObjectScene implements LookupListener {
                         }
                         joint = joint.getNext();
                     }
-                    if (stillThere)world.destroyJoint((Joint) object);
+                    if (stillThere) {
+                        world.destroyJoint((Joint) object);
+                    }
                 }
-            } else {
-                System.out.println(
-                        "Found no widget for Object " + object);
             }
         }
 
         repaint();
         revalidate(false);
         validate();
+        fireChange();
     }
 
     public void addKeyboardActions() {
