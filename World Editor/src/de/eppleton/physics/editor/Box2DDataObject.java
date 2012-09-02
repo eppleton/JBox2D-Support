@@ -10,9 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
@@ -129,11 +127,12 @@ public class Box2DDataObject extends MultiDataObject {
         displayName = "#LBL_Box2D_EDITOR",
     iconBase = "de/eppleton/physics/editor/tar.png",
     mimeType = "text/x-box2d",
-    persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+    persistenceType = TopComponent.PERSISTENCE_NEVER,
     preferredID = "Box2D",
     position = 1000)
-    @Messages("LBL_Box2D_EDITOR=Source")
+    @Messages("LBL_Box2D_EDITOR=Source Code")
     public static MultiViewEditorElement createEditor(Lookup lkp) {
+        System.out.println("########### Create Editor");
         return new Box2DEditor(lkp);
     }
 

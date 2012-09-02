@@ -4,3 +4,6 @@
 /protobuf-java/build/
 /slf4j/build/
 /build/
+/jbox2d-library/nbproject/private/
+/jbox2d-library-2.3.0-SNAPSHOT/nbproject/private/
+/jbox2d-library-2.3.0-SNAPSHOT/build/

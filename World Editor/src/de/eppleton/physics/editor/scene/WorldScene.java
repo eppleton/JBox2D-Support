@@ -369,45 +369,107 @@ public class WorldScene extends ObjectScene implements LookupListener {
     }
 
     private void deleteselectedWidgets() {
+        HashSet<Joint> jointsToDestroy = new HashSet< Joint>();
+        HashSet<Body> bodiesToDestroy = new HashSet<Body>();
+
+
         Set<?> selectedObjects = getSelectedObjects();
         for (Object object : selectedObjects) {
-            Widget w = findWidget(object);
-            if (w != null) {
-                if (w.getParentWidget() != null) {
-                    w.getParentWidget().removeChild(w);
-                }
-                if (object instanceof Body) {
-                    JointEdge jointList = ((Body) object).getJointList();
-                    while (jointList != null) {
-                        Widget findWidget = findWidget(jointList.joint);
-                        if (findWidget != null && findWidget.getParentWidget()!=null) {
-                            findWidget.getParentWidget().removeChild(findWidget);
-                        }
-                        jointList = jointList.next;
-                    }
-                    
-                    if (world.getBodyCount() >=0 && world.isLocked()) {
-                        world.destroyBody((Body) object);
-                    }else {
-                        System.out.println("Body count is zero or World is locked (whatever that means...)");
-                    }
-
-                } else if (object instanceof Joint) {
-                    Joint joint = world.getJointList();
-                    boolean stillThere = false;
-                    while (joint != null) {
-                        if (joint == object) {
-                            stillThere = true;
-                            break;
-                        }
-                        joint = joint.getNext();
-                    }
-                    if (stillThere) {
-                        world.destroyJoint((Joint) object);
-                    }
-                }
+            if (object instanceof Joint) {
+                jointsToDestroy.add((Joint) object);
+            } else if (object instanceof Body) {
+                bodiesToDestroy.add((Body) object);
             }
         }
+        for (Joint joint : jointsToDestroy) {
+            Widget w = findWidget(joint);
+            if (w != null) {
+
+                Widget parentWidget = w.getParentWidget();
+                if (parentWidget != null) {
+                    parentWidget.removeChild(w);
+                } else {
+                    System.out.println("Could not find a ParentWidget for selected Joint's widget, that smells like a bug!");
+                }
+                this.removeObject(joint);
+                System.out.println("Destroy Joint " + joint);
+                world.destroyJoint(joint);
+            } else {
+                System.out.println("Could not find a Widget for selected Joint, that smells like a bug!");
+            }
+        }
+        for (Body body : bodiesToDestroy) {
+            Widget w = findWidget(body);
+            if (w != null) {
+                Widget parentWidget = w.getParentWidget();
+                if (parentWidget != null) {
+                    parentWidget.removeChild(w);
+                } else {
+                    System.out.println("Could not find a ParentWidget for selected body's widget, that smells like a bug!");
+                }
+                this.removeObject(body);
+
+                // first we'll remove all the Joints of this body
+                JointEdge jointList = body.getJointList();
+                while (jointList != null) {
+                    Widget findWidget = findWidget(jointList.joint);
+                    if (findWidget != null && findWidget.getParentWidget() != null) {
+                        findWidget.getParentWidget().removeChild(findWidget);
+
+                        world.destroyJoint(jointList.joint);
+                    } else {
+                        System.out.println("Either widget not found or ParentWidget is null for a joint of this body, that smells like a bug!");
+                    }
+                    this.removeObject(jointList.joint);
+                    jointList = jointList.next;
+                }
+                world.destroyBody(body);
+            } else {
+                System.out.println("Could not find a Widget for selected Body, that smells like a bug!");
+            }
+        }
+
+        /*
+         for (Object object : selectedObjects) {
+         Widget w = findWidget(object);
+         if (w != null) {
+         if (w.getParentWidget() != null) {
+         w.getParentWidget().removeChild(w);
+         }
+         if (object instanceof Body) {
+         JointEdge jointList = ((Body) object).getJointList();
+         while (jointList != null) {
+         Widget findWidget = findWidget(jointList.joint);
+         if (findWidget != null && findWidget.getParentWidget() != null) {
+         findWidget.getParentWidget().removeChild(findWidget);
+         }
+         jointList = jointList.next;
+         }
+
+         if (world.getBodyCount() >= 0 && world.isLocked()) {
+         world.destroyBody((Body) object);
+         } else {
+         System.out.println("Body count is zero or World is locked (whatever that means...)");
+         }
+
+         } else if (object instanceof Joint) {
+         Joint joint = world.getJointList();
+         boolean stillThere = false;
+         while (joint != null) {
+         if (joint == object) {
+         stillThere = true;
+         break;
+         }
+         joint = joint.getNext();
+         }
+         if (stillThere) {
+         world.destroyJoint((Joint) object);
+         }
+         }
+         }
+         }*/
+
+
 
         repaint();
         revalidate(false);
