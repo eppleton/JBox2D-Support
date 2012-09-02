@@ -407,41 +407,42 @@ public class WorldScene extends ObjectScene implements LookupListener {
         }
         for (Body body : bodiesToDestroy) {
             Widget w = findWidget(body);
-            System.out.println("1. destroy Body " + body);
+//            System.out.println("1. destroy Body " + body);
             if (w != null) {
                 Widget parentWidget = w.getParentWidget();
                 if (parentWidget != null) {
-                    System.out.println("2.remove widget from parent " + w);
+//                    System.out.println("2.remove widget from parent " + w);
                     parentWidget.removeChild(w);
                 } else {
                     System.out.println("Could not find a ParentWidget for selected body's widget, that smells like a bug!");
                 }
-                System.out.println("3.remove object from scene " + body);
+//                System.out.println("3.remove object from scene " + body);
 
                 this.removeObject(body);
 
                 // first we'll remove all the Joints of this body
-                Joint joint = body.getJointList().joint;
+                Joint joint = null;
+                if ( body.getJointList() != null) joint = body.getJointList().joint;
                 while (joint != null) {
-                    System.out.println("4. Checking Joint " + joint);
+//                    System.out.println("4. Checking Joint " + joint);
                     Widget findWidget = findWidget(joint);
                     if (findWidget != null && findWidget.getParentWidget() != null) {
-                        System.out.println("5. Removing Joint widget from parent " + joint);
+//                        System.out.println("5. Removing Joint widget from parent " + joint);
 
                         findWidget.getParentWidget().removeChild(findWidget);
-                        System.out.println("6. Removing Joint object from scene " + joint);
+//                        System.out.println("6. Removing Joint object from scene " + joint);
 
                         this.removeObject(joint);
-                        System.out.println("7. destroy joint  " + joint);
+//                        System.out.println("7. destroy joint  " + joint);
 
                         world.destroyJoint(joint);
                     } else {
                         System.out.println("Either widget not found or ParentWidget is null for a joint of this body, that smells like a bug!");
                     }
                     joint = joint.getNext();
-                    System.out.println("7.5 joint next "+joint);
+//                    System.out.println("7.5 joint next "+joint);
                 }
-                System.out.println("8. now destroy the body "+body);
+//                System.out.println("8. now destroy the body "+body);
 
                 world.destroyBody(body);
             } else {
