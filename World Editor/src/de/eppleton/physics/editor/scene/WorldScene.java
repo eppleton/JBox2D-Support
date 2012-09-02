@@ -8,7 +8,6 @@ import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
-import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -195,10 +194,14 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 int newX = widget.getLocation().x;
                                 int newY = widget.getLocation().y;
                                 if ((newX != x || newY != y)) {
+                                    System.out.println("#x " + x + "->" + newX);
+                                    System.out.println("#y " + y + "->" + newY);
                                     //  System.out.println("old "+payload.getPosition());
                                     ((Body) payload).getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
                                     ((Body) payload).getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
                                     // System.out.println("new "+payload.getPosition());
+                                    x = newX;
+                                    y = newY;
                                     fireChange();
                                 }
                             }
@@ -207,11 +210,14 @@ public class WorldScene extends ObjectScene implements LookupListener {
                                 int newHeight = bounds.height;
                                 int newWidth = bounds.width;
                                 if (newHeight != height || newWidth != width) {
+                                    System.out.println("#height " + height + "->" + newHeight);
+                                    System.out.println("#width " + width + "->" + newWidth);
                                     Shape shape = ((Body) payload).getFixtureList().getShape();
                                     if (shape instanceof CircleShape && widget instanceof CircleWidget) {
                                         shape.m_radius = (float) ((CircleWidget) widget).getRadius() / (float) scale;
-
                                     }
+                                    height = newHeight;
+                                    width = newWidth;
                                 }
                             }
 
@@ -427,47 +433,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
                 System.out.println("Could not find a Widget for selected Body, that smells like a bug!");
             }
         }
-
-        /*
-         for (Object object : selectedObjects) {
-         Widget w = findWidget(object);
-         if (w != null) {
-         if (w.getParentWidget() != null) {
-         w.getParentWidget().removeChild(w);
-         }
-         if (object instanceof Body) {
-         JointEdge jointList = ((Body) object).getJointList();
-         while (jointList != null) {
-         Widget findWidget = findWidget(jointList.joint);
-         if (findWidget != null && findWidget.getParentWidget() != null) {
-         findWidget.getParentWidget().removeChild(findWidget);
-         }
-         jointList = jointList.next;
-         }
-
-         if (world.getBodyCount() >= 0 && world.isLocked()) {
-         world.destroyBody((Body) object);
-         } else {
-         System.out.println("Body count is zero or World is locked (whatever that means...)");
-         }
-
-         } else if (object instanceof Joint) {
-         Joint joint = world.getJointList();
-         boolean stillThere = false;
-         while (joint != null) {
-         if (joint == object) {
-         stillThere = true;
-         break;
-         }
-         joint = joint.getNext();
-         }
-         if (stillThere) {
-         world.destroyJoint((Joint) object);
-         }
-         }
-         }
-         }*/
-
 
 
         repaint();

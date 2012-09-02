@@ -135,28 +135,8 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     }
 
     @Override
-    public void componentOpened() {
-    }
-
-    @Override
-    public void componentClosed() {
-    }
-
-    @Override
     public void componentShowing() {
         scene.updateBodies();
-    }
-
-    @Override
-    public void componentHidden() {
-    }
-
-    @Override
-    public void componentActivated() {
-    }
-
-    @Override
-    public void componentDeactivated() {
     }
 
     @Override
@@ -186,6 +166,27 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
     @Override
     public ExplorerManager getExplorerManager() {
         return em;
+    }
+
+    @Override
+    public void componentOpened() {
+
+    }
+
+    @Override
+    public void componentClosed() {
+    }
+
+    @Override
+    public void componentHidden() {
+    }
+
+    @Override
+    public void componentActivated() {
+    }
+
+    @Override
+    public void componentDeactivated() {
     }
 
     private static class VisualUpdater implements Runnable {
