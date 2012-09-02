@@ -415,12 +415,11 @@ public class WorldScene extends ObjectScene implements LookupListener {
                     Widget findWidget = findWidget(jointList.joint);
                     if (findWidget != null && findWidget.getParentWidget() != null) {
                         findWidget.getParentWidget().removeChild(findWidget);
-
                         world.destroyJoint(jointList.joint);
+                        this.removeObject(jointList.joint);
                     } else {
                         System.out.println("Either widget not found or ParentWidget is null for a joint of this body, that smells like a bug!");
                     }
-                    this.removeObject(jointList.joint);
                     jointList = jointList.next;
                 }
                 world.destroyBody(body);
