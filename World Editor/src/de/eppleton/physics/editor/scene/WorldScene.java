@@ -7,6 +7,7 @@ package de.eppleton.physics.editor.scene;
 import de.eppleton.jbox2d.Box2DUtilities;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
+import de.eppleton.physics.editor.scene.widgets.ContainerWidget;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -230,14 +231,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
         repaint();
         revalidate(false);
         validate();
-
-
-
-
-
-
-
-
     }
 
     void addConnection(ConnectionWidget widget, Joint joint) {
@@ -444,7 +437,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
             originals.put(widget, widget.getPreferredLocation());
             for (Object o : getSelectedObjects()) {
                 Widget w = findWidget(o);
-                if (w != null & !(w instanceof ConnectionWidget)) {
+                if (w != null && (w instanceof ContainerWidget)) {
                     originals.put(w, w.getPreferredLocation());
                 }
 
