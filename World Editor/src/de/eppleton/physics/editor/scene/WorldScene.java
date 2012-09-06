@@ -107,7 +107,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         HashMap<Integer, Body> addBodies = transferData.addBodies(world);
         LOGGER.info("retrieved Bodies");
         float x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
-        float y = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
+        float y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, false);
         LOGGER.info("Configuring the Bodies");
 
         configureBodies(addBodies, x, y);
@@ -124,20 +124,22 @@ public class WorldScene extends ObjectScene implements LookupListener {
     private void configureBodies(HashMap<Integer, Body> bodies, float x, float y) {
         Collection<Body> values = bodies.values();
         float minX = Float.MAX_VALUE;
-        float minY = Float.MAX_VALUE;
+        float maxY = Float.MIN_VALUE;
         for (Body body : values) {
             minX = body.getPosition().x < minX ? body.getPosition().x : minX;
-            minY = body.getPosition().y < minY ? body.getPosition().y : minY;
+            maxY = body.getPosition().y > maxY ? body.getPosition().y : maxY;
         }
         for (Body body : values) {
             body.getPosition().x = body.getPosition().x - minX + x;
-            body.getPosition().y = body.getPosition().y - minY + y;
+            body.getPosition().y = body.getPosition().y - maxY - y;
         }
     }
 
     public void updateBodies() {
+        System.out.println("### updating bodies");
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
+            
             if (nextBody.getFixtureList() != null) {
                 Fixture fixture = nextBody.getFixtureList();
                 while (fixture != null) {

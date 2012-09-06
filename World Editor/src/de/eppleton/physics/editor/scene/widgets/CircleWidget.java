@@ -50,6 +50,7 @@ public class CircleWidget extends Widget {
  
     public void setRadius(int r) {
         this.diameter = r*2;
+        revalidate();
     }
 
     public int getRadius() {

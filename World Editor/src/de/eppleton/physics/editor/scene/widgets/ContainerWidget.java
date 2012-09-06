@@ -22,7 +22,8 @@ public class ContainerWidget extends Widget{
         @Override
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         super.notifyStateChanged(previousState, state);
-        setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
+        //setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
+        setBorder(state.isSelected() ? BorderFactory.createDashedBorder(Color.GRAY, 4, 4): BorderFactory.createEmptyBorder(4));
         if (state.isSelected()) {
             setBackground(Color.BLUE);
         } else {

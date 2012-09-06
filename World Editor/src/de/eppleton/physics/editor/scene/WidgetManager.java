@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.Fixture;
 import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
@@ -87,15 +88,13 @@ public class WidgetManager {
             final float offset_y,
             final int scale) {
         Widget containerWidget = scene.findWidget(body);
-        System.out.println("### containerwidget for body " + body);
+
         if (containerWidget == null) {
             containerWidget = new ContainerWidget(scene);
             scene.getMainLayer().addChild(containerWidget);
             scene.addObject(body, containerWidget);
             addActions(scene, containerWidget, body, offset_x, offset_y, scale);
-            System.out.println("### is new " + containerWidget);
-        } else {
-            System.out.println("### already exists " + containerWidget);
+
         }
 
 
@@ -105,7 +104,7 @@ public class WidgetManager {
     static void addActions(final WorldScene scene, final Widget containerWidget, final Body body, final float offset_x,
             final float offset_y,
             final int scale) {
-        containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
+      //  containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
         containerWidget.getActions().addAction(scene.getMoveAction());
         containerWidget.getActions().addAction(scene.getSelectAction());
         containerWidget.addDependency(
@@ -134,9 +133,32 @@ public class WidgetManager {
                         if (bounds != null) {
                             int newHeight = bounds.height;
                             int newWidth = bounds.width;
+                            if (newHeight != height || newWidth != width) {
+                                Fixture fixture = body.getFixtureList();
+                                while (fixture != null) {
+                                    Shape shape = fixture.getShape();
+                                    if (shape.getType() == ShapeType.CIRCLE) {
+                                        float radius = shape.getRadius();
+                                        int oldSmallerSide = width < height ? width : height;
+                                        int newSmallerSide = newWidth < newHeight ? newWidth : newHeight;
+                                        float ratio = (float) newSmallerSide / (float) oldSmallerSide;
+                                        //System.out.println("olds " + oldSmallerSide + " newS " + newSmallerSide + " ratio " + ratio);
+                                        if (!Float.isInfinite(ratio)) {
+                                            shape.setRadius(radius * ratio);
+                                            Widget widget = scene.findWidget(shape);
+                                            //DEFAULT_CIRCLE_PROVIDER.configureWidget(scene, widget, body, shape, offset_x, offset_y, scale);
+//                                            ((CircleWidget)widget).setRadius((int) (shape.m_radius * scale));
+//                                            System.out.println("### setting the circles radius ");
+                                        }
+                                    }
+                                    fixture = fixture.getNext();
+                                }
+                                width = newWidth;
+                                height = newHeight;
+                                scene.fireChange();
+                            }
+
                         }
-
-
                     }
                 });
     }
@@ -164,7 +186,7 @@ public class WidgetManager {
                 scene.addObject(shape, polygon);
                 // polygon.setPreferredLocation(new Point(0, 0));
                 containerWidget.addChild(polygon);
-                System.out.println("### Container Widget has so many childs: " + containerWidget.getChildren().size());
+
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();
@@ -227,10 +249,16 @@ public class WidgetManager {
                 containerWidget.addChild(circle);
                 scene.addObject(shape, circle);
             }
+            System.out.println("### set Radius to " + (shape.m_radius * scale));
+            circle.setRadius((int) (shape.m_radius * scale));
             Transform xf = body.getTransform();
             Vec2 center = new Vec2();
             Transform.mulToOutUnsafe(xf, shape.m_p, center);
-            containerWidget.setPreferredLocation(new Point((int) ((center.x + offset_x) * scale),
+          
+           /* circle.setPreferredLocation(new Point((int) ((center.x ) * scale),
+                    (int) (((center.y * -1)) * scale)));*/
+            containerWidget.setPreferredLocation(new Point(
+                    (int) ((center.x + offset_x) * scale),
                     (int) (((center.y * -1) + offset_Y) * scale)));
             if (body.isActive() == false) {
                 circle.setForeground(ACTIVE_BODY_COLOR);
