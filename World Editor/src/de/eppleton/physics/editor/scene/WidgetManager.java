@@ -29,7 +29,7 @@ import org.netbeans.api.visual.widget.Widget;
  *
  * @author eppleton
  */
-public class NodeManager {
+public class WidgetManager {
 
     private static ArrayList<CircleProvider> circleProviders = new ArrayList<CircleProvider>();
     private static ArrayList<PolygonProvider> polygonProviders = new ArrayList<PolygonProvider>();
@@ -57,11 +57,11 @@ public class NodeManager {
         polygonProviders.remove(provider);
     }
 
-    public static NodeProvider getNodeProvider(Body body, Shape shape) {
+    public static WidgetProvider getWidgetProvider(Body body, Shape shape) {
 
         if (shape instanceof CircleShape) {
-            for (NodeProvider provider : circleProviders) {
-                if (provider.providesNodeFor(body, shape)) {
+            for (WidgetProvider provider : circleProviders) {
+                if (provider.providesWidgetFor(body, shape)) {
                     return provider;
                 }
             }
@@ -70,8 +70,8 @@ public class NodeManager {
             }
             return DEFAULT_CIRCLE_PROVIDER;
         } else if (shape instanceof PolygonShape) {
-            for (NodeProvider provider : polygonProviders) {
-                if (provider.providesNodeFor(body, shape)) {
+            for (WidgetProvider provider : polygonProviders) {
+                if (provider.providesWidgetFor(body, shape)) {
                     return provider;
                 }
             }
@@ -93,6 +93,7 @@ public class NodeManager {
             scene.addObject(body, containerWidget);
             addActions(scene, containerWidget, body, offset_x, offset_y, scale);
         }
+    
         return containerWidget;
     }
 
@@ -140,7 +141,7 @@ public class NodeManager {
     public static class DefaultPolygonProvider implements PolygonProvider<PolygonWidget> {
 
         @Override
-        public PolygonWidget configureNode(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
+        public PolygonWidget configureWidget(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
             Widget containerWidget = getContainer(scene, body, offset_x, offset_Y, scale);
             Transform xf = body.getTransform();
             if (polygon == null) {
@@ -191,7 +192,7 @@ public class NodeManager {
         }
 
         @Override
-        public boolean providesNodeFor(Body body, PolygonShape shape) {
+        public boolean providesWidgetFor(Body body, PolygonShape shape) {
             // dummy, because this will never be asked for
             return shape instanceof PolygonShape;
         }
@@ -214,7 +215,7 @@ public class NodeManager {
     public static class DefaultCircleProvider implements CircleProvider<CircleWidget> {
 
         @Override
-        public CircleWidget configureNode(WorldScene scene, CircleWidget circle, Body body, CircleShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
+        public CircleWidget configureWidget(WorldScene scene, CircleWidget circle, Body body, CircleShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
             Widget containerWidget = getContainer(scene, body, offset_x, offset_Y, scale);
 
             if (circle == null) {
@@ -245,7 +246,7 @@ public class NodeManager {
         }
 
         @Override
-        public boolean providesNodeFor(Body body, CircleShape shape) {
+        public boolean providesWidgetFor(Body body, CircleShape shape) {
             // dummy, because this will never be asked for
             return shape instanceof CircleShape;
         }

@@ -11,6 +11,6 @@ import org.netbeans.api.visual.widget.Widget;
  *
  * @author eppleton
  */
-public interface CircleProvider<n extends Widget> extends NodeProvider<CircleShape, n> {
+public interface CircleProvider<n extends Widget> extends WidgetProvider<CircleShape, n> {
     
 }

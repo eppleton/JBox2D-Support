@@ -11,6 +11,6 @@ import org.netbeans.api.visual.widget.Widget;
  *
  * @author eppleton
  */
-public interface PolygonProvider<n extends Widget> extends NodeProvider<PolygonShape, n> {
+public interface PolygonProvider<n extends Widget> extends WidgetProvider<PolygonShape, n> {
     
 }

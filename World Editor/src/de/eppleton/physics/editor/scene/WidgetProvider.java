@@ -12,10 +12,10 @@ import org.netbeans.api.visual.widget.Widget;
  *
  * @author eppleton
  */
-public interface NodeProvider< S extends Shape, N extends Widget> {
+public interface WidgetProvider< S extends Shape, N extends Widget> {
 
-    public Widget configureNode(WorldScene scene, N n, Body body, S shape, float offset_x, float offset_Y, int scale);//, Transform [] transforms);
+    public Widget configureWidget(WorldScene scene, N n, Body body, S shape, float offset_x, float offset_Y, int scale);//, Transform [] transforms);
 
-    public boolean providesNodeFor(Body body, S shape);
+    public boolean providesWidgetFor(Body body, S shape);
 
 }
