@@ -87,13 +87,18 @@ public class WidgetManager {
             final float offset_y,
             final int scale) {
         Widget containerWidget = scene.findWidget(body);
+        System.out.println("### containerwidget for body " + body);
         if (containerWidget == null) {
             containerWidget = new ContainerWidget(scene);
             scene.getMainLayer().addChild(containerWidget);
             scene.addObject(body, containerWidget);
             addActions(scene, containerWidget, body, offset_x, offset_y, scale);
+            System.out.println("### is new " + containerWidget);
+        } else {
+            System.out.println("### already exists " + containerWidget);
         }
-    
+
+
         return containerWidget;
     }
 
@@ -136,8 +141,6 @@ public class WidgetManager {
                 });
     }
 
-    
-
     public static class DefaultPolygonProvider implements PolygonProvider<PolygonWidget> {
 
         @Override
@@ -161,6 +164,7 @@ public class WidgetManager {
                 scene.addObject(shape, polygon);
                 // polygon.setPreferredLocation(new Point(0, 0));
                 containerWidget.addChild(polygon);
+                System.out.println("### Container Widget has so many childs: " + containerWidget.getChildren().size());
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();

@@ -141,7 +141,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
             if (nextBody.getFixtureList() != null) {
                 Fixture fixture = nextBody.getFixtureList();
                 while (fixture != null) {
-                    Shape shape = nextBody.getFixtureList().getShape();
+                    Shape shape = fixture.getShape();
                     WidgetProvider nodeProvider = WidgetManager.getWidgetProvider(nextBody, shape);
                     Widget widget = super.findWidget(shape);
                     nodeProvider.configureWidget(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);}
