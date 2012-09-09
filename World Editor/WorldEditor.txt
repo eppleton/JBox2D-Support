@@ -1,0 +1,9 @@
+* bug: größe nicht selektierter Shapes ändert sich wenn ich andere Shapes selektiere und verschiebe
+* Möglichkeit zusammengesetzte Shapes zu bauen
+* Background images:
+    - store image url in userdata
+    - can later be replaced in the real application
+* Chain Shape support
+* // Auto import of image files
+* Helper function to create convex shapes
+

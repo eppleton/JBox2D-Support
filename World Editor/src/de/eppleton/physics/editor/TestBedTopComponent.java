@@ -6,17 +6,17 @@ package de.eppleton.physics.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.windows.TopComponent;
+import org.openide.util.NbBundle.Messages;
 import javax.swing.JScrollPane;
 import org.jbox2d.testbed.framework.TestList;
 import org.jbox2d.testbed.framework.TestbedController;
 import org.jbox2d.testbed.framework.TestbedModel;
 import org.jbox2d.testbed.framework.j2d.TestPanelJ2D;
 import org.jbox2d.testbed.framework.j2d.TestbedSidePanel;
-import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.

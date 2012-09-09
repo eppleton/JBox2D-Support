@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
-        <folder name="Box2DPalette">
-            <folder name="Shapes">
-                <file name="Flipper.b2i" url="Flipper.b2i"/>
-                <file name="TestItem.b2i" url="TestItem.b2i"/>
+    <folder name="Box2DPalette">
+        <folder name="Basic Shapes">
+            <file name="circle_static.b2i" url="circle_static.b2i"/>
+            <file name="circle_dynamic.b2i" url="circle_dynamic.b2i"/>
+            <file name="box_static.b2i" url="box_static.b2i"/>
+            <file name="box_dynamic.b2i" url="box_dynamic.b2i"/>
+
+        </folder>
+        <folder name="Vehicles">
+            <file name="Flipper.b2i" url="Flipper.b2i"/>
         </folder>
     </folder>
 </filesystem>

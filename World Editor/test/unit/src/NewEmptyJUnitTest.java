@@ -76,8 +76,8 @@ public class NewEmptyJUnitTest {
 //        fixtureDef.density = 1;
 //        fixtureDef.friction = 0.3f;
 //        body.createFixture(fixtureDef);
-        new CircleShapeBuilder(world).position(5, 5).radius(1).density(1).bullet(true).build();
-        new BoxBuilder(world).position(5, 5).halfHeight(1).halfWidth(1).build();
+     //   new CircleShapeBuilder(world).position(5, 5).radius(1).type(BodyType.DYNAMIC).density(1).bullet(true).build();
+        new BoxBuilder(world).position(5, 5).type(BodyType.DYNAMIC).halfHeight(1).halfWidth(1).build();
 //        Body a = joint.m_bodyA;
 //        Body b = joint.m_bodyB;
 //        HashMap<Body,Integer> bodyMap = new HashMap<>();
