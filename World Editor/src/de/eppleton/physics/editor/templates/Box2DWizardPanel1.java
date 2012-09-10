@@ -61,6 +61,10 @@ public class Box2DWizardPanel1 implements WizardDescriptor.Panel<WizardDescripto
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
-        // use wiz.putProperty to remember current panel state
+        wiz.putProperty("gravity_x", ""+component.getGravityX());
+        wiz.putProperty("gravity_y", ""+component.getGravityY());
+        wiz.putProperty("allow_sleep", ""+component.getAllowSleep());
+        
+        
     }
 }

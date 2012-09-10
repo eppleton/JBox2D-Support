@@ -106,6 +106,7 @@ public class Box2DDataObject extends MultiDataObject {
         registerEditor("text/x-box2d", true);
         synchronizer = new ViewSynchronizer();
         getCookieSet().assign(ViewSynchronizer.class, synchronizer);
+        System.err.println("Trying to parse this "+pf.getPath());
         // start by parsing the world directly from the file
         World parsedWorld = WorldUtilities.parseWorld(pf.asText());
         synchronizer.setWorld(parsedWorld);
@@ -191,7 +192,8 @@ public class Box2DDataObject extends MultiDataObject {
         }
 
         public void setWorld(World newWorld) {
-            assert newWorld != null;
+            // assert newWorld != null; // this clashes with template system
+            if (newWorld == null) return;
             LOGGER.info("Updating World");
             oldWorld = newWorld;
             PropertyChangeListener[] propertyChangeListeners = p.getPropertyChangeListeners();

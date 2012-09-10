@@ -1,7 +1,7 @@
 gravity {
-  x: 0.0
-  y: -10.0
+  x: ${x}
+  y: ${y}
 }
-allow_sleep: true
+allow_sleep: ${allow_sleep}
 warm_starting: true
 continuous_physics: true

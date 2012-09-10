@@ -36,7 +36,8 @@ public final class WorldUtilities {
             final PbDeserializer deserializer = new PbDeserializer();
             world = deserializer.deserializeWorld(pbWorld);
         } catch (ParseException ex) {
-            Exceptions.printStackTrace(ex);
+           // ignore
+          //  Exceptions.printStackTrace(ex);
         }
         return world;
     }

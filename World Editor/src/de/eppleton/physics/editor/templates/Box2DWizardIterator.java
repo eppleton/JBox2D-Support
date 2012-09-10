@@ -7,6 +7,7 @@ package de.eppleton.physics.editor.templates;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,14 +19,17 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.templates.TemplateRegistration;
-import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
+import org.openide.WizardDescriptor.Panel;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 
 // TODO define position attribute
-@TemplateRegistration(folder = "JBox2D", displayName = "#Box2DWizardIterator_displayName", iconBase = "de/eppleton/physics/editor/templates/tar.png", content="Box2DTemplate.box2d", description = "box2D.html")
+@TemplateRegistration(folder = "JBox2D", displayName = "#Box2DWizardIterator_displayName", iconBase = "de/eppleton/physics/editor/templates/tar.png", content = {"Box2D.box2d", "Box2DProperties.bpr"}, description = "box2D.html", scriptEngine = "freemarker")
 @Messages("Box2DWizardIterator_displayName=JBox2D World")
 public final class Box2DWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
 
@@ -39,7 +43,8 @@ public final class Box2DWizardIterator implements WizardDescriptor.Instantiating
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (panels == null) {
             panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-            panels.add(Templates.buildSimpleTargetChooser(project, groups).bottomPanel(new Box2DWizardPanel1()).create());
+            Panel<WizardDescriptor> selectFilePanel = Templates.buildSimpleTargetChooser(project, groups).bottomPanel(new Box2DWizardPanel1()).create();
+            panels.add(selectFilePanel);
 
             String[] steps = createSteps();
             for (int i = 0; i < panels.size(); i++) {
@@ -65,9 +70,24 @@ public final class Box2DWizardIterator implements WizardDescriptor.Instantiating
 
     @Override
     public Set<?> instantiate() throws IOException {
-        HashSet<FileObject> files = new HashSet<FileObject>();
+        HashSet<DataObject> files = new HashSet<DataObject>();
+        Set<String> keySet = wizard.getProperties().keySet();
+        for (String string : keySet) {
+            System.out.println("### key : " + string + " val " + wizard.getProperties().get(string));
+        }
+        HashMap box2DMap = new HashMap();
+        box2DMap.put("x", wizard.getProperty("gravity_x"));
+        box2DMap.put("y", wizard.getProperty("gravity_y"));
+        box2DMap.put("allow_sleep", wizard.getProperty("allow_sleep"));
+        FileObject foundFolder = Templates.getTargetFolder(wizard);
+        DataFolder targetFolder = DataFolder.findFolder(foundFolder);
+        String targetName = Templates.getTargetName(wizard);
 
+        DataObject template = DataObject.find(FileUtil.getConfigFile("Templates/JBox2D/Box2D.box2d"));
+        DataObject createFromTemplate = template.createFromTemplate(targetFolder, targetName, box2DMap);
+        
         // TODO return set of FileObject (or DataObject) you have created
+        files.add(createFromTemplate);
         return files;
     }
 
