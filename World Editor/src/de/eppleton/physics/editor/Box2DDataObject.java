@@ -112,12 +112,7 @@ public class Box2DDataObject extends MultiDataObject {
         synchronizer.setWorld(parsedWorld);
     }
 
-    //TODO better move nodes to Visual Editor...
-    @Override
-    protected Node createNodeDelegate() {
-        super.createNodeDelegate();
-        return new DataNode(this, Children.create(new Box2DChildfactory(this), true));
-    }
+
 
     @Override
     protected int associateLookup() {

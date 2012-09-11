@@ -106,7 +106,6 @@ public class WidgetManager {
             final int scale) {
         //  containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
         containerWidget.getActions().addAction(scene.getMoveAction());
-        containerWidget.getActions().addAction(scene.getSelectAction());
         containerWidget.addDependency(
                 new Widget.Dependency() {
                     int x, y, width, height;

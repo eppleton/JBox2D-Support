@@ -61,7 +61,6 @@ import org.openide.text.ActiveEditorDrop;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup.Result;
-import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.Utilities;
 
@@ -69,7 +68,7 @@ import org.openide.util.Utilities;
  *
  * @author antonepple
  */
-public class WorldScene extends ObjectScene implements LookupListener {
+public class WorldScene extends ObjectScene  {
 
     private static HashMap zoom = new HashMap();
 
@@ -92,9 +91,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
     private float offsetX = 0;
     private float offsetY = 0;
     private final Callback callback;
-    private Result<Body> lookupResult;
     private ExplorerManager em;
-    private final WidgetAction selectAction;
     private ResizeProvider resizeProvider;
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
@@ -110,7 +107,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
         this.em = em;
         this.callback = callback;
         this.world = world;
-        selectAction = ActionFactory.createSelectAction(new SelectProviderImpl(em));
         initScene();
     }
 
@@ -124,8 +120,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         super.getActions().addAction(ActionFactory.createZoomAction());
         super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
-        lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
-        lookupResult.addLookupListener(this);
+  
         initBackground();
         fakeChildren = new FakeChildFactory();
         root = new AbstractNode(Children.create(fakeChildren, false));
@@ -141,7 +136,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
             }
 
             public void selectionChanged(ObjectSceneEvent objectSceneEvent, Set<Object> oldSelection, Set<Object> newSelection) {
-                lookupResult.removeLookupListener(WorldScene.this);
                 try {
                     em.setSelectedNodes(new Node[0]);
                     ArrayList<Body> selectedBodies = new ArrayList<Body>();
@@ -158,8 +152,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
                 } catch (PropertyVetoException ex) {
                     ex.printStackTrace();
                 }
-                lookupResult.addLookupListener(WorldScene.this);
-
             }
 
             public void highlightingChanged(ObjectSceneEvent objectSceneEvent, Set<Object> oldHighlighte, Set<Object> newHighlighted) {
@@ -257,9 +249,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         this.offsetY = offsetY;
     }
 
-    public WidgetAction getSelectAction() {
-        return selectAction;
-    }
+   
 
     public ResizeProvider getResizeProvider() {
         return resizeProvider;
@@ -277,18 +267,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
         return world;
     }
 
-    @Override
-    public void resultChanged(LookupEvent ev) {
-        Collection<? extends Body> allInstances = lookupResult.allInstances();
-        HashSet hashSet = new HashSet();
-        for (Body body : allInstances) {
-            if (getObjects().contains(body)) {
-                hashSet.add(body);
-            }
-        }
-        this.setSelectedObjects(hashSet);
-        getView().repaint();
-    }
+ 
 
     public float getOffsetY() {
         return offsetY;
@@ -337,57 +316,6 @@ public class WorldScene extends ObjectScene implements LookupListener {
         connectionLayer.addChild(widget);
         addObject(joint, widget);
         validate();
-    }
-
-    private static class SelectProviderImpl implements SelectProvider {
-
-        private final ExplorerManager em;
-
-        public SelectProviderImpl(ExplorerManager em) {
-            this.em = em;
-        }
-
-        @Override
-        public boolean isAimingAllowed(Widget widget, Point localLocation, boolean invertSelection) {
-            return false;
-        }
-
-        @Override
-        public boolean isSelectionAllowed(Widget widget, Point localLocation, boolean invertSelection) {
-            return true;
-        }
-
-        @Override
-        public void select(Widget widget, Point localLocation, boolean invertSelection) {
-            try {
-                ObjectScene scene = ((ObjectScene) widget.getScene());
-                Object object = scene.findObject(widget);
-
-                scene.setFocusedObject(object);
-                if (object != null) {
-                    if (!invertSelection && scene.getSelectedObjects().contains(object)) {
-                        return;
-                    }
-
-                    scene.userSelectionSuggested(Collections.singleton(object), invertSelection);
-                } else {
-                    scene.userSelectionSuggested(Collections.emptySet(), invertSelection);
-                }
-
-                if (object instanceof Node) {
-                    Set selected = scene.getSelectedObjects();
-                    ArrayList<Node> selectedNodes = new ArrayList<Node>();
-                    for (Object object1 : selected) {
-                        if (object1 instanceof Node) {
-                            selectedNodes.add((Node) object1);
-                        }
-                    }
-                    em.setSelectedNodes(selectedNodes.toArray(new Node[0]));
-                }
-            } catch (PropertyVetoException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
     }
 
     private class AcceptProviderImpl implements AcceptProvider {
