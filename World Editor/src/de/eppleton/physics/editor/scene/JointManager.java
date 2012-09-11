@@ -7,14 +7,9 @@ package de.eppleton.physics.editor.scene;
 import de.eppleton.physics.editor.scene.widgets.FixedPointOnWidgetAnchor;
 import java.awt.Color;
 import java.awt.Point;
-import java.util.ArrayList;
-import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.dynamics.joints.JointType;
-import org.netbeans.api.visual.anchor.Anchor;
-import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -59,6 +54,7 @@ class JointManager {
                         (int) (((anchorB.y * -1) + offsetY) * scale))));
 
                 scene.addConnection(widget, joint);
+                scene.validate();
             }
 
 

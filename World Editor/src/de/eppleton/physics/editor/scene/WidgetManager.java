@@ -104,7 +104,7 @@ public class WidgetManager {
     static void addActions(final WorldScene scene, final Widget containerWidget, final Body body, final float offset_x,
             final float offset_y,
             final int scale) {
-      //  containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
+        //  containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
         containerWidget.getActions().addAction(scene.getMoveAction());
         containerWidget.getActions().addAction(scene.getSelectAction());
         containerWidget.addDependency(
@@ -186,7 +186,7 @@ public class WidgetManager {
                 scene.addObject(shape, polygon);
                 // polygon.setPreferredLocation(new Point(0, 0));
                 containerWidget.addChild(polygon);
-
+               
             } else {
                 for (int i = 0; i < shape.getVertexCount(); i++) {
                     Vec2 transformed = new Vec2();
@@ -214,6 +214,7 @@ public class WidgetManager {
             containerWidget.setPreferredLocation(new Point(
                     (int) ((body.getPosition().x + offset_x) * scale),
                     (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
+            scene.validate();
             return polygon;
         }
 
@@ -254,9 +255,9 @@ public class WidgetManager {
             Transform xf = body.getTransform();
             Vec2 center = new Vec2();
             Transform.mulToOutUnsafe(xf, shape.m_p, center);
-          
-           /* circle.setPreferredLocation(new Point((int) ((center.x ) * scale),
-                    (int) (((center.y * -1)) * scale)));*/
+
+            /* circle.setPreferredLocation(new Point((int) ((center.x ) * scale),
+             (int) (((center.y * -1)) * scale)));*/
             containerWidget.setPreferredLocation(new Point(
                     (int) ((center.x + offset_x) * scale),
                     (int) (((center.y * -1) + offset_Y) * scale)));

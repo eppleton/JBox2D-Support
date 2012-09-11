@@ -36,8 +36,8 @@ public final class WorldUtilities {
             final PbDeserializer deserializer = new PbDeserializer();
             world = deserializer.deserializeWorld(pbWorld);
         } catch (ParseException ex) {
-           // ignore
-          //  Exceptions.printStackTrace(ex);
+            // ignore
+            //  Exceptions.printStackTrace(ex);
         }
         return world;
     }
@@ -46,7 +46,11 @@ public final class WorldUtilities {
         final String worldString = serializeWorld(world);
         return parseWorld(worldString);
     }
-    
+
+    public static int worldToScene(float value, int scale, float offset, boolean invert) {
+        return (int) ((value* (invert ? -1 : 1) + offset) * scale);
+    }
+
     public static float sceneToWorld(int value, int scale, float offset, boolean invert) {
         return (((float) value / (float) scale) - offset) * (invert ? -1 : 1);
     }

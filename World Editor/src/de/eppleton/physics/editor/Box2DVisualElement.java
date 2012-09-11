@@ -68,6 +68,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
         if (synchronizer.getWorld() != null) {
             update(synchronizer.getWorld());
         }
+        initToolBar();
     }
 
     private void update(final World world) {
@@ -187,6 +188,11 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public void componentDeactivated() {
+    }
+
+    private void initToolBar() {
+        toolbar.removeAll();
+        toolbar.add(scene.getZoomComboBox());
     }
 
     private static class VisualUpdater implements Runnable {
