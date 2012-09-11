@@ -5,6 +5,7 @@
 package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.WorldUtilities;
+import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.ContainerWidget;
 import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
@@ -45,10 +46,16 @@ import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.model.ObjectSceneEvent;
+import org.netbeans.api.visual.model.ObjectSceneEventType;
+import org.netbeans.api.visual.model.ObjectSceneListener;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.text.ActiveEditorDrop;
 import org.openide.util.Exceptions;
@@ -95,6 +102,8 @@ public class WorldScene extends ObjectScene implements LookupListener {
     private LayerWidget backgroundLayer = new LayerWidget(this);
     private Widget backgroundLayerWidget;
     private WidgetAction moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
+    private FakeChildFactory fakeChildren;
+    private Node root;
 
     public WorldScene(final ExplorerManager em,
             final World world, Callback callback) {
@@ -118,7 +127,50 @@ public class WorldScene extends ObjectScene implements LookupListener {
         lookupResult = Utilities.actionsGlobalContext().lookupResult(Body.class);
         lookupResult.addLookupListener(this);
         initBackground();
+        fakeChildren = new FakeChildFactory();
+        root = new AbstractNode(Children.create(fakeChildren, false));
+        em.setRootContext(root);
+        addObjectSceneListener(new ObjectSceneListener() {
+            public void objectAdded(ObjectSceneEvent objectSceneEvent, Object object) {
+            }
 
+            public void objectRemoved(ObjectSceneEvent objectSceneEvent, Object object) {
+            }
+
+            public void objectStateChanged(ObjectSceneEvent objectSceneEvent, Object object, ObjectState objectState, ObjectState objectState0) {
+            }
+
+            public void selectionChanged(ObjectSceneEvent objectSceneEvent, Set<Object> oldSelection, Set<Object> newSelection) {
+                lookupResult.removeLookupListener(WorldScene.this);
+                try {
+                    em.setSelectedNodes(new Node[0]);
+                    ArrayList<Body> selectedBodies = new ArrayList<Body>();
+                    for (Object object : newSelection) {
+                        if (object instanceof Body) {
+                            selectedBodies.add((Body) object);
+                        }
+                    }
+                    fakeChildren.setKeys(selectedBodies);
+                    em.setSelectedNodes(root.getChildren().getNodes());
+                    Node[] nodes = root.getChildren().getNodes();
+
+
+                } catch (PropertyVetoException ex) {
+                    ex.printStackTrace();
+                }
+                lookupResult.addLookupListener(WorldScene.this);
+
+            }
+
+            public void highlightingChanged(ObjectSceneEvent objectSceneEvent, Set<Object> oldHighlighte, Set<Object> newHighlighted) {
+            }
+
+            public void hoverChanged(ObjectSceneEvent objectSceneEvent, Object object, Object object0) {
+            }
+
+            public void focusChanged(ObjectSceneEvent objectSceneEvent, Object object, Object object0) {
+            }
+        }, ObjectSceneEventType.OBJECT_SELECTION_CHANGED);
         // some helper points to make the scrollbar behaviour less annoying
 
     }
@@ -555,6 +607,7 @@ public class WorldScene extends ObjectScene implements LookupListener {
                         setZoomFactor(getZoomFactor() * dHeight);
                     }
                 }
+                getView().revalidate();
             }
         });
         return combo;

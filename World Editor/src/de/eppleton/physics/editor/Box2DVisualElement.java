@@ -132,7 +132,7 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
 
     @Override
     public Lookup getLookup() {
-        return new ProxyLookup(obj.getLookup(), Lookups.fixed(paletteController), ExplorerUtils.createLookup(em, getActionMap()));
+        return new ProxyLookup( Lookups.fixed(paletteController), ExplorerUtils.createLookup(em, getActionMap()));
     }
 
     @Override

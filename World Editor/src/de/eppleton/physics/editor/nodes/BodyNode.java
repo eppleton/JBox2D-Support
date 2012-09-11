@@ -30,6 +30,8 @@ public class BodyNode extends AbstractNode {
         updateName();
     }
 
+ 
+
     private void updateName() {
         String name = getLookup().lookup(Body.class).getType().name();
         if (getLookup().lookup(Body.class) != null) {
