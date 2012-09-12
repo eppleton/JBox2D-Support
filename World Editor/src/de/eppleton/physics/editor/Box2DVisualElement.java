@@ -36,7 +36,7 @@ import org.openide.windows.TopComponent;
     displayName = "#LBL_Box2D_VISUAL",
 iconBase = "de/eppleton/physics/editor/tar.png",
 mimeType = "text/x-box2d",
-persistenceType = TopComponent.PERSISTENCE_NEVER,
+persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
 preferredID = "Box2DVisual",
 position = 2000)
 @Messages("LBL_Box2D_VISUAL=Visual")

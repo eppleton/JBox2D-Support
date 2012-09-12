@@ -119,55 +119,20 @@ public class Box2DDataObject extends MultiDataObject {
         return 1;
     }
 
-    @MultiViewElement.Registration(
-        displayName = "#LBL_Box2D_EDITOR",
-    iconBase = "de/eppleton/physics/editor/tar.png",
-    mimeType = "text/x-box2d",
-    persistenceType = TopComponent.PERSISTENCE_NEVER,
-    preferredID = "Box2D",
-    position = 1000)
-    @Messages("LBL_Box2D_EDITOR=Source Code")
-    public static MultiViewEditorElement createEditor(Lookup lkp) {
-        System.out.println("########### Create Editor");
-        return new Box2DEditor(lkp);
-    }
+//    @MultiViewElement.Registration(
+//        displayName = "#LBL_Box2D_EDITOR",
+//    iconBase = "de/eppleton/physics/editor/tar.png",
+//    mimeType = "text/x-box2d",
+//    persistenceType = TopComponent.PERSISTENCE_NEVER,
+//    preferredID = "Box2D",
+//    position = 1000)
+//    @Messages("LBL_Box2D_EDITOR=Source Code")
+//    public static MultiViewEditorElement createEditor(Lookup lkp) {
+//        System.out.println("########### Create Editor");
+//        return new Box2DEditor(lkp);
+//    }
 
-    private static class Box2DChildfactory extends ChildFactory<Body> implements PropertyChangeListener {
 
-        Box2DDataObject b2D;
-        private ViewSynchronizer synchronizer;
-
-        public Box2DChildfactory(Box2DDataObject aThis) {
-            this.b2D = aThis;
-            synchronizer = b2D.getLookup().lookup(ViewSynchronizer.class);
-            synchronizer.addPropertyChangeListener(this);
-        }
-
-        @Override
-        protected boolean createKeys(List<Body> toPopulate) {
-            World world = synchronizer.getWorld();
-            if (world == null) {
-                return true;
-            }
-
-            Body nextBody = world.getBodyList();
-            while (nextBody != null) {
-                toPopulate.add(nextBody);
-                nextBody = nextBody.getNext();
-            }
-            return true;
-        }
-
-        @Override
-        protected Node createNodeForKey(Body key) {
-            return new BodyNode(key);
-        }
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            refresh(true);
-        }
-    }
 
     public static class ViewSynchronizer {
 

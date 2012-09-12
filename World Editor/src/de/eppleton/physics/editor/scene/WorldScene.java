@@ -9,6 +9,7 @@ import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.ContainerWidget;
 import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
+import de.eppleton.physics.editor.scene.widgets.actions.SynchronizingResizeProvider;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -22,7 +23,6 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +42,6 @@ import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.action.MoveProvider;
 import org.netbeans.api.visual.action.ResizeProvider;
-import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectScene;
@@ -60,9 +59,6 @@ import org.openide.nodes.Node;
 import org.openide.text.ActiveEditorDrop;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
-import org.openide.util.Lookup.Result;
-import org.openide.util.LookupListener;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -101,7 +97,8 @@ public class WorldScene extends ObjectScene  {
     private WidgetAction moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
     private FakeChildFactory fakeChildren;
     private Node root;
-
+    
+    
     public WorldScene(final ExplorerManager em,
             final World world, Callback callback) {
         this.em = em;
@@ -252,6 +249,7 @@ public class WorldScene extends ObjectScene  {
    
 
     public ResizeProvider getResizeProvider() {
+        if (resizeProvider == null) resizeProvider = new SynchronizingResizeProvider();
         return resizeProvider;
     }
 

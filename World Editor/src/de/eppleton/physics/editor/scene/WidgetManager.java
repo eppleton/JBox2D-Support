@@ -94,6 +94,7 @@ public class WidgetManager {
             scene.getMainLayer().addChild(containerWidget);
             scene.addObject(body, containerWidget);
             addActions(scene, containerWidget, body, offset_x, offset_y, scale);
+            
 
         }
 
@@ -104,7 +105,8 @@ public class WidgetManager {
     static void addActions(final WorldScene scene, final Widget containerWidget, final Body body, final float offset_x,
             final float offset_y,
             final int scale) {
-        //  containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
+        containerWidget.getActions().addAction(scene.createSelectAction());
+        containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
         containerWidget.getActions().addAction(scene.getMoveAction());
         containerWidget.addDependency(
                 new Widget.Dependency() {

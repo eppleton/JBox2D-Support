@@ -7,53 +7,55 @@ package de.eppleton.physics.editor.scene.widgets;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Rectangle;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 
-public class CircleWidget extends Widget {
-
+public class CircleWidget extends Widget  {
+    
     private int diameter;
-
+    
     public CircleWidget(Scene scene, int radius) {
         super(scene);
         setRadius(radius);
     }
-
+    
     @Override
     protected Rectangle calculateClientArea() {
-        int r = diameter/2;
-        return new Rectangle(-r,-r, diameter + 1, diameter + 1);
+        //int r = diameter / 2;
+        return new Rectangle(0, 0, diameter + 1, diameter + 1);
     }
-
+    
     @Override
     protected void paintWidget() {
         Rectangle bounds = getBounds();
         int x = bounds.x + getBorder().getInsets().left;
         int y = bounds.y + getBorder().getInsets().top;
-        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right -1;
-        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom -1;
-        diameter = height > width? width : height;
+        int width = bounds.width - getBorder().getInsets().left - getBorder().getInsets().right - 1;
+        int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom - 1;
+        diameter = height > width ? width : height;
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
-        Color fg= getForeground();
+        Color fg = getForeground();
         Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
         g.setPaint(c);
-        g.fillOval(x,y, diameter, diameter);
+        g.fillOval(x, y, diameter, diameter);
         g.setColor(fg);
-        g.drawOval(x,y, diameter, diameter);
+        g.drawOval(x, y, diameter, diameter);
         g.setPaint(paint);
     }
-
- 
+    
     public void setRadius(int r) {
-        this.diameter = r*2;
+        this.diameter = r * 2;
         revalidate();
     }
-
+    
     public int getRadius() {
-        return diameter/2;
+        return diameter / 2;
     }
+    
+   
 }
