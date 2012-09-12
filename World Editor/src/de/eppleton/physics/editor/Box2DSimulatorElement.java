@@ -39,7 +39,7 @@ import org.openide.windows.TopComponent;
     displayName = "#LBL_Box2D_Simulator",
 iconBase = "de/eppleton/physics/editor/tar.png",
 mimeType = "text/x-box2d",
-persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DSimulator",
 position = 3000)
 @NbBundle.Messages("LBL_Box2D_Simulator=Simulator")

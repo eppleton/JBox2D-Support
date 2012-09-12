@@ -119,17 +119,14 @@ public class WidgetManager {
                             int newX = containerWidget.getLocation().x;
                             int newY = containerWidget.getLocation().y;
                             if ((newX != x || newY != y)) {
-//                                    System.out.println("#x " + x + "->" + newX);
-//                                    System.out.println("#y " + y + "->" + newY);
-                                //  System.out.println("old "+payload.getPosition());
                                 body.getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
                                 body.getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
-                                // System.out.println("new "+payload.getPosition());
                                 x = newX;
                                 y = newY;
                                 scene.fireChange();
                             }
                         }
+                        /*
                         Rectangle bounds = containerWidget.getBounds();
                         if (bounds != null) {
                             int newHeight = bounds.height;
@@ -159,8 +156,8 @@ public class WidgetManager {
                                 scene.fireChange();
                             }
 
+                    }*/
                         }
-                    }
                 });
     }
 

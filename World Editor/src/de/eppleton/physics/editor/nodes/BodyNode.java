@@ -30,8 +30,6 @@ public class BodyNode extends AbstractNode {
         updateName();
     }
 
- 
-
     private void updateName() {
         String name = getLookup().lookup(Body.class).getType().name();
         if (getLookup().lookup(Body.class) != null) {
@@ -63,7 +61,10 @@ public class BodyNode extends AbstractNode {
 
             @Override
             public void setValue(Float val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                float oldVal = getLookup().lookup(Body.class).getPosition().x;
                 getLookup().lookup(Body.class).getPosition().x = val;
+                System.out.println("setting x value to " + getLookup().lookup(Body.class).getPosition().x);
+                firePropertyChange("x", oldVal, val);
             }
         });
         properties.put(new PropertySupport.ReadWrite<Float>("y", Float.class, "y", "y coordinate of position") {
@@ -74,7 +75,10 @@ public class BodyNode extends AbstractNode {
 
             @Override
             public void setValue(Float val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                float oldVal = getLookup().lookup(Body.class).getPosition().y;
                 getLookup().lookup(Body.class).getPosition().y = val;
+                System.out.println("setting y value to " + getLookup().lookup(Body.class).getPosition().y);
+                firePropertyChange("y", oldVal, val);
             }
         });
         properties.put(new PropertySupport.ReadWrite<Float>("angle", Float.class, "angle", "angle") {
@@ -102,26 +106,11 @@ public class BodyNode extends AbstractNode {
                         fireNameChange("", getName());
                     }
                 });
-//                    properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), BodyType.class, "type"));
 
-
-
-//        properties.put(new PropertySupport.ReadWrite<Float>("friction", Float.class, "friction", "friction") {
-//            @Override
-//            public Float getValue() throws IllegalAccessException, InvocationTargetException {
-//                return getLookup().lookup(Body.class).getFixtureList().getFriction();
-//            }
-//
-//            @Override
-//            public void setValue(Float val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-//                getLookup().lookup(Body.class).getFixtureList().setFriction(val);
-//            }
-//        });
 
         try {
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), boolean.class, "isActive", "setActive"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), float.class, "AngularDamping"));
-
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), float.class, "AngularDamping"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), float.class, "AngularVelocity"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), boolean.class, "isAwake", "setAwake"));
@@ -129,7 +118,6 @@ public class BodyNode extends AbstractNode {
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), boolean.class, "isFixedRotation", "setFixedRotation"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), boolean.class, "isSleepingAllowed", "setSleepingAllowed"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), float.class, "friction"));
-
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class), float.class, "LinearDamping"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), float.class, "restitution"));
             properties.put(new PropertySupport.Reflection(getLookup().lookup(Body.class).getFixtureList(), boolean.class, "isSensor", "setSensor"));

@@ -83,22 +83,21 @@ public class WorldScene extends ObjectScene implements Serializable {
     private static int FIXED_WIDTH = 100;
     public static final String DELETE_ACTION = "deleteAction";
     private static Logger LOGGER = Logger.getLogger(WorldScene.class.getName());
-    private World world;
+    private transient World world;
     private int scale = 30;
     private float offsetX = 0;
     private float offsetY = 0;
-    private final Callback callback;
-    private ExplorerManager em;
-    private ResizeProvider resizeProvider;
-    private LayerWidget mainLayer;
-    private LayerWidget connectionLayer;
-    private LayerWidget interractionLayer = new LayerWidget(this);
-    private LayerWidget backgroundLayer = new LayerWidget(this);
-    private Widget backgroundLayerWidget;
-    private WidgetAction moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
-    private FakeChildFactory fakeChildren;
-    private Node root;
-    
+    private transient final Callback callback;
+    private transient ExplorerManager em;
+    private transient ResizeProvider resizeProvider;
+    private transient LayerWidget mainLayer;
+    private transient LayerWidget connectionLayer;
+    private transient LayerWidget interractionLayer = new LayerWidget(this);
+    private transient LayerWidget backgroundLayer = new LayerWidget(this);
+    private transient Widget backgroundLayerWidget;
+    private transient WidgetAction moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
+    private transient FakeChildFactory fakeChildren;
+    private transient Node root;
     
     public WorldScene(final ExplorerManager em,
             final World world, Callback callback) {
@@ -118,11 +117,11 @@ public class WorldScene extends ObjectScene implements Serializable {
         getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         super.getActions().addAction(ActionFactory.createZoomAction());
         super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
-  
         initBackground();
-        fakeChildren = new FakeChildFactory();
+        fakeChildren = new FakeChildFactory(this);
         root = new AbstractNode(Children.create(fakeChildren, false));
         em.setRootContext(root);
+        
         addObjectSceneListener(new ObjectSceneListener() {
             public void objectAdded(ObjectSceneEvent objectSceneEvent, Object object) {
             }
@@ -161,28 +160,14 @@ public class WorldScene extends ObjectScene implements Serializable {
             public void focusChanged(ObjectSceneEvent objectSceneEvent, Object object, Object object0) {
             }
         }, ObjectSceneEventType.OBJECT_SELECTION_CHANGED);
-        // some helper points to make the scrollbar behaviour less annoying
-
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
-        LOGGER.info("handle Transfer: get Bodies");
-
         HashMap<Integer, Body> addBodies = transferData.addBodies(world);
-        LOGGER.info("retrieved Bodies");
         float x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
         float y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, false);
-        LOGGER.info("Configuring the Bodies");
-
         configureBodies(addBodies, x, y);
-        /*for (Body newBody : newBodies) {
-         newBody.getPosition().x = 
-         newBody.getPosition().y = ≈
-         } */
-        LOGGER.info("Updateing the scene");
-
         updateBodies();
-        LOGGER.info("Ready updateing the scene");
     }
 
     private void configureBodies(HashMap<Integer, Body> bodies, float x, float y) {
@@ -200,10 +185,8 @@ public class WorldScene extends ObjectScene implements Serializable {
     }
 
     public void updateBodies() {
-        System.out.println("### updating bodies");
         Body nextBody = world.getBodyList();
         while (nextBody != null) {
-
             if (nextBody.getFixtureList() != null) {
                 Fixture fixture = nextBody.getFixtureList();
                 while (fixture != null) {
@@ -223,7 +206,6 @@ public class WorldScene extends ObjectScene implements Serializable {
                 ConnectionWidget widget = (ConnectionWidget) super.findWidget(nextJoint);
                 jointProvider.configureWidget(this, widget, nextJoint, offsetX, offsetY, scale);
                 nextJoint = nextJoint.getNext();
-
             }
         }
         LOGGER.info("update ready");
@@ -456,6 +438,8 @@ public class WorldScene extends ObjectScene implements Serializable {
 
     }
 
+    
+// unwichtig
     private class MultiMoveProvider implements MoveProvider {
 
         private HashMap<Widget, Point> originals = new HashMap<Widget, Point>();
@@ -468,7 +452,6 @@ public class WorldScene extends ObjectScene implements Serializable {
                 if (w != null && (w instanceof ContainerWidget)) {
                     originals.put(w, w.getPreferredLocation());
                 }
-
             }
         }
 
@@ -498,7 +481,7 @@ public class WorldScene extends ObjectScene implements Serializable {
             }
         }
     }
-
+    
     public JComboBox getZoomComboBox() {
         JComboBox combo = new JComboBox(new String[]{"50%", "75%", "100%", "150%", "200%", "400%", "Fit to screen", "Fit width", "Fit height"}) {
             @Override
