@@ -1,7 +1,0 @@
-gravity {
-  x: 0.0
-  y: -10.0
-}
-allow_sleep: true
-warm_starting: true
-continuous_physics: true

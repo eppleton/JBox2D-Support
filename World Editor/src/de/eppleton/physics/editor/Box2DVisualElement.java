@@ -43,17 +43,17 @@ position = 2000)
 public final class Box2DVisualElement extends JPanel implements MultiViewElement, PropertyChangeListener, ExplorerManager.Provider {
 
     private static Logger LOGGER = Logger.getLogger(Box2DVisualElement.class.getName());
-    private Box2DDataObject obj;
-    private JToolBar toolbar = new JToolBar();
+    private transient Box2DDataObject obj;
+    private transient JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
-    private final JScrollPane jScrollPane = new JScrollPane();
-    private WorldScene scene;
-    private final String name;
-    private PaletteController paletteController;
-    private ViewSynchronizer synchronizer;
-    private VisualUpdater updater;
-    private World world;
-    private ExplorerManager em = new ExplorerManager();
+    private transient final JScrollPane jScrollPane = new JScrollPane();
+    private transient WorldScene scene;
+    private transient final String name;
+    private transient PaletteController paletteController;
+    private transient ViewSynchronizer synchronizer;
+    private transient VisualUpdater updater;
+    private transient World world;
+    private transient ExplorerManager em = new ExplorerManager();
 
     public Box2DVisualElement(Lookup lkp) {
         updater = new VisualUpdater(this);
@@ -221,4 +221,6 @@ public final class Box2DVisualElement extends JPanel implements MultiViewElement
             updater.worldChange();
         }
     }
+    
+    
 }

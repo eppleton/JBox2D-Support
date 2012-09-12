@@ -21,6 +21,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ import org.openide.util.ImageUtilities;
  *
  * @author antonepple
  */
-public class WorldScene extends ObjectScene  {
+public class WorldScene extends ObjectScene implements Serializable {
 
     private static HashMap zoom = new HashMap();
 
