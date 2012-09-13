@@ -6,21 +6,18 @@ package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.scene.widgets.CircleWidget;
-import de.eppleton.physics.editor.scene.widgets.ContainerWidget;
+import de.eppleton.physics.editor.scene.widgets.BodyWidget;
 import de.eppleton.physics.editor.scene.widgets.PolygonWidget;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
-import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.Fixture;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -84,16 +81,13 @@ public class WidgetManager {
         return null;
     }
 
-    static Widget getContainer(WorldScene scene, Body body, final float offset_x,
+    static Widget getContainer(WorldEditorScene scene, Body body, final float offset_x,
             final float offset_y,
             final int scale) {
         Widget containerWidget = scene.findWidget(body);
 
         if (containerWidget == null) {
-            containerWidget = new ContainerWidget(scene);
-            scene.getMainLayer().addChild(containerWidget);
-            scene.addObject(body, containerWidget);
-            addActions(scene, containerWidget, body, offset_x, offset_y, scale);
+            containerWidget = new BodyWidget(scene, body);
             
 
         }
@@ -102,69 +96,11 @@ public class WidgetManager {
         return containerWidget;
     }
 
-    static void addActions(final WorldScene scene, final Widget containerWidget, final Body body, final float offset_x,
-            final float offset_y,
-            final int scale) {
-        containerWidget.getActions().addAction(scene.createSelectAction());
-        containerWidget.getActions().addAction(ActionFactory.createResizeAction(null, scene.getResizeProvider()));
-        containerWidget.getActions().addAction(scene.getMoveAction());
-        containerWidget.addDependency(
-                new Widget.Dependency() {
-                    int x, y, width, height;
-
-                    @Override
-                    public void revalidateDependency() {
-
-                        if (containerWidget.getLocation() != null) {
-                            int newX = containerWidget.getLocation().x;
-                            int newY = containerWidget.getLocation().y;
-                            if ((newX != x || newY != y)) {
-                                body.getPosition().x = WorldUtilities.sceneToWorld(newX, scale, offset_x, false);
-                                body.getPosition().y = WorldUtilities.sceneToWorld(newY, scale, offset_y, true);
-                                x = newX;
-                                y = newY;
-                                scene.fireChange();
-                            }
-                        }
-                        /*
-                        Rectangle bounds = containerWidget.getBounds();
-                        if (bounds != null) {
-                            int newHeight = bounds.height;
-                            int newWidth = bounds.width;
-                            if (newHeight != height || newWidth != width) {
-                                Fixture fixture = body.getFixtureList();
-                                while (fixture != null) {
-                                    Shape shape = fixture.getShape();
-                                    if (shape.getType() == ShapeType.CIRCLE) {
-                                        float radius = shape.getRadius();
-                                        int oldSmallerSide = width < height ? width : height;
-                                        int newSmallerSide = newWidth < newHeight ? newWidth : newHeight;
-                                        float ratio = (float) newSmallerSide / (float) oldSmallerSide;
-                                        //System.out.println("olds " + oldSmallerSide + " newS " + newSmallerSide + " ratio " + ratio);
-                                        if (!Float.isInfinite(ratio)) {
-                                            shape.setRadius(radius * ratio);
-                                            Widget widget = scene.findWidget(shape);
-                                            //DEFAULT_CIRCLE_PROVIDER.configureWidget(scene, widget, body, shape, offset_x, offset_y, scale);
-//                                            ((CircleWidget)widget).setRadius((int) (shape.m_radius * scale));
-//                                            System.out.println("### setting the circles radius ");
-                                        }
-                                    }
-                                    fixture = fixture.getNext();
-                                }
-                                width = newWidth;
-                                height = newHeight;
-                                scene.fireChange();
-                            }
-
-                    }*/
-                        }
-                });
-    }
-
+    
     public static class DefaultPolygonProvider implements PolygonProvider<PolygonWidget> {
 
         @Override
-        public PolygonWidget configureWidget(WorldScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
+        public PolygonWidget configureWidget(WorldEditorScene scene, PolygonWidget polygon, Body body, PolygonShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
             Widget containerWidget = getContainer(scene, body, offset_x, offset_Y, scale);
             Transform xf = body.getTransform();
             if (polygon == null) {
@@ -240,7 +176,7 @@ public class WidgetManager {
     public static class DefaultCircleProvider implements CircleProvider<CircleWidget> {
 
         @Override
-        public CircleWidget configureWidget(WorldScene scene, CircleWidget circle, Body body, CircleShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
+        public CircleWidget configureWidget(WorldEditorScene scene, CircleWidget circle, Body body, CircleShape shape, float offset_x, float offset_Y, int scale) { //, Transform[] transform) {
             Widget containerWidget = getContainer(scene, body, offset_x, offset_Y, scale);
 
             if (circle == null) {

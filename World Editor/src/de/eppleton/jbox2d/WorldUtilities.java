@@ -33,6 +33,7 @@ public final class WorldUtilities {
             final Box2D.PbWorld.Builder builder = Box2D.PbWorld.newBuilder();
             TextFormat.merge(worldDescription, builder);
             final Box2D.PbWorld pbWorld = builder.build();
+            
             final PbDeserializer deserializer = new PbDeserializer();
             world = deserializer.deserializeWorld(pbWorld);
         } catch (ParseException ex) {

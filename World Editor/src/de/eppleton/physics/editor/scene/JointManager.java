@@ -10,6 +10,7 @@ import java.awt.Point;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.dynamics.joints.JointType;
+import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -22,23 +23,20 @@ class JointManager {
     private static Color LINE_COLOR = new Color(0.5f, 0.8f, 0.8f);
     private static JointProvider DUMMYPROVIDER = new JointProvider() {
         @Override
-        public void configureWidget(WorldScene aThis, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
+        public void configureWidget(WorldEditorScene aThis, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
             // Do Nothing
         }
     };
     private static JointProvider DISTANCEPROVIDER = new JointProvider() {
         @Override
-        public void configureWidget(WorldScene scene, ConnectionWidget widget, Joint joint, float offsetX, float offsetY, int scale) {
+        public void configureWidget(WorldEditorScene scene, ConnectionWidget widget, Joint joint, float offsetX, float offsetY, int scale) {
             if (widget == null) {
                 widget = new ConnectionWidget(scene);
                 widget.setLineColor(LINE_COLOR);
 
-
 //                ArrayList<Point> points = new ArrayList<Point>();
                 Widget bodyA = scene.findWidget(joint.m_bodyA);
                 Widget bodyB = scene.findWidget(joint.m_bodyB);
-                System.out.println("Configure Joint Body A " + bodyA);
-                System.out.println("Configure Joint Body B " + bodyB);
 
                 Vec2 anchorA = new Vec2();
                 Vec2 anchorB = new Vec2();

@@ -4,8 +4,7 @@
  */
 package de.eppleton.jbox2d;
 
-import de.eppleton.physics.editor.scene.WorldScene;
-import java.awt.Rectangle;
+import de.eppleton.physics.editor.scene.WorldEditorScene;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
@@ -55,7 +54,7 @@ public class Box2DUtilities {
         return maxY;
     }
 
-    public static void scaleToFit(World world, WorldScene worldScene) {
+    public static void scaleToFit(World world, WorldEditorScene worldScene) {
         float minX = Float.MAX_VALUE;
         float minY = Float.MAX_VALUE;
         float maxX = Float.MIN_VALUE;

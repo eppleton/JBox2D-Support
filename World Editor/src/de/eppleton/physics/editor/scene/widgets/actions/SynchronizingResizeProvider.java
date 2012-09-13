@@ -4,7 +4,7 @@
  */
 package de.eppleton.physics.editor.scene.widgets.actions;
 
-import de.eppleton.physics.editor.scene.widgets.ContainerWidget;
+import de.eppleton.physics.editor.scene.widgets.BodyWidget;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.List;
@@ -32,7 +32,7 @@ public class SynchronizingResizeProvider implements ResizeProvider {
         // assert widget instanceof ReportElementsWidget;
         Rectangle bounds = widget.getBounds();
       
-        if (widget instanceof ContainerWidget) {
+        if (widget instanceof BodyWidget) {
             List<Widget> children = widget.getChildren();
             for (Widget child : children) {
  

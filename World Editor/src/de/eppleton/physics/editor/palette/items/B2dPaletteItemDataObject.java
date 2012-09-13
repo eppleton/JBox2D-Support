@@ -16,6 +16,7 @@ import org.box2d.proto.Box2D.PbWorld;
 import org.box2d.proto.Box2D.PbWorld.Builder;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.serialization.pb.PbDeserializer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -107,33 +108,34 @@ public class B2dPaletteItemDataObject extends MultiDataObject {
         final String body = properties.getProperty("body");
         B2DActiveEditorDrop b2DActiveEditorDrop = new B2DActiveEditorDrop() {
             /*@Override
-            public Body[] createBodies(World world) {
-                try {
-                    final Box2D.PbBody.Builder builder = Box2D.PbBody.newBuilder();
-                    TextFormat.merge(body, builder);
-                    PbBody build = builder.build();
-                    PbDeserializer d = new PbDeserializer();
-                    return new Body[]{d.deserializeBody(world, build)};
-                } catch (ParseException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-                return null;
+             public Body[] createBodies(World world) {
+             try {
+             final Box2D.PbBody.Builder builder = Box2D.PbBody.newBuilder();
+             TextFormat.merge(body, builder);
+             PbBody build = builder.build();
+             PbDeserializer d = new PbDeserializer();
+             return new Body[]{d.deserializeBody(world, build)};
+             } catch (ParseException ex) {
+             Exceptions.printStackTrace(ex);
+             }
+             return null;
 
-            }*/
-
+             }*/
             @Override
-            public HashMap<Integer, Body> addBodies(World world) {
+            public void addBodies(World world, HashMap<Integer, Joint> jointMap, HashMap<Integer, Body> bodyMap) {
                 try {
                     Builder builder = Box2D.PbWorld.newBuilder();
                     TextFormat.merge(body, builder);
                     PbWorld build = builder.build();
                     Deserializer deserializer = new Deserializer();
-                    return deserializer.addToWorld(world, build);
+                    deserializer.addToWorld(world, build, jointMap, bodyMap);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
-                } 
-                return null;
+                }
+
             }
+
+            
         };
         getCookieSet().assign(B2DActiveEditorDrop.class, b2DActiveEditorDrop);
     }

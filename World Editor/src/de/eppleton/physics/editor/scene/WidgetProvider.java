@@ -14,7 +14,7 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public interface WidgetProvider< S extends Shape, N extends Widget> {
 
-    public Widget configureWidget(WorldScene scene, N n, Body body, S shape, float offset_x, float offset_Y, int scale);//, Transform [] transforms);
+    public Widget configureWidget(WorldEditorScene scene, N n, Body body, S shape, float offset_x, float offset_Y, int scale);//, Transform [] transforms);
 
     public boolean providesWidgetFor(Body body, S shape);
 

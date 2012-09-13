@@ -19,12 +19,7 @@ import org.jbox2d.serialization.pb.PbDeserializer;
  */
 public class Deserializer extends PbDeserializer {
 
-    public HashMap<Integer, Body> addToWorld(World targetWorld, Box2D.PbWorld world) throws IOException {
-
-
-        HashMap<Integer, Body> bodyMap = new HashMap<Integer, Body>();
-        HashMap<Integer, Joint> jointMap = new HashMap<Integer, Joint>();
-
+    public void addToWorld(World targetWorld, Box2D.PbWorld world, HashMap<Integer, Joint> jointMap, HashMap<Integer, Body> bodyMap) throws IOException {
         for (int i = 0; i < world.getBodiesCount(); i++) {
             Box2D.PbBody pbBody = world.getBodies(i);
             Body body = deserializeBody(targetWorld, pbBody);
@@ -51,7 +46,7 @@ public class Deserializer extends PbDeserializer {
                 cnt++;
             }
         }
-        return bodyMap;
+
     }
 
     private boolean isIndependentJoint(Box2D.PbJointType argType) {

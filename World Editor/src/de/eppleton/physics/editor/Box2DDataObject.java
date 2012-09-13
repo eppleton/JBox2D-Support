@@ -110,6 +110,7 @@ public class Box2DDataObject extends MultiDataObject {
         // start by parsing the world directly from the file
         World parsedWorld = WorldUtilities.parseWorld(pf.asText());
         synchronizer.setWorld(parsedWorld);
+        getCookieSet().assign(World.class, parsedWorld);
     }
 
 

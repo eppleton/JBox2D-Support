@@ -25,8 +25,8 @@ public class CircleWidget extends Widget  {
     
     @Override
     protected Rectangle calculateClientArea() {
-        //int r = diameter / 2;
-        return new Rectangle(0, 0, diameter + 1, diameter + 1);
+        int r = diameter / 2;
+        return new Rectangle(-r,-r, diameter + 1, diameter + 1);
     }
     
     @Override

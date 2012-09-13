@@ -47,9 +47,7 @@ public abstract class BodyBuilder<K extends BodyBuilder<K, T>, T extends Shape> 
         bodyDef.allowSleep = allowSleep;
         return (K) this;
     }
-    
-   
-
+ 
     public K active(boolean active) {
         bodyDef.active = active;
         return (K) this;
