@@ -167,7 +167,7 @@ public class WorldEditorScene extends ObjectScene {
         pointsXAxis.add(new Point((int) sceneXO, (int) sceneYMAX));
         pointsXAxis.add(new Point((int) sceneXMIN, (int) sceneYO));
         pointsXAxis.add(new Point((int) sceneXMAX, (int) sceneYO));
-        backgroundLayerWidget.addChild(new PolygonWidget(this, pointsXAxis));
+        backgroundLayerWidget.addChild(new PolygonWidget(this, pointsXAxis,null));
         backgroundLayer.addChild(backgroundLayerWidget);
         repaint();
         revalidate(false);

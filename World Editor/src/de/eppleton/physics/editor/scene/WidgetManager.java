@@ -116,7 +116,7 @@ public class WidgetManager {
                     points.add(point);
                 }
 
-                polygon = new PolygonWidget(scene, points);
+                polygon = new PolygonWidget(scene, points, shape);
                 scene.addObject(shape, polygon);
                 // polygon.setPreferredLocation(new Point(0, 0));
                 containerWidget.addChild(polygon);
@@ -180,11 +180,11 @@ public class WidgetManager {
             Widget containerWidget = getContainer(scene, body, offset_x, offset_Y, scale);
 
             if (circle == null) {
-                circle = new CircleWidget(scene, (int) (shape.m_radius * scale));
+                circle = new CircleWidget(scene, (int) (shape.m_radius * scale),shape);
                 containerWidget.addChild(circle);
                 scene.addObject(shape, circle);
             }
-            System.out.println("### set Radius to " + (shape.m_radius * scale));
+           
             circle.setRadius((int) (shape.m_radius * scale));
             Transform xf = body.getTransform();
             Vec2 center = new Vec2();

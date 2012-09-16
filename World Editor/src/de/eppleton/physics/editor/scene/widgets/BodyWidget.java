@@ -4,6 +4,7 @@
  */
 package de.eppleton.physics.editor.scene.widgets;
 
+import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -12,10 +13,9 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.jbox2d.collision.shapes.PolygonShape;
@@ -32,12 +32,13 @@ import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.Widget.Dependency;
 
 /**
  *
  * @author antonepple
  */
-public class BodyWidget extends Widget {//implements Dependency {
+public class BodyWidget extends Widget implements Dependency {
 
     Body body;
     WorldEditorScene scene;
@@ -50,38 +51,39 @@ public class BodyWidget extends Widget {//implements Dependency {
         setLayout(LayoutFactory.createOverlayLayout());
         scene.getMainLayer().addChild(this);
         scene.addObject(body, this);
-       // initShapes();
+        // initShapes();
         setPreferredLocation(new Point(
                 (int) ((body.getPosition().x + scene.getOffsetX()) * scene.getScale()),
                 (int) (((body.getPosition().y * -1) + scene.getOffsetX()) * scene.getScale())));
 
         addActions(scene, body);
     }
-/*
-    @Override
-    protected Rectangle calculateClientArea() {
-        Collection<java.awt.Shape> values = shapeMap.values();
-        Rectangle bounds = null;
-        for (java.awt.Shape shape : values) {
-            if (bounds == null) {
-                bounds = shape.getBounds();
-            } else {
-                bounds.add(shape.getBounds());
-            }
-        }
-        return bounds;
-    }
-*/
+    /*
+     @Override
+     protected Rectangle calculateClientArea() {
+     Collection<java.awt.Shape> values = shapeMap.values();
+     Rectangle bounds = null;
+     for (java.awt.Shape shape : values) {
+     if (bounds == null) {
+     bounds = shape.getBounds();
+     } else {
+     bounds.add(shape.getBounds());
+     }
+     }
+     return bounds;
+     }
+     */
+
     final void addActions(final WorldEditorScene scene, final Body body) {
         getActions().addAction(scene.createSelectAction());
         getActions().addAction(ActionFactory.createResizeAction(new ResizeStrategy() {
             @Override
             public Rectangle boundsSuggested(Widget widget, Rectangle originalBounds, Rectangle suggestedBounds, ControlPoint controlPoint) {
-               return suggestedBounds;
+                return suggestedBounds;
             }
         }, scene.getResizeProvider()));
         getActions().addAction(scene.getMoveAction());
-        //addDependency(this);
+        addDependency(this);
     }
 
     @Override
@@ -96,51 +98,27 @@ public class BodyWidget extends Widget {//implements Dependency {
         }
 
     }
-    int x, y, width, height = -1;
+    int x, y = -1;
+    Integer width = new Integer(-1);
+    Integer height = new Integer(-1);
 
-//    @Override
-//    public void revalidateDependency() {
-//
-//        if (getLocation() != null) {
-//            int newX = getLocation().x;
-//            int newY = getLocation().y;
-//            if ((newX != x || newY != y)) {
-//                body.getPosition().x = WorldUtilities.sceneToWorld(newX, scene.getScale(), scene.getOffsetX(), false);
-//                body.getPosition().y = WorldUtilities.sceneToWorld(newY, scene.getScale(), scene.getOffsetY(), true);
-//                x = newX;
-//                y = newY;
-////                                scene.fireChange();
-//            }
-//        }
-//
-//        Rectangle bounds = getBounds();
-//        if (bounds != null) {
-//            int newHeight = bounds.height;
-//            int newWidth = bounds.width;
-//            if (height != -1) { // initialize
-//
-//                if (newHeight != height || newWidth != width) {
-//                    double scaleX = (double) newWidth / (double) width;
-//                    double scaleY = (double) newHeight / (double) height;
-//                    System.out.println("ratio " + scaleX + " " + scaleY);
-//                    List<Widget> children = getChildren();
-//                    for (Widget widget : children) {
-//                        Rectangle bounds1 = widget.getBounds();
-//                        System.out.println(">bounds1 " + bounds1.toString());
-//                        bounds1.x = (int) (bounds1.x * scaleX);
-//                        bounds1.y = (int) (bounds1.y * scaleY);
-//                        bounds1.width = (int) (bounds1.width * scaleX);
-//                        bounds1.height = (int) (bounds1.height * scaleY);
-//                        System.out.println("<bounds1 " + bounds1.toString());
-//
-//                        widget.setPreferredBounds(bounds1);
-//                    }
-//                }
-//            }
-//            height = newHeight;
-//            width = newWidth;
-//        }
-//    }
+    @Override
+    public void revalidateDependency() {
+
+        if (getLocation() != null) {
+            int newX = getLocation().x;
+            int newY = getLocation().y;
+            if ((newX != x || newY != y)) {
+                body.getPosition().x = WorldUtilities.sceneToWorld(newX, scene.getScale(), scene.getOffsetX(), false);
+                body.getPosition().y = WorldUtilities.sceneToWorld(newY, scene.getScale(), scene.getOffsetY(), true);
+                x = newX;
+                y = newY;
+            }
+        }
+
+       
+    }
+
     @Override
     protected void paintWidget() {
         super.paintWidget();
@@ -160,21 +138,21 @@ public class BodyWidget extends Widget {//implements Dependency {
             java.awt.Shape awtShape = shapeMap.get(shape);
             Rectangle bounds1 = awtShape.getBounds();
             System.out.println("0. " + bounds1);
-            int dX = bounds1.x -bounds.x;
-            int dY = bounds1.y -bounds.y;
+            int dX = bounds1.x - bounds.x;
+            int dY = bounds1.y - bounds.y;
             AffineTransform scaleInstance = AffineTransform.getScaleInstance(scaleX, scaleY);
             java.awt.Shape test2 = scaleInstance.createTransformedShape(awtShape);
             System.out.println("2. " + test2.getBounds());
             Rectangle bounds2 = test2.getBounds();
-            int d2X = bounds2.x -bounds.x;
+            int d2X = bounds2.x - bounds.x;
             int d2Y = bounds2.y - bounds.x;
             int tX = dX - d2X;
             int tY = dY - d2Y;
-            System.out.print("dX: "+dX+" d2X "+d2X+" tX "+tX);
+            System.out.print("dX: " + dX + " d2X " + d2X + " tX " + tX);
             AffineTransform translateInstance2 = AffineTransform.getTranslateInstance(tX, tY);
             java.awt.Shape test3 = translateInstance2.createTransformedShape(test2);
             System.out.println("3. " + test3.getBounds());
-            
+
             graphics.setPaint(Color.green);
             graphics.draw(test3);
         }
