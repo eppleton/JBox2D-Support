@@ -184,7 +184,7 @@ public class WorldEditorScene extends ObjectScene {
     }
 
     private void addBody(Body nextBody) {
-        if (nextBody.getFixtureList() != null) {
+         if (nextBody.getFixtureList() != null) {
             Fixture fixture = nextBody.getFixtureList();
             while (fixture != null) {
                 Shape shape = fixture.getShape();

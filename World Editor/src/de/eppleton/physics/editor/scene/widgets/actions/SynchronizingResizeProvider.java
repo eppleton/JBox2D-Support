@@ -24,7 +24,6 @@ public class SynchronizingResizeProvider implements ResizeProvider {
     public void resizingStarted(Widget widget) {
         oldBounds = widget.getBounds();
         oldLocation = widget.getLocation();
-
     }
 
     @Override

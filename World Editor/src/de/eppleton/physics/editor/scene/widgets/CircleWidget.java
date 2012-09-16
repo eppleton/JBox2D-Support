@@ -7,10 +7,7 @@ package de.eppleton.physics.editor.scene.widgets;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Point;
 import java.awt.Rectangle;
-import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -38,10 +35,11 @@ public class CircleWidget extends Widget  {
         int height = bounds.height - getBorder().getInsets().top - getBorder().getInsets().bottom - 1;
         diameter = height > width ? width : height;
         Graphics2D g = getGraphics();
-        Paint paint = g.getPaint();
+        Paint paint = g.getPaint(); 
         Color fg = getForeground();
         Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
         g.setPaint(c);
+        g.fill(bounds);
         g.fillOval(x, y, diameter, diameter);
         g.setColor(fg);
         g.drawOval(x, y, diameter, diameter);

@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: de.eppleton.physics.editor
-OpenIDE-Module-Install: de/eppleton/jbox2d/Installer.class
 OpenIDE-Module-Layer: de/eppleton/physics/editor/palette/layer.xml
 OpenIDE-Module-Localizing-Bundle: de/eppleton/physics/editor/Bundle.properties
 OpenIDE-Module-Requires: org.openide.windows.WindowManager

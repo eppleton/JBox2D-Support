@@ -33,6 +33,7 @@ public class PolygonWidget extends Widget {
             ypoints[i] = points.get(i).y;
         }
         shape = new Polygon(xpoints, ypoints, points.size());
+        
         this.points = new ArrayList<Point>(points);
     }
 
@@ -52,7 +53,7 @@ public class PolygonWidget extends Widget {
         Color fg = getForeground();
         Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
         g.setPaint(c);
-        System.out.print(".");
+       
         transform(shape.getBounds(), getBounds());
         g.fill(shape);
         g.setColor(fg);
@@ -96,7 +97,6 @@ public class PolygonWidget extends Widget {
                     + y+(newBounds.y - oldBounds.y)));
             xpoints[i] = points.get(i).x;
             ypoints[i] = points.get(i).y;
-
         }
         shape = new Polygon(xpoints, ypoints, points.size());
         getScene().getView().invalidate();
