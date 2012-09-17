@@ -19,6 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -39,16 +40,20 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.Joint;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.action.MoveProvider;
 import org.netbeans.api.visual.action.ResizeProvider;
 import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.model.ObjectSceneEvent;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
 import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.AbstractNode;
@@ -77,6 +82,7 @@ public class WorldEditorScene extends ObjectScene {
         zoom.put("Fit width", "Fit width");
         zoom.put("Fit height", "Fit height");
     }
+    private WidgetAction createAction = new SceneCreateAction();
     private static int FIXED_WIDTH = 100;
     public static final String DELETE_ACTION = "deleteAction";
     private static Logger LOGGER = Logger.getLogger(WorldScene.class.getName());
@@ -88,6 +94,7 @@ public class WorldEditorScene extends ObjectScene {
     private transient LayerWidget mainLayer;
     private transient LayerWidget connectionLayer;
     private transient LayerWidget backgroundLayer;
+    private transient LayerWidget interactionLayer;
     private transient Widget backgroundLayerWidget;
     private transient WidgetAction moveAction;
     private transient FakeChildFactory fakeChildren;
@@ -98,7 +105,7 @@ public class WorldEditorScene extends ObjectScene {
             final World world) {
         this.em = em;
         initScene();
-        this.world = world; 
+        this.world = world;
         addBodiesFromWorld(world);
     }
 
@@ -110,8 +117,11 @@ public class WorldEditorScene extends ObjectScene {
         addChild(mainLayer);
         connectionLayer = new LayerWidget(this);
         addChild(connectionLayer);
+        interactionLayer = new LayerWidget(this);
+        addChild(interactionLayer);
         initBackground();
         // initialize Actions
+        getActions().addAction(createAction);
         moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
         getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         super.getActions().addAction(ActionFactory.createZoomAction());
@@ -167,7 +177,7 @@ public class WorldEditorScene extends ObjectScene {
         pointsXAxis.add(new Point((int) sceneXO, (int) sceneYMAX));
         pointsXAxis.add(new Point((int) sceneXMIN, (int) sceneYO));
         pointsXAxis.add(new Point((int) sceneXMAX, (int) sceneYO));
-        backgroundLayerWidget.addChild(new PolygonWidget(this, pointsXAxis,null));
+        backgroundLayerWidget.addChild(new PolygonWidget(this, pointsXAxis, null));
         backgroundLayer.addChild(backgroundLayerWidget);
         repaint();
         revalidate(false);
@@ -184,7 +194,7 @@ public class WorldEditorScene extends ObjectScene {
     }
 
     private void addBody(Body nextBody) {
-         if (nextBody.getFixtureList() != null) {
+        if (nextBody.getFixtureList() != null) {
             Fixture fixture = nextBody.getFixtureList();
             while (fixture != null) {
                 Shape shape = fixture.getShape();
@@ -238,7 +248,7 @@ public class WorldEditorScene extends ObjectScene {
     public int getScale() {
         return scale;
     }
-    
+
     public WidgetAction getMoveAction() {
         return moveAction;
     }
@@ -282,13 +292,13 @@ public class WorldEditorScene extends ObjectScene {
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
         HashMap<Integer, Joint> jointMap = new HashMap<Integer, Joint>();
-       
+
         HashMap<Integer, Body> addBodies = new HashMap<Integer, Body>();
-        transferData.addBodies(world,jointMap, addBodies);
+        transferData.addBodies(world, jointMap, addBodies);
         float x = WorldUtilities.sceneToWorld(point.x, scale, offsetX, false);
         float y = WorldUtilities.sceneToWorld(point.y, scale, offsetY, false);
         configureBodies(addBodies, x, y);
-        Collection<Body> values = addBodies.values(); 
+        Collection<Body> values = addBodies.values();
         for (Body body : values) {
             addBody(body);
         }
@@ -296,7 +306,7 @@ public class WorldEditorScene extends ObjectScene {
         for (Joint joint : values1) {
             addJoint(joint);
         }
-        
+
     }
 
 //  TODO fix this  
@@ -424,12 +434,14 @@ public class WorldEditorScene extends ObjectScene {
     public JComponent createView() {
         super.createView();
         addKeyboardActions();
+      
         return getView();
+        
     }
 
     public void addKeyboardActions() {
         getView().setFocusable(true);
-        getActions().addAction(new MouseClickedAction(getView()));
+        // getActions().addAction(new MouseClickedAction(getView()));
 
         getView().getInputMap().put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0), "deleteSelectedWidgets");
         getView().getActionMap().put("deleteSelectedWidgets", new AbstractAction() {
@@ -439,5 +451,80 @@ public class WorldEditorScene extends ObjectScene {
             }
         });
 
+    }
+
+    private class SceneCreateAction extends WidgetAction.Adapter {
+
+        private BlackDotWidget source;
+
+        @Override
+        public WidgetAction.State mousePressed(Widget widget,
+                WidgetAction.WidgetMouseEvent event) {
+            if (event.getClickCount() == 1) {
+                if (event.getButton() == MouseEvent.BUTTON1
+                        || event.getButton() == MouseEvent.BUTTON2) {
+                    
+                    BlackDotWidget blackDotWidget = new BlackDotWidget(WorldEditorScene.this, widget, event);
+                    mainLayer.addChild(blackDotWidget);
+                    // TODO create new Widget and switch state to drawing Mode
+                    // save this as the last drawn Widget.
+                    // if last drawn not is null, make a connection
+                    if (source != null) {
+                        ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
+                        conn.setTargetAnchor(AnchorFactory.createCircularAnchor(blackDotWidget, 10));
+                        conn.setSourceAnchor(AnchorFactory.createCircularAnchor(source, 10));
+                        connectionLayer.addChild(conn);
+                    }
+                    source = blackDotWidget;
+
+                    repaint();
+                    return WidgetAction.State.CONSUMED;
+                }
+            }
+            return WidgetAction.State.REJECTED;
+        }
+    }
+
+    private class BlackDotWidget extends ImageWidget {
+
+        public BlackDotWidget(Scene scene, Widget widget,
+                WidgetAction.WidgetMouseEvent event) {
+            super(scene);
+            setImage(ImageUtilities.loadImage("de/eppleton/physics/editor/tar.png"));
+            setPreferredLocation(widget.convertLocalToScene(event.getPoint()));
+
+        }
+    }
+
+    private class BlackDotConnectProvider implements ConnectProvider {
+
+        @Override
+        public boolean isSourceWidget(Widget source) {
+            return source instanceof BlackDotWidget && source != null ? true : false;
+        }
+
+        @Override
+        public ConnectorState isTargetWidget(Widget src, Widget trg) {
+            return src != trg && trg instanceof BlackDotWidget
+                    ? ConnectorState.ACCEPT : ConnectorState.REJECT;
+        }
+
+        @Override
+        public boolean hasCustomTargetWidgetResolver(Scene arg0) {
+            return false;
+        }
+
+        @Override
+        public Widget resolveTargetWidget(Scene arg0, Point arg1) {
+            return null;
+        }
+
+        @Override
+        public void createConnection(Widget source, Widget target) {
+            ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
+            conn.setTargetAnchor(AnchorFactory.createCircularAnchor(target, 10));
+            conn.setSourceAnchor(AnchorFactory.createCircularAnchor(source, 10));
+            connectionLayer.addChild(conn);
+        }
     }
 }
