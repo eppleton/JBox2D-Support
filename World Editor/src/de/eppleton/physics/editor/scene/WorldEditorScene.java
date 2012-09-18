@@ -434,9 +434,9 @@ public class WorldEditorScene extends ObjectScene {
     public JComponent createView() {
         super.createView();
         addKeyboardActions();
-      
+
         return getView();
-        
+
     }
 
     public void addKeyboardActions() {
@@ -452,10 +452,9 @@ public class WorldEditorScene extends ObjectScene {
         });
 
     }
+    private WidgetConnectAction connectAction = new WidgetConnectAction();
 
-    private class SceneCreateAction extends WidgetAction.Adapter {
-
-        private BlackDotWidget source;
+    private class WidgetConnectAction extends WidgetAction.Adapter {
 
         @Override
         public WidgetAction.State mousePressed(Widget widget,
@@ -463,8 +462,40 @@ public class WorldEditorScene extends ObjectScene {
             if (event.getClickCount() == 1) {
                 if (event.getButton() == MouseEvent.BUTTON1
                         || event.getButton() == MouseEvent.BUTTON2) {
-                    
+
+
+                    // TODO create new Widget and switch state to drawing Mode
+                    // save this as the last drawn Widget.
+                    // if last drawn not is null, make a connection
+                    if (source != null) {
+                        ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
+                        conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 10));
+                        conn.setSourceAnchor(AnchorFactory.createCircularAnchor(source, 10));
+                        connectionLayer.addChild(conn);
+                    }
+                    source = null;
+
+                    repaint();
+                    return WidgetAction.State.CONSUMED;
+                }
+            }
+            return WidgetAction.State.REJECTED;
+        }
+    }
+    private BlackDotWidget source;
+
+    private class SceneCreateAction extends WidgetAction.Adapter {
+
+        @Override
+        public WidgetAction.State mousePressed(Widget widget,
+                WidgetAction.WidgetMouseEvent event) {
+            if (event.getClickCount() == 1) {
+                if (event.getButton() == MouseEvent.BUTTON1
+                        || event.getButton() == MouseEvent.BUTTON2) {
+
                     BlackDotWidget blackDotWidget = new BlackDotWidget(WorldEditorScene.this, widget, event);
+
+                    blackDotWidget.getActions().addAction(connectAction);
                     mainLayer.addChild(blackDotWidget);
                     // TODO create new Widget and switch state to drawing Mode
                     // save this as the last drawn Widget.
