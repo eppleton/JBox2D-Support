@@ -6,6 +6,7 @@ package de.eppleton.physics.editor.scene.widgets;
 
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashMap;
@@ -116,11 +117,11 @@ public class BodyWidget extends Widget implements Dependency {
         for (Widget widget : children) { // init contraints if required    
             if (constraintMap.get(widget) == null) {
                 Rectangle childBounds = widget.getBounds();
-                
-                double cx = (double) ((double) childBounds.x - (double) bounds.x) / bounds.width;
-                double cy = (double) ((double) childBounds.y - (double) bounds.y) / bounds.width;
-                double cwidth = (double) childBounds.width / (double) bounds.width;
-                double cheight = (double) childBounds.height / (double) bounds.height;
+                Insets insets = getBorder().getInsets();
+                double cx = (double) ((double) childBounds.x - (double) bounds.x - (double)insets.left) / bounds.width;
+                double cy = (double) ((double) childBounds.y - (double) bounds.y - (double)insets.top) / bounds.width;
+                double cwidth = (double) childBounds.width / (double) (bounds.width -insets.left-insets.right);
+                double cheight = (double) childBounds.height / (double) (bounds.height - insets.top-insets.bottom);
                 ShapeLayoutConstraints constraints = new ShapeLayoutConstraints(cx, cy, cwidth, cheight);
                 constraintMap.put(widget, constraints);
             }
@@ -128,11 +129,12 @@ public class BodyWidget extends Widget implements Dependency {
         if (!bounds.equals(oldBounds)) {
             for (Widget widget : children) {
                 ShapeLayoutConstraints constraints = constraintMap.get(widget);
+                Insets insets = getBorder().getInsets();
                 Rectangle newChildBounds = new Rectangle(
-                        bounds.x + (int) (bounds.width * constraints.x),
-                        bounds.y + (int) (bounds.height * constraints.y),
-                        (int) (bounds.width * constraints.width),
-                        (int) (bounds.height * constraints.height));
+                        bounds.x + (int) (bounds.width * constraints.x) +insets.left,
+                        bounds.y + (int) (bounds.height * constraints.y) +insets.top,
+                        (int) (bounds.width * constraints.width) -insets.left-insets.right,
+                        (int) (bounds.height * constraints.height) -insets.top-insets.bottom);
                 widget.setPreferredBounds(newChildBounds);
             }
         }
