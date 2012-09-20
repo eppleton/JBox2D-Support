@@ -24,28 +24,23 @@ import org.netbeans.api.visual.widget.Widget;
 public class PolygonWidget extends Widget {
 
     private ArrayList<Point> points;
-    private ArrayList<Point> originalPoints;
     private Polygon shape;
     private final PolygonShape polygonShape;
     private final WorldEditorScene worldScene;
 
-    public PolygonWidget(WorldEditorScene scene, List<Point> pointList, PolygonShape polygonShape) {
+    public PolygonWidget(WorldEditorScene scene, List<Point> points, PolygonShape polygonShape) {
         super(scene);
         this.worldScene = scene;
         this.polygonShape = polygonShape;
-        int[] xpoints = new int[pointList.size()];
-        int[] ypoints = new int[pointList.size()];
-        for (int i = 0; i < pointList.size(); i++) {
-            xpoints[i] = pointList.get(i).x;
-            ypoints[i] = pointList.get(i).y;
+        int[] xpoints = new int[points.size()];
+        int[] ypoints = new int[points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            xpoints[i] = points.get(i).x;
+            ypoints[i] = points.get(i).y;
         }
-        shape = new Polygon(xpoints, ypoints, pointList.size());
+        shape = new Polygon(xpoints, ypoints, points.size());
 
-        this.originalPoints = new ArrayList<Point>(pointList);
-        this.points = new ArrayList<Point>();
-        for (Point p : originalPoints) {
-            points.add(new Point(p));
-        }
+        this.points = new ArrayList<Point>(points);
     }
 
     public ArrayList<Point> getPoints() {
@@ -59,38 +54,32 @@ public class PolygonWidget extends Widget {
 
     @Override
     protected void paintWidget() {
-        if (oldBounds== null)oldBounds = getParentWidget().getBounds();
         Graphics2D g = getGraphics();
         Paint paint = g.getPaint();
         Color fg = getForeground();
         Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
         g.setPaint(c);
 
-        transform(getParentWidget().getBounds());
+        transform(shape.getBounds(), getBounds());
         g.fill(shape);
         g.setPaint(fg);
         g.draw(shape);
         g.setColor(fg);
         g.setPaint(paint);
-        
     }
-    Rectangle oldBounds;
 
-    public void transform(Rectangle newBounds) {
-        if (newBounds.equals(oldBounds))return;
-        
-        int x = oldBounds.x;
-        int y = oldBounds.y;
+    public void transform(Rectangle oldBounds, Rectangle newBounds) {
+        int x = shape.getBounds().x;
+        int y = shape.getBounds().y;
 
-       
-        int[] xpoints = new int[originalPoints.size()];
-        int[] ypoints = new int[originalPoints.size()];
+        int[] xpoints = new int[points.size()];
+        int[] ypoints = new int[points.size()];
 
-        for (int i = 0; i < originalPoints.size(); i++) {
+        for (int i = 0; i < points.size(); i++) {
             points.get(i).setLocation(
-                    (int) ((originalPoints.get(i).x - x) * ((double) newBounds.width / (double) oldBounds.width)
+                    (int) ((points.get(i).x - x) * ((double) newBounds.width / (double) oldBounds.width)
                     + x + (newBounds.x - oldBounds.x)),
-                    (int) ((originalPoints.get(i).y - y) * ((double) newBounds.height / (double) oldBounds.height)
+                    (int) ((points.get(i).y - y) * ((double) newBounds.height / (double) oldBounds.height)
                     + y + (newBounds.y - oldBounds.y)));
             xpoints[i] = points.get(i).x;
             ypoints[i] = points.get(i).y;

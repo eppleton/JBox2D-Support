@@ -8,12 +8,13 @@ import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.List;
 import org.jbox2d.dynamics.Body;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ResizeProvider.ControlPoint;
 import org.netbeans.api.visual.action.ResizeStrategy;
 import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.Widget.Dependency;
@@ -100,48 +101,82 @@ public class BodyWidget extends Widget implements Dependency {
             }
         }
 
-       
+
     }
-/*
+    Rectangle oldBounds;
+
     @Override
     protected void paintWidget() {
         super.paintWidget();
         Rectangle bounds = getBounds();
-        Rectangle clientArea = calculateClientArea();
-        Insets insets = super.getBorder().getInsets();
-        double bWidth = bounds.width;
-        double cWidth = clientArea.width + insets.left + insets.right;
-        double bHeight = bounds.height;
-        double cHeight = clientArea.height + insets.bottom + insets.top;
-        double scaleX = bWidth / cWidth;
-        double scaleY = bHeight / cHeight;
-        System.out.println("# scaleX " + scaleX + " scaleY " + scaleY);
-        Graphics2D graphics = getGraphics();
-        Set<Shape> keySet = shapeMap.keySet();
-        for (Shape shape : keySet) {
-            java.awt.Shape awtShape = shapeMap.get(shape);
-            Rectangle bounds1 = awtShape.getBounds();
-            System.out.println("0. " + bounds1);
-            int dX = bounds1.x - bounds.x;
-            int dY = bounds1.y - bounds.y;
-            AffineTransform scaleInstance = AffineTransform.getScaleInstance(scaleX, scaleY);
-            java.awt.Shape test2 = scaleInstance.createTransformedShape(awtShape);
-            System.out.println("2. " + test2.getBounds());
-            Rectangle bounds2 = test2.getBounds();
-            int d2X = bounds2.x - bounds.x;
-            int d2Y = bounds2.y - bounds.x;
-            int tX = dX - d2X;
-            int tY = dY - d2Y;
-            System.out.print("dX: " + dX + " d2X " + d2X + " tX " + tX);
-            AffineTransform translateInstance2 = AffineTransform.getTranslateInstance(tX, tY);
-            java.awt.Shape test3 = translateInstance2.createTransformedShape(test2);
-            System.out.println("3. " + test3.getBounds());
-
-            graphics.setPaint(Color.green);
-            graphics.draw(test3);
+        if (oldBounds == null) {
+            oldBounds = bounds;
         }
-    }*/
+        List<Widget> children = getChildren();
+        for (Widget widget : children) { // init contraints if required    
+            if (constraintMap.get(widget) == null) {
+                Rectangle childBounds = widget.getBounds();
+                
+                double cx = (double) ((double) childBounds.x - (double) bounds.x) / bounds.width;
+                double cy = (double) ((double) childBounds.y - (double) bounds.y) / bounds.width;
+                double cwidth = (double) childBounds.width / (double) bounds.width;
+                double cheight = (double) childBounds.height / (double) bounds.height;
+                ShapeLayoutConstraints constraints = new ShapeLayoutConstraints(cx, cy, cwidth, cheight);
+                constraintMap.put(widget, constraints);
+            }
+        }
+        if (!bounds.equals(oldBounds)) {
+            for (Widget widget : children) {
+                ShapeLayoutConstraints constraints = constraintMap.get(widget);
+                Rectangle newChildBounds = new Rectangle(
+                        bounds.x + (int) (bounds.width * constraints.x),
+                        bounds.y + (int) (bounds.height * constraints.y),
+                        (int) (bounds.width * constraints.width),
+                        (int) (bounds.height * constraints.height));
+                widget.setPreferredBounds(newChildBounds);
+            }
+        }
+        oldBounds = bounds;
+    }
+    /*
+     @Override
+     protected void paintWidget() {
+     super.paintWidget();
+     Rectangle bounds = getBounds();
+     Rectangle clientArea = calculateClientArea();
+     Insets insets = super.getBorder().getInsets();
+     double bWidth = bounds.width;
+     double cWidth = clientArea.width + insets.left + insets.right;
+     double bHeight = bounds.height;
+     double cHeight = clientArea.height + insets.bottom + insets.top;
+     double scaleX = bWidth / cWidth;
+     double scaleY = bHeight / cHeight;
+     System.out.println("# scaleX " + scaleX + " scaleY " + scaleY);
+     Graphics2D graphics = getGraphics();
+     Set<Shape> keySet = shapeMap.keySet();
+     for (Shape shape : keySet) {
+     java.awt.Shape awtShape = shapeMap.get(shape);
+     Rectangle bounds1 = awtShape.getBounds();
+     System.out.println("0. " + bounds1);
+     int dX = bounds1.x - bounds.x;
+     int dY = bounds1.y - bounds.y;
+     AffineTransform scaleInstance = AffineTransform.getScaleInstance(scaleX, scaleY);
+     java.awt.Shape test2 = scaleInstance.createTransformedShape(awtShape);
+     System.out.println("2. " + test2.getBounds());
+     Rectangle bounds2 = test2.getBounds();
+     int d2X = bounds2.x - bounds.x;
+     int d2Y = bounds2.y - bounds.x;
+     int tX = dX - d2X;
+     int tY = dY - d2Y;
+     System.out.print("dX: " + dX + " d2X " + d2X + " tX " + tX);
+     AffineTransform translateInstance2 = AffineTransform.getTranslateInstance(tX, tY);
+     java.awt.Shape test3 = translateInstance2.createTransformedShape(test2);
+     System.out.println("3. " + test3.getBounds());
 
+     graphics.setPaint(Color.green);
+     graphics.draw(test3);
+     }
+     }*/
 //    private void initShapes() {
 //        if (body.getFixtureList() != null) {
 //            Fixture fixture = body.getFixtureList();
@@ -156,7 +191,6 @@ public class BodyWidget extends Widget implements Dependency {
 //            }
 //        }
 //    }
-
 //    private java.awt.Shape getPolygonShape(PolygonShape shape) {
 //        Transform xf = body.getTransform();
 //
@@ -180,4 +214,17 @@ public class BodyWidget extends Widget implements Dependency {
 //        Polygon p = new Polygon(xpoints, ypoints, points.size());
 //        return p;
 //    }
+    private HashMap<Widget, ShapeLayoutConstraints> constraintMap = new HashMap<Widget, ShapeLayoutConstraints>();
+
+    private class ShapeLayoutConstraints {
+
+        double x, y, width, height;
+
+        public ShapeLayoutConstraints(double x, double y, double width, double height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+    }
 }
