@@ -148,6 +148,7 @@ public class WidgetManager {
             containerWidget.setPreferredLocation(new Point(
                     (int) ((body.getPosition().x + offset_x) * scale),
                     (int) (((body.getPosition().y * -1) + offset_Y) * scale)));
+            System.out.println("containerWidget location "+containerWidget.getPreferredLocation());
             scene.validate();
             return polygon;
         }

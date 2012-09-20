@@ -6,7 +6,6 @@ package de.eppleton.physics.editor;
 
 import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
-import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.BorderLayout;
 import java.util.Collection;
 import java.util.logging.Logger;
