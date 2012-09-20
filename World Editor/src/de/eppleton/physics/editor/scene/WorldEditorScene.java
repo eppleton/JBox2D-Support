@@ -467,15 +467,12 @@ public class WorldEditorScene extends ObjectScene {
                         || event.getButton() == MouseEvent.BUTTON2) {
 
 
-                    // TODO create new Widget and switch state to drawing Mode
-                    // save this as the last drawn Widget.
-                    // if last drawn not is null, make a connection
                     if (bodyParts != null && bodyParts.size() > 1) {
                         ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
                         conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
                         conn.setSourceAnchor(AnchorFactory.createCircularAnchor(bodyParts.get(bodyParts.size() - 1), 3));
                         widget.getActions().removeAction(connectAction);
-                       // connectionLayer.addChild(conn);
+                        // connectionLayer.addChild(conn);
                         createNewShape(bodyParts);
                         connections.clear();
                         bodyParts.clear();
@@ -487,41 +484,41 @@ public class WorldEditorScene extends ObjectScene {
             }
             return WidgetAction.State.REJECTED;
         }
+    }
 
-        private void createNewShape(ArrayList<DotWidget> bodyParts) {
-            int minX = Integer.MAX_VALUE;
-            int minY = Integer.MAX_VALUE;
-            for (DotWidget dotWidget : bodyParts) {
-                Point preferredLocation = dotWidget.getPreferredLocation();
-                if (preferredLocation.x < minX) {
-                    minX = preferredLocation.x;
-                }
-                if (preferredLocation.y < minY) {
-                    minY = preferredLocation.y;
-                }
+    private void createNewShape(ArrayList<DotWidget> bodyParts) {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        for (DotWidget dotWidget : bodyParts) {
+            Point preferredLocation = dotWidget.getPreferredLocation();
+            if (preferredLocation.x < minX) {
+                minX = preferredLocation.x;
             }
-            float worldX = WorldUtilities.sceneToWorld(minX, scale, offsetX, false);
-            float worldY = WorldUtilities.sceneToWorld(minY, scale, offsetY, true);
-            System.out.println("minX " + minX + " " + worldX);
-            System.out.println("minY " + minY + " " + worldY);
-            Vec2[] vertices = new Vec2[bodyParts.size()];
-            for (int i = 0; i < bodyParts.size(); i++) {
-                DotWidget dot = bodyParts.get(i);
-                Point preferredLocation = dot.getPreferredLocation();
-                float worldX1 = WorldUtilities.sceneToWorld(preferredLocation.x - minX, scale, offsetX, false);
-                float worldY1 = WorldUtilities.sceneToWorld(preferredLocation.y - minY, scale, offsetY, true);
-                vertices[i] = new Vec2(worldX1, worldY1);
-                mainLayer.removeChild(dot);
+            if (preferredLocation.y < minY) {
+                minY = preferredLocation.y;
             }
-            for (ConnectionWidget con : connections) {
-                connectionLayer.removeChild(con);
-            }
-            Body build = new PolygonShapeBuilder(world).active(true).type(BodyType.STATIC).position(worldX, worldY).vertices(vertices).build();
-            addBody(build);
         }
+        float worldX = WorldUtilities.sceneToWorld(minX, scale, offsetX, false);
+        float worldY = WorldUtilities.sceneToWorld(minY, scale, offsetY, true);
+
+        Vec2[] vertices = new Vec2[bodyParts.size()];
+        for (int i = 0; i < bodyParts.size(); i++) {
+            DotWidget dot = bodyParts.get(i);
+            Point preferredLocation = dot.getPreferredLocation();
+            float worldX1 = WorldUtilities.sceneToWorld(preferredLocation.x - minX, scale, offsetX, false);
+            float worldY1 = WorldUtilities.sceneToWorld(preferredLocation.y - minY, scale, offsetY, true);
+            vertices[i] = new Vec2(worldX1, worldY1);
+            mainLayer.removeChild(dot);
+        }
+        for (ConnectionWidget con : connections) {
+            connectionLayer.removeChild(con);
+        }
+        Body build = new PolygonShapeBuilder(world).active(true).type(BodyType.STATIC).position(worldX, worldY).vertices(vertices).build();
+        addBody(build);
     }
     private ArrayList<DotWidget> bodyParts = new ArrayList<DotWidget>();
     private ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget>();
+
     private class SceneCreateAction extends WidgetAction.Adapter {
 
         @Override
@@ -533,6 +530,14 @@ public class WorldEditorScene extends ObjectScene {
 
                     DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this, widget, event);
                     if (bodyParts.size() == Settings.maxPolygonVertices) {
+                        ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
+                        conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
+                        conn.setSourceAnchor(AnchorFactory.createCircularAnchor(bodyParts.get(bodyParts.size() - 1), 3));
+                        widget.getActions().removeAction(connectAction);
+                        // connectionLayer.addChild(conn);
+                        createNewShape(bodyParts);
+                        connections.clear();
+                        bodyParts.clear();
                     } else {
                         mainLayer.addChild(blackDotWidget);
                         // TODO create new Widget and switch state to drawing Mode
