@@ -41,7 +41,6 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.Joint;
 import org.netbeans.api.visual.action.AcceptProvider;
 import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.action.MoveProvider;
 import org.netbeans.api.visual.action.ResizeProvider;
@@ -52,9 +51,7 @@ import org.netbeans.api.visual.model.ObjectScene;
 import org.netbeans.api.visual.model.ObjectSceneEvent;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
-import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.AbstractNode;
@@ -71,6 +68,8 @@ import org.openide.util.ImageUtilities;
 public class WorldEditorScene extends ObjectScene {
     
     private static HashMap zoom = new HashMap();
+    static String CREATE_SHAPE_TOOL = "createshapetool";
+    static String SELECT_TOOL = "selecttool";
     
     static {
         zoom.put("50%", new Double(0.5));
@@ -122,10 +121,11 @@ public class WorldEditorScene extends ObjectScene {
         addChild(interactionLayer);
         initBackground();
         // initialize Actions
-        getActions().addAction(createAction);
+        createActions(CREATE_SHAPE_TOOL).addAction(createAction);
+         createActions(SELECT_TOOL);
         moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
-        getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
-        super.getActions().addAction(ActionFactory.createZoomAction());
+        getActions(SELECT_TOOL).addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
+        //super.getActions().addAction(ActionFactory.createZoomAction());
         super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
         // TODO reenable this
         fakeChildren = new FakeChildFactory(this);

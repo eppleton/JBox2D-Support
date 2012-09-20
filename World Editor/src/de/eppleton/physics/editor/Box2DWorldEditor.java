@@ -8,6 +8,7 @@ import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
 import de.eppleton.physics.editor.scene.WorldScene;
 import java.awt.BorderLayout;
+import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -36,7 +37,7 @@ preferredID = "Box2DVisual",
 position = 2000)
 @NbBundle.Messages("LBL_Box2D_VISUAL=Visual")
 public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewElement {
-    
+
     private static Logger LOGGER = Logger.getLogger(Box2DWorldEditor.class.getName());
     private transient Box2DDataObject obj;
     private transient JToolBar toolbar = new JToolBar();
@@ -59,8 +60,7 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
         add(jScrollPane, BorderLayout.CENTER);
         scene = new WorldEditorScene(em, lkp.lookup(World.class));
         jScrollPane.setViewportView(scene.createView());
-        toolbar.removeAll();
-        toolbar.add(scene.getZoomComboBox());
+        
     }
 
     /**
@@ -90,71 +90,79 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
     public String getName() {
         return "Box2DVisualElement";
     }
-    
+
     @Override
     public JComponent getVisualRepresentation() {
         return this;
     }
-    
+
     @Override
     public JComponent getToolbarRepresentation() {
+        toolbar.removeAll();
+        toolbar.add(scene.getZoomComboBox());
+        Lookup actionLookup = Lookups.forPath("Box2DSceneActions");
+        Collection<? extends Action> actions = actionLookup.lookupAll(Action.class);
+        for (Action action : actions) {
+            toolbar.add(action);
+        }
         return toolbar;
     }
-    
+
     public Action[] getActions() {
         Action[] retValue;
         // the multiviewObserver was passed to the element in setMultiViewCallback() method.
         if (callback != null) {
             retValue = callback.createDefaultActions();
-            // add you own custom actions here..
+
+
         } else {
             // fallback..
             retValue = new Action[0];
         }
         return retValue;
     }
-    
+
     @Override
     public Lookup getLookup() {
-        return new ProxyLookup(Lookups.fixed(paletteController), ExplorerUtils.createLookup(em, getActionMap()));
+        return new ProxyLookup(Lookups.fixed(paletteController, scene), ExplorerUtils.createLookup(em, getActionMap()));
     }
-    
+
     @Override
     public void componentOpened() {
     }
-    
+
     @Override
     public void componentClosed() {
     }
-    
+
     @Override
     public void componentHidden() {
     }
-    
+
     @Override
     public void componentActivated() {
     }
-    
+
     @Override
     public void componentDeactivated() {
     }
-    
+
     @Override
     public UndoRedo getUndoRedo() {
         return UndoRedo.NONE;
     }
-    
+
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
         callback.updateTitle(name);
     }
-    
+
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
     }
-    
+
     @Override
     public void componentShowing() {
     }
