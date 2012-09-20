@@ -194,14 +194,14 @@ public class WorldEditorScene extends ObjectScene {
         return back;
     }
     
-    private void addBody(Body nextBody) {
-        if (nextBody.getFixtureList() != null) {
-            Fixture fixture = nextBody.getFixtureList();
+    private void addBody(Body bodyToAdd) {
+        if (bodyToAdd.getFixtureList() != null) {
+            Fixture fixture = bodyToAdd.getFixtureList();
             while (fixture != null) {
                 Shape shape = fixture.getShape();
-                WidgetProvider nodeProvider = WidgetManager.getWidgetProvider(nextBody, shape);
+                WidgetProvider nodeProvider = WidgetManager.getWidgetProvider(bodyToAdd, shape);
                 Widget widget = super.findWidget(shape);
-                nodeProvider.configureWidget(this, widget, nextBody, shape, offsetX, offsetY, scale);//, transform);}
+                nodeProvider.configureWidget(this, widget, bodyToAdd, shape, offsetX, offsetY, scale);//, transform);}
                 fixture = fixture.getNext();
             }
         }
@@ -310,7 +310,6 @@ public class WorldEditorScene extends ObjectScene {
         
     }
 
-//  TODO fix this  
     private void configureBodies(HashMap<Integer, Body> bodies, float x, float y) {
         Collection<Body> values = bodies.values();
         float minX = Float.MAX_VALUE;

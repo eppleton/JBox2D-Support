@@ -6,25 +6,9 @@ package de.eppleton.physics.editor.scene.widgets;
 
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.collision.shapes.Shape;
-import org.jbox2d.collision.shapes.ShapeType;
-import org.jbox2d.common.Transform;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.Fixture;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ResizeProvider.ControlPoint;
 import org.netbeans.api.visual.action.ResizeStrategy;
@@ -42,13 +26,13 @@ public class BodyWidget extends Widget implements Dependency {
 
     Body body;
     WorldEditorScene scene;
-    private Map<Shape, java.awt.Shape> shapeMap = new HashMap<Shape, java.awt.Shape>();
+//    private Map<Shape, java.awt.Shape> shapeMap = new HashMap<Shape, java.awt.Shape>();
 
     public BodyWidget(WorldEditorScene scene, Body body) {
         super(scene);
         this.scene = scene;
         this.body = body;
-        setLayout(LayoutFactory.createOverlayLayout());
+        //setLayout(LayoutFactory.createOverlayLayout());
         scene.getMainLayer().addChild(this);
         scene.addObject(body, this);
         // initShapes();
@@ -91,11 +75,11 @@ public class BodyWidget extends Widget implements Dependency {
         super.notifyStateChanged(previousState, state);
         //setBorder(state.isSelected() ? BorderFactory.createResizeBorder(6, Color.GRAY, true) : BorderFactory.createEmptyBorder(6));
         setBorder(state.isSelected() ? BorderFactory.createResizeBorder(4) : BorderFactory.createEmptyBorder(4));
-        if (state.isSelected()) {
-            setBackground(Color.BLUE);
-        } else {
-            setBackground(Color.WHITE);
-        }
+//        if (state.isSelected()) {
+//            setBackground(Color.BLUE);
+//        } else {
+//            setBackground(Color.WHITE);
+//        }
 
     }
     int x, y = -1;
@@ -118,7 +102,7 @@ public class BodyWidget extends Widget implements Dependency {
 
        
     }
-
+/*
     @Override
     protected void paintWidget() {
         super.paintWidget();
@@ -156,44 +140,44 @@ public class BodyWidget extends Widget implements Dependency {
             graphics.setPaint(Color.green);
             graphics.draw(test3);
         }
-    }
+    }*/
 
-    private void initShapes() {
-        if (body.getFixtureList() != null) {
-            Fixture fixture = body.getFixtureList();
-            while (fixture != null) {
-                Shape shape = fixture.getShape();
-                if (!shapeMap.containsKey(shape)) {
-                    if (shape.getType() == ShapeType.POLYGON) {
-                        shapeMap.put(shape, getPolygonShape((PolygonShape) shape));
-                    }
-                }
-                fixture = fixture.getNext();
-            }
-        }
-    }
+//    private void initShapes() {
+//        if (body.getFixtureList() != null) {
+//            Fixture fixture = body.getFixtureList();
+//            while (fixture != null) {
+//                Shape shape = fixture.getShape();
+//                if (!shapeMap.containsKey(shape)) {
+//                    if (shape.getType() == ShapeType.POLYGON) {
+//                        shapeMap.put(shape, getPolygonShape((PolygonShape) shape));
+//                    }
+//                }
+//                fixture = fixture.getNext();
+//            }
+//        }
+//    }
 
-    private java.awt.Shape getPolygonShape(PolygonShape shape) {
-        Transform xf = body.getTransform();
-
-        ArrayList<Point> points = new ArrayList<Point>();
-        for (int i = 0; i < shape.getVertexCount(); i++) {
-            Vec2 transformed = new Vec2();
-            Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
-            transformed.x = transformed.x - body.getPosition().x;
-            transformed.y = transformed.y - body.getPosition().y;
-            Point point = new Point(
-                    (int) ((transformed.x) * scene.getScale()),
-                    (int) ((transformed.y * -1) * scene.getScale()));
-            points.add(point);
-        }
-        int[] xpoints = new int[points.size()];
-        int[] ypoints = new int[points.size()];
-        for (int i = 0; i < points.size(); i++) {
-            xpoints[i] = points.get(i).x;
-            ypoints[i] = points.get(i).y;
-        }
-        Polygon p = new Polygon(xpoints, ypoints, points.size());
-        return p;
-    }
+//    private java.awt.Shape getPolygonShape(PolygonShape shape) {
+//        Transform xf = body.getTransform();
+//
+//        ArrayList<Point> points = new ArrayList<Point>();
+//        for (int i = 0; i < shape.getVertexCount(); i++) {
+//            Vec2 transformed = new Vec2();
+//            Transform.mulToOutUnsafe(xf, shape.m_vertices[i], transformed);
+//            transformed.x = transformed.x - body.getPosition().x;
+//            transformed.y = transformed.y - body.getPosition().y;
+//            Point point = new Point(
+//                    (int) ((transformed.x) * scene.getScale()),
+//                    (int) ((transformed.y * -1) * scene.getScale()));
+//            points.add(point);
+//        }
+//        int[] xpoints = new int[points.size()];
+//        int[] ypoints = new int[points.size()];
+//        for (int i = 0; i < points.size(); i++) {
+//            xpoints[i] = points.get(i).x;
+//            ypoints[i] = points.get(i).y;
+//        }
+//        Polygon p = new Polygon(xpoints, ypoints, points.size());
+//        return p;
+//    }
 }
