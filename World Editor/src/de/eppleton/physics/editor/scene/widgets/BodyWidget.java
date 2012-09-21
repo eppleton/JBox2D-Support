@@ -62,8 +62,10 @@ public class BodyWidget extends Widget implements Dependency {
 
     final void addActions(final WorldEditorScene scene, final Body body) {
         createActions(WorldEditorScene.DISTANCE_JOINT_TOOL).addAction(scene.getDistanceJointAction());
+        createActions(WorldEditorScene.REVOLUTE_JOINT_TOOL).addAction(scene.getRevoluteJointAction());
+
         createActions(WorldEditorScene.SELECT_TOOL).addAction(scene.createSelectAction());
-        
+
         getActions().addAction(ActionFactory.createResizeAction(new ResizeStrategy() {
             @Override
             public Rectangle boundsSuggested(Widget widget, Rectangle originalBounds, Rectangle suggestedBounds, ControlPoint controlPoint) {

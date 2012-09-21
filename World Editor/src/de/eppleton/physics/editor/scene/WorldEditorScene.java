@@ -5,6 +5,7 @@
 package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.PolygonShapeBuilder;
+import de.eppleton.jbox2d.RevoluteJointBuilder;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
@@ -102,6 +103,7 @@ public class WorldEditorScene extends ObjectScene {
     }
     private CloseAndCreateShapeAction connectAction = new CloseAndCreateShapeAction();
     private CreateDistanceJointAction createDistanceJointAction = new CreateDistanceJointAction();
+    private WidgetAction createRevoluteJointAction = new CreateRevoluteJointAction();
     private WidgetAction createAction = new CreatePolygonPointsAction();
     private ArrayList<DotWidget> bodyParts = new ArrayList<DotWidget>();
     private ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget>();
@@ -302,10 +304,10 @@ public class WorldEditorScene extends ObjectScene {
                     bodyParts.get(2).getPreferredLocation());
             if (!ccw) {
                 ArrayList<DotWidget> reordered = new ArrayList<DotWidget>(bodyParts);
-                
+
 
                 for (int i = 0; i < bodyParts.size(); i++) {
-                  
+
                     reordered.set(bodyParts.size() - i - 1, bodyParts.get(i));
                 }
                 bodyParts.clear();
@@ -316,6 +318,40 @@ public class WorldEditorScene extends ObjectScene {
 
     public WidgetAction getDistanceJointAction() {
         return createDistanceJointAction;
+    }
+
+    public WidgetAction getRevoluteJointAction() {
+        return createRevoluteJointAction;
+    }
+
+    private  class CreateRevoluteJointAction extends WidgetAction.Adapter {
+
+        private Widget first;
+
+        @Override
+        public WidgetAction.State mousePressed(Widget widget,
+                WidgetAction.WidgetMouseEvent event) {
+            if (event.getClickCount() == 1) {
+                if (event.getButton() == MouseEvent.BUTTON1
+                        || event.getButton() == MouseEvent.BUTTON2) {
+                    if (first == null) {
+                        first = widget;
+                        return WidgetAction.State.REJECTED;
+                    } else {
+                        Body sourceBody = (Body) ((ObjectScene) widget.getScene()).findObject(first);
+                        Point targetPoint = widget.convertLocalToScene(event.getPoint());
+                        Vec2 targetVec = new Vec2(WorldUtilities.sceneToWorld(targetPoint.x, scale, offsetX, false),
+                                WorldUtilities.sceneToWorld(targetPoint.y, scale, offsetX, true));
+                        Body targetBody = (Body) ((ObjectScene) widget.getScene()).findObject(widget);
+
+                        Joint build = new RevoluteJointBuilder(world, sourceBody, targetBody,targetVec).build();
+                        addJoint(build);
+                    }
+
+                }
+            }
+            return WidgetAction.State.REJECTED;
+        }
     }
 
     private class AcceptProviderImpl implements AcceptProvider {
