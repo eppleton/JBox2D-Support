@@ -40,7 +40,6 @@ public class Box2DEditor extends MultiViewEditorElement implements PropertyChang
         lkp = lookup;
         updater = new Updater(this);
         synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
-        System.out.println("############ Box2DEditor ");
         synchronizer.addPropertyChangeListener(this);
     }
 

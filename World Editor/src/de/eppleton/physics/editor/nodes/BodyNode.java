@@ -63,7 +63,6 @@ public class BodyNode extends AbstractNode {
             public void setValue(Float val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
                 float oldVal = getLookup().lookup(Body.class).getPosition().x;
                 getLookup().lookup(Body.class).getPosition().x = val;
-                System.out.println("setting x value to " + getLookup().lookup(Body.class).getPosition().x);
                 firePropertyChange("x", oldVal, val);
             }
         });
@@ -77,7 +76,6 @@ public class BodyNode extends AbstractNode {
             public void setValue(Float val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
                 float oldVal = getLookup().lookup(Body.class).getPosition().y;
                 getLookup().lookup(Body.class).getPosition().y = val;
-                System.out.println("setting y value to " + getLookup().lookup(Body.class).getPosition().y);
                 firePropertyChange("y", oldVal, val);
             }
         });

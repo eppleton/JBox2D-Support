@@ -70,6 +70,10 @@ import org.openide.util.ImageUtilities;
  */
 public class WorldEditorScene extends ObjectScene {
 
+    private static int FIXED_WIDTH = 100;
+    public static final String DELETE_ACTION = "deleteAction";
+    private static Logger LOGGER = Logger.getLogger(WorldScene.class.getName());
+    // Tools
     public static String CREATE_SHAPE_TOOL = "createshapetool";
     public static String DISTANCE_JOINT_TOOL = "distancejointtool";
     public static String FRICTION_JOINT_TOOL = "frictionjointtool";
@@ -95,14 +99,13 @@ public class WorldEditorScene extends ObjectScene {
         zoom.put("Fit width", "Fit width");
         zoom.put("Fit height", "Fit height");
     }
-    private WidgetAction createAction = new SceneCreateAction();
-    private static int FIXED_WIDTH = 100;
-    public static final String DELETE_ACTION = "deleteAction";
-    private static Logger LOGGER = Logger.getLogger(WorldScene.class.getName());
-    private int scale = 30;
-    private float offsetX = 0;
-    private float offsetY = 0;
-    private transient ExplorerManager em;
+    private CloseAndCreateShapeAction connectAction = new CloseAndCreateShapeAction();
+    private WidgetAction createAction = new CreatePolygonPointsAction();
+    private ArrayList<DotWidget> bodyParts = new ArrayList<DotWidget>();
+    private ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget>();
+    
+    private final World world;
+
     private transient ResizeProvider resizeProvider;
     private transient LayerWidget mainLayer;
     private transient LayerWidget connectionLayer;
@@ -110,9 +113,13 @@ public class WorldEditorScene extends ObjectScene {
     private transient LayerWidget interactionLayer;
     private transient Widget backgroundLayerWidget;
     private transient WidgetAction moveAction;
-    private transient FakeChildFactory fakeChildren;
+    private transient ExplorerManager em;
     private transient Node root;
-    private final World world;
+    private transient FakeChildFactory fakeChildren;
+    
+    private int scale = 30;
+    private float offsetX = 0;
+    private float offsetY = 0;
 
     public WorldEditorScene(final ExplorerManager em,
             final World world) {
@@ -428,9 +435,6 @@ public class WorldEditorScene extends ObjectScene {
                     entry.getKey().setPreferredLocation(new Point(point.x + dx, point.y + dy));
                 }
             } catch (NullPointerException nex) {
-                System.out.println("original: " + original);
-                System.out.println("location " + location);
-
                 nex.printStackTrace();
             }
         }
@@ -499,37 +503,6 @@ public class WorldEditorScene extends ObjectScene {
         });
 
     }
-    private WidgetConnectAction connectAction = new WidgetConnectAction();
-
-    private class WidgetConnectAction extends WidgetAction.Adapter {
-
-        @Override
-        public WidgetAction.State mousePressed(Widget widget,
-                WidgetAction.WidgetMouseEvent event) {
-            if (event.getClickCount() == 1) {
-                if (event.getButton() == MouseEvent.BUTTON1
-                        || event.getButton() == MouseEvent.BUTTON2) {
-
-
-                    if (bodyParts != null && bodyParts.size() > 1) {
-                        ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
-                        conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
-                        conn.setSourceAnchor(AnchorFactory.createCircularAnchor(bodyParts.get(bodyParts.size() - 1), 3));
-                        widget.getActions().removeAction(connectAction);
-                        // connectionLayer.addChild(conn);
-                        createNewShape(bodyParts);
-                        connections.clear();
-                        bodyParts.clear();
-                    }
-
-                    repaint();
-                    return WidgetAction.State.CONSUMED;
-                }
-            }
-            return WidgetAction.State.REJECTED;
-        }
-    }
-
     private void createNewShape(ArrayList<DotWidget> bodyParts) {
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
@@ -563,10 +536,38 @@ public class WorldEditorScene extends ObjectScene {
         Body build = new PolygonShapeBuilder(world).active(true).type(BodyType.STATIC).position(worldX, worldY).vertices(vertices).build();
         addBody(build);
     }
-    private ArrayList<DotWidget> bodyParts = new ArrayList<DotWidget>();
-    private ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget>();
 
-    private class SceneCreateAction extends WidgetAction.Adapter {
+    private class CloseAndCreateShapeAction extends WidgetAction.Adapter {
+
+        @Override
+        public WidgetAction.State mousePressed(Widget widget,
+                WidgetAction.WidgetMouseEvent event) {
+            if (event.getClickCount() == 1) {
+                if (event.getButton() == MouseEvent.BUTTON1
+                        || event.getButton() == MouseEvent.BUTTON2) {
+
+
+                    if (bodyParts != null && bodyParts.size() > 1) {
+                        ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
+                        conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
+                        conn.setSourceAnchor(AnchorFactory.createCircularAnchor(bodyParts.get(bodyParts.size() - 1), 3));
+                        widget.getActions().removeAction(connectAction);
+                        // connectionLayer.addChild(conn);
+                        createNewShape(bodyParts);
+                        connections.clear();
+                        bodyParts.clear();
+                    }
+
+                    repaint();
+                    return WidgetAction.State.CONSUMED;
+                }
+            }
+            return WidgetAction.State.REJECTED;
+        }
+    }
+
+    
+    private class CreatePolygonPointsAction extends WidgetAction.Adapter {
 
         @Override
         public WidgetAction.State mousePressed(Widget widget,

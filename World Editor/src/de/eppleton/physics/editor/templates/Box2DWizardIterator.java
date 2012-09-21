@@ -72,9 +72,7 @@ public final class Box2DWizardIterator implements WizardDescriptor.Instantiating
     public Set<?> instantiate() throws IOException {
         HashSet<DataObject> files = new HashSet<DataObject>();
         Set<String> keySet = wizard.getProperties().keySet();
-        for (String string : keySet) {
-            System.out.println("### key : " + string + " val " + wizard.getProperties().get(string));
-        }
+       
         HashMap box2DMap = new HashMap();
         box2DMap.put("x", wizard.getProperty("gravity_x"));
         box2DMap.put("y", wizard.getProperty("gravity_y"));

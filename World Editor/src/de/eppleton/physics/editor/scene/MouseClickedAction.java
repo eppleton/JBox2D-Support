@@ -18,7 +18,6 @@ public class MouseClickedAction  extends org.netbeans.api.visual.action.WidgetAc
 
     @Override 
     public State mouseClicked(Widget widget, WidgetMouseEvent event) { 
-        System.out.println("setting focus to " + component); 
         component.requestFocus(); 
         return State.REJECTED; 
     } 
