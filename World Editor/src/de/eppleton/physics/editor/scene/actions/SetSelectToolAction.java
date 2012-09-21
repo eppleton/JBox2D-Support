@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.eppleton.physics.editor.scene;
+package de.eppleton.physics.editor.scene.actions;
 
+import de.eppleton.physics.editor.scene.WorldEditorScene;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.openide.awt.ActionID;

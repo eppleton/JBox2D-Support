@@ -70,9 +70,19 @@ import org.openide.util.ImageUtilities;
  */
 public class WorldEditorScene extends ObjectScene {
 
+    public static String CREATE_SHAPE_TOOL = "createshapetool";
+    public static String DISTANCE_JOINT_TOOL = "distancejointtool";
+    public static String FRICTION_JOINT_TOOL = "frictionjointtool";
+    public static String GEAR_JOINT_TOOL = "gearjointtool";
+    public static String MOUSE_JOINT_TOOL = "mousejointtool";
+    public static String PRISMATIC_JOINT_TOOL = "prismaticjointtool";
+    public static String PULLEY_JOINT_TOOL = "pulleyjointtool";
+    public static String RELD_JOINT_TOOL = "weldjointtool";
+    public static String REVOLUTE_JOINT_TOOL = "revolutejointtool";
+    public static String ROPE_JOINT_TOOL = "ropejointtool";
+    public static String SELECT_TOOL = "selecttool";
+    public static String WHEEL_JOINT_TOOL = "wheeljointtool";
     private static HashMap zoom = new HashMap();
-    static String CREATE_SHAPE_TOOL = "createshapetool";
-    static String SELECT_TOOL = "selecttool";
 
     static {
         zoom.put("50%", new Double(0.5));
@@ -123,13 +133,30 @@ public class WorldEditorScene extends ObjectScene {
         interactionLayer = new LayerWidget(this);
         addChild(interactionLayer);
         initBackground();
-        // initialize Actions
-        createActions(CREATE_SHAPE_TOOL).addAction(createAction);
+
+        // initialize Tools
+        createActions(CREATE_SHAPE_TOOL);
+        createActions(DISTANCE_JOINT_TOOL);
+        createActions(FRICTION_JOINT_TOOL);
+        createActions(GEAR_JOINT_TOOL);
+        createActions(MOUSE_JOINT_TOOL);
+        createActions(PRISMATIC_JOINT_TOOL);
+        createActions(PULLEY_JOINT_TOOL);
+        createActions(RELD_JOINT_TOOL);
+        createActions(REVOLUTE_JOINT_TOOL);
+        createActions(ROPE_JOINT_TOOL);
         createActions(SELECT_TOOL);
+        createActions(WHEEL_JOINT_TOOL);
+        createActions(SELECT_TOOL);
+
+        // initialize and add actions
+        super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
+        getActions(CREATE_SHAPE_TOOL).addAction(createAction);
         moveAction = ActionFactory.createMoveAction(null, new MultiMoveProvider());
         getActions(SELECT_TOOL).addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
+        // select is active by default
+        setActiveTool(SELECT_TOOL);
         //super.getActions().addAction(ActionFactory.createZoomAction());
-        super.getActions().addAction(ActionFactory.createAcceptAction(new AcceptProviderImpl()));
         // TODO reenable this
         fakeChildren = new FakeChildFactory(this);
         root = new AbstractNode(Children.create(fakeChildren, false));
@@ -259,6 +286,23 @@ public class WorldEditorScene extends ObjectScene {
 
     public LayerWidget getMainLayer() {
         return mainLayer;
+    }
+
+    private void ensureCCW(ArrayList<DotWidget> bodyParts) {
+        if (bodyParts.size() >= 3) {
+            boolean ccw = WorldUtilities.ccw(
+                    bodyParts.get(0).getPreferredLocation(),
+                    bodyParts.get(1).getPreferredLocation(),
+                    bodyParts.get(2).getPreferredLocation());
+            if (!ccw) {
+                ArrayList<DotWidget> reordered = new ArrayList<DotWidget>();
+                for (int i = 0; i < bodyParts.size(); i++) {
+                    reordered.add(bodyParts.size() - i, bodyParts.get(i));
+                }
+                bodyParts.clear();
+                bodyParts.addAll(reordered);
+            }
+        }
     }
 
     private class AcceptProviderImpl implements AcceptProvider {
@@ -498,6 +542,9 @@ public class WorldEditorScene extends ObjectScene {
                 minY = preferredLocation.y;
             }
         }
+
+        ensureCCW(bodyParts);
+
         float worldX = WorldUtilities.sceneToWorld(minX, scale, offsetX, false);
         float worldY = WorldUtilities.sceneToWorld(minY, scale, offsetY, true);
 
