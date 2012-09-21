@@ -7,11 +7,10 @@ package de.eppleton.physics.editor.scene.widgets;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Rectangle;
-import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -22,9 +21,9 @@ public class DotWidget extends Widget {
     private int diameter = 5;
 
     public DotWidget(Scene scene, Widget widget,
-            WidgetAction.WidgetMouseEvent event) {
+           Point location) {
         super(scene);
-        setPreferredLocation(widget.convertLocalToScene(event.getPoint()));
+        setPreferredLocation(location);//);
     }
 
     @Override

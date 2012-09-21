@@ -61,14 +61,16 @@ public class BodyWidget extends Widget implements Dependency {
      */
 
     final void addActions(final WorldEditorScene scene, final Body body) {
-        getActions().addAction(scene.createSelectAction());
+        createActions(WorldEditorScene.DISTANCE_JOINT_TOOL).addAction(scene.getDistanceJointAction());
+        createActions(WorldEditorScene.SELECT_TOOL).addAction(scene.createSelectAction());
+        
         getActions().addAction(ActionFactory.createResizeAction(new ResizeStrategy() {
             @Override
             public Rectangle boundsSuggested(Widget widget, Rectangle originalBounds, Rectangle suggestedBounds, ControlPoint controlPoint) {
                 return suggestedBounds;
             }
         }, scene.getResizeProvider()));
-        getActions().addAction(scene.getMoveAction());
+        createActions(WorldEditorScene.SELECT_TOOL).addAction(scene.getMoveAction());
         addDependency(this);
     }
 
@@ -118,10 +120,10 @@ public class BodyWidget extends Widget implements Dependency {
             if (constraintMap.get(widget) == null) {
                 Rectangle childBounds = widget.getBounds();
                 Insets insets = getBorder().getInsets();
-                double cx = (double) ((double) childBounds.x - (double) bounds.x - (double)insets.left) / bounds.width;
-                double cy = (double) ((double) childBounds.y - (double) bounds.y - (double)insets.top) / bounds.width;
-                double cwidth = (double) childBounds.width / (double) (bounds.width -insets.left-insets.right);
-                double cheight = (double) childBounds.height / (double) (bounds.height - insets.top-insets.bottom);
+                double cx = (double) ((double) childBounds.x - (double) bounds.x - (double) insets.left) / bounds.width;
+                double cy = (double) ((double) childBounds.y - (double) bounds.y - (double) insets.top) / bounds.width;
+                double cwidth = (double) childBounds.width / (double) (bounds.width - insets.left - insets.right);
+                double cheight = (double) childBounds.height / (double) (bounds.height - insets.top - insets.bottom);
                 ShapeLayoutConstraints constraints = new ShapeLayoutConstraints(cx, cy, cwidth, cheight);
                 constraintMap.put(widget, constraints);
             }
@@ -131,10 +133,10 @@ public class BodyWidget extends Widget implements Dependency {
                 ShapeLayoutConstraints constraints = constraintMap.get(widget);
                 Insets insets = getBorder().getInsets();
                 Rectangle newChildBounds = new Rectangle(
-                        bounds.x + (int) (bounds.width * constraints.x) +insets.left,
-                        bounds.y + (int) (bounds.height * constraints.y) +insets.top,
-                        (int) (bounds.width * constraints.width) -insets.left-insets.right,
-                        (int) (bounds.height * constraints.height) -insets.top-insets.bottom);
+                        bounds.x + (int) (bounds.width * constraints.x) + insets.left,
+                        bounds.y + (int) (bounds.height * constraints.y) + insets.top,
+                        (int) (bounds.width * constraints.width) - insets.left - insets.right,
+                        (int) (bounds.height * constraints.height) - insets.top - insets.bottom);
                 widget.setPreferredBounds(newChildBounds);
             }
         }
