@@ -301,7 +301,7 @@ public class WorldEditorScene extends ObjectScene {
                     bodyParts.get(1).getPreferredLocation(),
                     bodyParts.get(2).getPreferredLocation());
             if (!ccw) {
-                ArrayList<DotWidget> reordered = new ArrayList<DotWidget>();
+                ArrayList<DotWidget> reordered = new ArrayList<DotWidget>(bodyParts.size());
                 for (int i = 0; i < bodyParts.size(); i++) {
                     reordered.add(bodyParts.size() - i, bodyParts.get(i));
                 }
