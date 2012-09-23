@@ -13,4 +13,9 @@
             <file name="Flipper.b2i" url="Flipper.b2i"/>
         </folder>
     </folder>
+    <folder name="xml">
+        <folder name="catalogs">
+            <file name="UserXMLCatalog.xml" url="UserXMLCatalog.xml"/>
+        </folder>
+    </folder>
 </filesystem>
