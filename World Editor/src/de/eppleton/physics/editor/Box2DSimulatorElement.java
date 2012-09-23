@@ -7,6 +7,9 @@ package de.eppleton.physics.editor;
 import de.eppleton.jbox2d.PatchedTestbedController;
 import de.eppleton.jbox2d.WorldUtilities;
 import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
+import de.eppleton.physics.editor.assistant.AssistantModel;
+import de.eppleton.physics.editor.assistant.AssistantView;
+import de.eppleton.physics.editor.assistant.ModelHelper;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -54,6 +57,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     private boolean started = false;
     private World world;
     private ViewSynchronizer synchronizer;
+    private AssistantModel localmodel;
 
     /**
      * Creates new form Box2DSimulatorElement
@@ -63,16 +67,16 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         assert obj != null;
         synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
         synchronizer.addPropertyChangeListener(this);
-        
+
     }
-    
+
     private void update(World newWorld) {
         this.world = newWorld;
         removeAll();
         final String name = obj.getName();
         model = new TestbedModel();
         model.addCategory("Bla");
-        
+
         model.addTest(new TestbedTestImpl(newWorld, name));
         TestList.populateModel(model);
         TestPanelJ2D panel = new TestPanelJ2D(model);
@@ -85,9 +89,9 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         //add(toolbar, BorderLayout.NORTH);
         // add(new JScrollPane(side), "East");
         revalidate();
-        
+
     }
-    
+
     public void initToolBar() {
         toolbar.removeAll();
         toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_stop.png", true)) {
@@ -141,74 +145,74 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     public JComponent getVisualRepresentation() {
         return this;
     }
-    
+
     @Override
     public JComponent getToolbarRepresentation() {
         return toolbar;
     }
-    
+
     @Override
     public Action[] getActions() {
         return new Action[0];
     }
-    
+
     @Override
     public Lookup getLookup() {
         return obj.getLookup();
     }
-    
+
     @Override
     public void componentOpened() {
     }
-    
+
     @Override
     public void componentClosed() {
     }
-    
+
     @Override
     public void componentShowing() {
     }
-    
+
     @Override
     public void componentHidden() {
         if (controller != null) {
             controller.stop();
         }
     }
-    
+
     @Override
     public void componentActivated() {
         if (synchronizer.getWorld() != null) {
             update(WorldUtilities.copy(synchronizer.getWorld()));
         }
     }
-    
+
     @Override
     public void componentDeactivated() {
     }
-    
+
     @Override
     public UndoRedo getUndoRedo() {
         return UndoRedo.NONE;
     }
-    
+
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
     }
-    
+
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
     }
-    
+
     private void play() {
         if (controller != null && !controller.isAnimating()) {
             controller.playTest(0);
             controller.start();
         }
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName() == ViewSynchronizer.WORLD_CHANGED) {
@@ -220,18 +224,18 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             }
         }
     }
-    
+
     private class TestbedTestImpl extends TestbedTest {
-        
+
         private final String name;
         private World world;
-        
+
         public TestbedTestImpl(World world, String name) {
             super();
             this.name = name;
             this.world = world;
         }
-        
+
         @Override
         public String getTestName() {
             return name;
@@ -244,7 +248,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             m_world = world;
             init(world, false);
         }
-        
+
         @Override
         public void initTest(boolean bln) {
 //            throw new UnsupportedOperationException("Not supported yet.");

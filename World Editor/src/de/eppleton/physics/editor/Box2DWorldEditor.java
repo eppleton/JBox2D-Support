@@ -4,6 +4,9 @@
  */
 package de.eppleton.physics.editor;
 
+import de.eppleton.physics.editor.assistant.AssistantModel;
+import de.eppleton.physics.editor.assistant.AssistantView;
+import de.eppleton.physics.editor.assistant.ModelHelper;
 import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
 import java.awt.BorderLayout;
@@ -46,6 +49,7 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
     private transient final String name;
     private transient PaletteController paletteController;
     private transient ExplorerManager em = new ExplorerManager();
+    private final AssistantModel localmodel;
 
     /**
      * Creates new form Box2DWorldEditor
@@ -57,9 +61,13 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
         paletteController = Box2DPaletteController.createPalette();
         setLayout(new BorderLayout());
         add(jScrollPane, BorderLayout.CENTER);
+        localmodel = ModelHelper.returnAssistantModel();
+        localmodel.setContext("started");
+        add(new AssistantView(localmodel), BorderLayout.NORTH);
+
         scene = new WorldEditorScene(em, lkp.lookup(World.class));
         jScrollPane.setViewportView(scene.createView());
-        
+
     }
 
     /**

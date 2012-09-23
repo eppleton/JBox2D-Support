@@ -3,13 +3,11 @@
  * and open the template in the editor.
  */
 
-import de.eppleton.jbox2d.BoxBuilder;
-import de.eppleton.jbox2d.CircleShapeBuilder;
-import de.eppleton.jbox2d.PolygonShapeBuilder;
-import java.util.HashMap;
-import org.box2d.proto.Box2D.PbJoint;
 import org.jbox2d.serialization.pb.PbSerializer;
 import org.box2d.proto.Box2D.PbWorld.Builder;
+import org.jbox2d.builders.BoxBuilder;
+import org.jbox2d.builders.CircleShapeBuilder;
+import org.jbox2d.builders.PolygonShapeBuilder;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyType;

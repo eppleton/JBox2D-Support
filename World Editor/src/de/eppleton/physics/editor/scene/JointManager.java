@@ -4,6 +4,7 @@
  */
 package de.eppleton.physics.editor.scene;
 
+import de.eppleton.physics.editor.scene.widgets.DotWidget;
 import de.eppleton.physics.editor.scene.widgets.FixedPointOnWidgetAnchor;
 import java.awt.Color;
 import java.awt.Point;
@@ -23,16 +24,16 @@ class JointManager {
     private static Color LINE_COLOR = new Color(0.5f, 0.8f, 0.8f);
     private static JointProvider DUMMYPROVIDER = new JointProvider() {
         @Override
-        public void configureWidget(WorldEditorScene aThis, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
+        public void configureWidget(WorldEditorScene aThis, Widget widget, Joint nextJoint, float offsetX, float offsetY, int scale) {
             // Do Nothing
         }
     };
     private static JointProvider DISTANCEPROVIDER = new JointProvider() {
         @Override
-        public void configureWidget(WorldEditorScene scene, ConnectionWidget widget, Joint joint, float offsetX, float offsetY, int scale) {
+        public void configureWidget(WorldEditorScene scene, Widget widget, Joint joint, float offsetX, float offsetY, int scale) {
             if (widget == null) {
                 widget = new ConnectionWidget(scene);
-                widget.setLineColor(LINE_COLOR);
+                ((ConnectionWidget) widget).setLineColor(LINE_COLOR);
 
 //                ArrayList<Point> points = new ArrayList<Point>();
                 Widget bodyA = scene.findWidget(joint.m_bodyA);
@@ -44,14 +45,35 @@ class JointManager {
                 joint.getAnchorB(anchorB);
 
 
-                widget.setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
+                ((ConnectionWidget) widget).setSourceAnchor(new FixedPointOnWidgetAnchor(bodyA, new Point(
                         (int) ((anchorA.x + offsetX) * scale),
                         (int) (((anchorA.y * -1) + offsetY) * scale))));
-                widget.setTargetAnchor(new FixedPointOnWidgetAnchor(bodyB, new Point(
+                ((ConnectionWidget) widget).setTargetAnchor(new FixedPointOnWidgetAnchor(bodyB, new Point(
                         (int) ((anchorB.x + offsetX) * scale),
                         (int) (((anchorB.y * -1) + offsetY) * scale))));
 
                 scene.addConnection(widget, joint);
+                scene.validate();
+            }
+
+
+
+        }
+    };
+    private static JointProvider REVOLUTEJOINTPROVIDER = new JointProvider() {
+        @Override
+        public void configureWidget(WorldEditorScene scene, Widget widget, Joint joint, float offsetX, float offsetY, int scale) {
+            if (widget == null) {
+                Vec2 anchorA = new Vec2();
+                joint.getAnchorA(anchorA);
+                Point point = new Point(
+                        (int) ((anchorA.x + offsetX) * scale),
+                        (int) (((anchorA.y * -1) + offsetY) * scale));
+
+                Widget bodyA = scene.findWidget(joint.m_bodyA);
+                widget = new DotWidget(scene, bodyA.convertSceneToLocal(point));
+                bodyA.addChild(widget);
+                scene.addObject(joint, widget);
                 scene.validate();
             }
 
@@ -64,6 +86,8 @@ class JointManager {
         JointProvider jointProvider = DUMMYPROVIDER;
         if (nextJoint.getType() == JointType.DISTANCE) {
             return DISTANCEPROVIDER;
+        } else if (nextJoint.getType() == JointType.REVOLUTE) {
+            return REVOLUTEJOINTPROVIDER;
         }
         return jointProvider;
     }

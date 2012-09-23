@@ -5,8 +5,7 @@
 package de.eppleton.physics.editor.scene;
 
 import org.jbox2d.dynamics.joints.Joint;
-import org.netbeans.api.visual.model.ObjectScene;
-import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  *
@@ -14,6 +13,6 @@ import org.netbeans.api.visual.widget.ConnectionWidget;
  */
 interface JointProvider {
 
-    public void configureWidget(WorldEditorScene aThis, ConnectionWidget widget, Joint nextJoint, float offsetX, float offsetY, int scale);
+    public void configureWidget(WorldEditorScene aThis, Widget widget, Joint nextJoint, float offsetX, float offsetY, int scale);
     
 }

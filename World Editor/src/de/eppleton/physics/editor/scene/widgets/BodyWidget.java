@@ -113,6 +113,7 @@ public class BodyWidget extends Widget implements Dependency {
     @Override
     protected void paintWidget() {
         super.paintWidget();
+        
         Rectangle bounds = getBounds();
         if (oldBounds == null) {
             oldBounds = bounds;

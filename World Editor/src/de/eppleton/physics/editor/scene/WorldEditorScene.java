@@ -4,9 +4,8 @@
  */
 package de.eppleton.physics.editor.scene;
 
-import de.eppleton.jbox2d.PolygonShapeBuilder;
-import de.eppleton.jbox2d.RevoluteJointBuilder;
 import de.eppleton.jbox2d.WorldUtilities;
+import de.eppleton.physics.editor.assistant.ModelHelper;
 import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
 import de.eppleton.physics.editor.scene.widgets.BodyWidget;
@@ -36,6 +35,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import org.jbox2d.builders.DistanceJointBuilder;
+import org.jbox2d.builders.PolygonShapeBuilder;
+import org.jbox2d.builders.RevoluteJointBuilder;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Settings;
 import org.jbox2d.common.Vec2;
@@ -251,7 +252,7 @@ public class WorldEditorScene extends ObjectScene {
         jointProvider.configureWidget(this, widget, nextJoint, offsetX, offsetY, scale);
     }
 
-    void addConnection(ConnectionWidget widget, Joint joint) {
+    void addConnection(Widget widget, Joint joint) {
         connectionLayer.addChild(widget);
         addObject(joint, widget);
         validate();
@@ -390,7 +391,7 @@ public class WorldEditorScene extends ObjectScene {
     @Override
     public void setActiveTool(String activeTool) {
         super.setActiveTool(activeTool);
-        System.out.println("active Tool " + activeTool);
+        ModelHelper.returnAssistantModel().setContext(activeTool);
     }
 
     private void handleTransfer(Point point, B2DActiveEditorDrop transferData) {
@@ -605,6 +606,7 @@ public class WorldEditorScene extends ObjectScene {
                         createNewShape(bodyParts);
                         connections.clear();
                         bodyParts.clear();
+                        setActiveTool(SELECT_TOOL);
                     }
 
                     repaint();
@@ -624,7 +626,7 @@ public class WorldEditorScene extends ObjectScene {
                 if (event.getButton() == MouseEvent.BUTTON1
                         || event.getButton() == MouseEvent.BUTTON2) {
 
-                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this, widget, widget.convertLocalToScene(event.getPoint()));
+                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this,widget.convertLocalToScene(event.getPoint()));
                     if (bodyParts.size() == Settings.maxPolygonVertices) {
                         ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
                         conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
@@ -670,7 +672,7 @@ public class WorldEditorScene extends ObjectScene {
                 if (event.getButton() == MouseEvent.BUTTON1
                         || event.getButton() == MouseEvent.BUTTON2) {
 
-                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this, widget, event.getPoint());
+                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this, event.getPoint());
                     if (dot1 != null) {
                         Widget otherParent = dot1.getParentWidget();
                         if (widget == otherParent) {

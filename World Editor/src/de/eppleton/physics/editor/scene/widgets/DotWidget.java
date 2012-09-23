@@ -20,7 +20,7 @@ public class DotWidget extends Widget {
 
     private int diameter = 5;
 
-    public DotWidget(Scene scene, Widget widget,
+    public DotWidget(Scene scene,
            Point location) {
         super(scene);
         setPreferredLocation(location);//);
