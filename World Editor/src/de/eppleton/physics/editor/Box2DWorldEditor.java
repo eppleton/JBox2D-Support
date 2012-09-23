@@ -32,8 +32,8 @@ import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
     displayName = "#LBL_Box2D_VISUAL",
-iconBase = "de/eppleton/physics/editor/tar.png",
-mimeType = "text/x-box2d",
+iconBase = "de/eppleton/jbox2d/persistence/box2d_logo.png",
+mimeType = "text/box2d+xml",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DVisual",
 position = 2000)
@@ -41,7 +41,7 @@ position = 2000)
 public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewElement {
 
     private static Logger LOGGER = Logger.getLogger(Box2DWorldEditor.class.getName());
-    private transient Box2DDataObject obj;
+    private transient de.eppleton.jbox2d.persistence.Box2DDataObject obj;
     private transient JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
     private transient final JScrollPane jScrollPane = new JScrollPane();
@@ -55,7 +55,7 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
      * Creates new form Box2DWorldEditor
      */
     public Box2DWorldEditor(Lookup lkp) {
-        obj = lkp.lookup(Box2DDataObject.class);
+        obj = lkp.lookup(de.eppleton.jbox2d.persistence.Box2DDataObject.class);
         assert obj != null;
         name = obj.getPrimaryFile().getName();
         paletteController = Box2DPaletteController.createPalette();

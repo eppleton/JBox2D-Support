@@ -14,4 +14,5 @@ import org.jbox2d.common.Vec2;
 @XmlRootElement
 public class PolygonShape extends Shape{
       public Vec2[] m_vertices;
+      public int m_count;
 }

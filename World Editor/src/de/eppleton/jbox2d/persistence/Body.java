@@ -31,6 +31,7 @@ public class Body {
     public boolean fixedRotation;
     public boolean bullet;
     public boolean active;
+    public float gravityScale;
 
    
 }

@@ -4,7 +4,12 @@
  */
 package de.eppleton.jbox2d.persistence;
 
+import de.eppleton.jbox2d.WorldUtilities;
+import java.io.FileReader;
 import java.io.IOException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
@@ -16,6 +21,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -86,9 +92,26 @@ position = 300)
 })
 public class Box2DDataObject extends MultiDataObject {
 
+    de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer synchronizer;
+    org.jbox2d.dynamics.World world;
+
     public Box2DDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("text/box2d+xml", true);
+        synchronizer = new de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer();
+        getCookieSet().assign(de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer.class, synchronizer);
+        try {
+            JAXBContext context = JAXBContext.newInstance(World.class);
+            Unmarshaller um = context.createUnmarshaller();
+            World jaxbWorld = (World) um.unmarshal(pf.getInputStream());
+            world = PersistenceUtil.getWorldFromJAXBWorld(jaxbWorld);
+            if (world != null) {
+                synchronizer.setWorld(world);
+                getCookieSet().assign(org.jbox2d.dynamics.World.class, world);
+            }
+        } catch (JAXBException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     @Override
