@@ -1,255 +1,262 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" targetNamespace="http://www.eppleton.de/schemas/box2d" xmlns:tns="http://www.eppleton.de/schemas/box2d" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:import schemaLocation="schema2.xsd"/>
 
-    <xs:element name="body" type="tns:body"/>
+  <xs:element name="body" type="tns:body"/>
 
-    <xs:element name="chainShape" type="tns:chainShape"/>
+  <xs:element name="chainShape" type="tns:chainShape"/>
 
-    <xs:element name="circleShape" type="tns:circleShape"/>
+  <xs:element name="circleShape" type="tns:circleShape"/>
 
-    <xs:element name="distanceJoint" type="tns:distanceJoint"/>
+  <xs:element name="distanceJoint" type="tns:distanceJoint"/>
 
-    <xs:element name="edgeShape" type="tns:edgeShape"/>
+  <xs:element name="edgeShape" type="tns:edgeShape"/>
 
-    <xs:element name="fixture" type="tns:fixture"/>
+  <xs:element name="fixture" type="tns:fixture"/>
 
-    <xs:element name="frictionJoint" type="tns:frictionJoint"/>
+  <xs:element name="frictionJoint" type="tns:frictionJoint"/>
 
-    <xs:element name="gearJoint" type="tns:gearJoint"/>
+  <xs:element name="gearJoint" type="tns:gearJoint"/>
 
-    <xs:element name="joint" type="tns:joint"/>
+  <xs:element name="joint" type="tns:joint"/>
 
-    <xs:element name="mouseJoint" type="tns:mouseJoint"/>
+  <xs:element name="mouseJoint" type="tns:mouseJoint"/>
 
-    <xs:element name="polygonShape" type="tns:polygonShape"/>
+  <xs:element name="polygonShape" type="tns:polygonShape"/>
 
-    <xs:element name="prismaticJoint" type="tns:prismaticJoint"/>
+  <xs:element name="prismaticJoint" type="tns:prismaticJoint"/>
 
-    <xs:element name="pulleyJoint" type="tns:pulleyJoint"/>
+  <xs:element name="pulleyJoint" type="tns:pulleyJoint"/>
 
-    <xs:element name="revoluteJoint" type="tns:revoluteJoint"/>
+  <xs:element name="revoluteJoint" type="tns:revoluteJoint"/>
 
-    <xs:element name="shape" type="tns:shape"/>
+  <xs:element name="shape" type="tns:shape"/>
 
-    <xs:element name="weldJoint" type="tns:weldJoint"/>
+  <xs:element name="weldJoint" type="tns:weldJoint"/>
 
-    <xs:element name="world" type="tns:world"/>
+  <xs:element name="world" type="tns:world"/>
 
-    <xs:complexType name="world">
+  <xs:complexType name="world">
+    <xs:sequence>
+      <xs:element name="bodyList" type="tns:body" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="jointList" type="tns:joint" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="gravity" type="vec2" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="body">
+    <xs:sequence>
+      <xs:element name="fixtureList" type="tns:fixture" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="type" type="bodyType" minOccurs="0"/>
+      <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
+      <xs:element name="position" type="vec2" minOccurs="0"/>
+      <xs:element name="angle" type="xs:float"/>
+      <xs:element name="linearVelocity" type="vec2" minOccurs="0"/>
+      <xs:element name="angularVelocity" type="xs:float"/>
+      <xs:element name="linearDamping" type="xs:float"/>
+      <xs:element name="angularDamping" type="xs:float"/>
+      <xs:element name="allowSleep" type="xs:boolean"/>
+      <xs:element name="awake" type="xs:boolean"/>
+      <xs:element name="fixedRotation" type="xs:boolean"/>
+      <xs:element name="bullet" type="xs:boolean"/>
+      <xs:element name="active" type="xs:boolean"/>
+      <xs:element name="gravityScale" type="xs:float"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="fixture">
+    <xs:sequence>
+      <xs:element name="shape" type="tns:shape" minOccurs="0"/>
+      <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
+      <xs:element name="friction" type="xs:float"/>
+      <xs:element name="restitution" type="xs:float"/>
+      <xs:element name="density" type="xs:float"/>
+      <xs:element name="sensor" type="xs:boolean"/>
+      <xs:element name="filter" type="filter" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="shape" abstract="true">
+    <xs:sequence>
+      <xs:element name="type" type="shapeType" minOccurs="0"/>
+      <xs:element name="radius" type="xs:float"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="chainShape">
+    <xs:complexContent>
+      <xs:extension base="tns:shape">
         <xs:sequence>
-            <xs:element name="bodyList" type="tns:body" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="jointList" type="tns:joint" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="gravity" type="vec2" minOccurs="0"/>
+          <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="m_count" type="xs:int"/>
+          <xs:element name="m_prevVertex" type="vec2" minOccurs="0"/>
+          <xs:element name="m_nextVertex" type="vec2" minOccurs="0"/>
+          <xs:element name="m_hasPrevVertex" type="xs:boolean"/>
+          <xs:element name="m_hasNextVertex" type="xs:boolean"/>
         </xs:sequence>
-    </xs:complexType>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="body">
+  <xs:complexType name="circleShape">
+    <xs:complexContent>
+      <xs:extension base="tns:shape">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="polygonShape">
+    <xs:complexContent>
+      <xs:extension base="tns:shape">
         <xs:sequence>
-            <xs:element name="fixtureList" type="tns:fixture" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="type" type="bodyType" minOccurs="0"/>
-            <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
-            <xs:element name="position" type="vec2" minOccurs="0"/>
-            <xs:element name="angle" type="xs:float"/>
-            <xs:element name="linearVelocity" type="vec2" minOccurs="0"/>
-            <xs:element name="angularVelocity" type="xs:float"/>
-            <xs:element name="linearDamping" type="xs:float"/>
-            <xs:element name="angularDamping" type="xs:float"/>
-            <xs:element name="allowSleep" type="xs:boolean"/>
-            <xs:element name="awake" type="xs:boolean"/>
-            <xs:element name="fixedRotation" type="xs:boolean"/>
-            <xs:element name="bullet" type="xs:boolean"/>
-            <xs:element name="active" type="xs:boolean"/>
-            <xs:element name="gravityScale" type="xs:float"/>
+          <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="m_count" type="xs:int"/>
         </xs:sequence>
-    </xs:complexType>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="fixture">
+  <xs:complexType name="edgeShape">
+    <xs:complexContent>
+      <xs:extension base="tns:shape">
         <xs:sequence>
-            <xs:element name="shape" type="tns:shape" minOccurs="0"/>
-            <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
-            <xs:element name="friction" type="xs:float"/>
-            <xs:element name="restitution" type="xs:float"/>
-            <xs:element name="density" type="xs:float"/>
-            <xs:element name="sensor" type="xs:boolean"/>
-            <xs:element name="filter" type="filter" minOccurs="0"/>
+          <xs:element name="vertex1" type="vec2" minOccurs="0"/>
+          <xs:element name="vertex2" type="vec2" minOccurs="0"/>
         </xs:sequence>
-    </xs:complexType>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="shape" abstract="true">
+  <xs:complexType name="joint">
+    <xs:sequence>
+      <xs:element name="type" type="jointType" minOccurs="0"/>
+      <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
+      <xs:element name="bodyA" type="tns:body" minOccurs="0"/>
+      <xs:element name="bodyB" type="tns:body" minOccurs="0"/>
+      <xs:element name="collideConnected" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="prismaticJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
         <xs:sequence>
-            <xs:element name="type" type="shapeType" minOccurs="0"/>
-            <xs:element name="radius" type="xs:float"/>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="referenceAngle" type="xs:float"/>
+          <xs:element name="enableLimit" type="xs:boolean"/>
+          <xs:element name="lowerTranslation" type="xs:float"/>
+          <xs:element name="upperTranslation" type="xs:float"/>
+          <xs:element name="enableMotor" type="xs:boolean"/>
+          <xs:element name="maxMotorForce" type="xs:float"/>
+          <xs:element name="motorSpeed" type="xs:float"/>
         </xs:sequence>
-    </xs:complexType>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="chainShape">
-        <xs:complexContent>
-            <xs:extension base="tns:shape">
-                <xs:sequence>
-                    <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element name="m_count" type="xs:int"/>
-                    <xs:element name="m_prevVertex" type="vec2" minOccurs="0"/>
-                    <xs:element name="m_nextVertex" type="vec2" minOccurs="0"/>
-                    <xs:element name="m_hasPrevVertex" type="xs:boolean"/>
-                    <xs:element name="m_hasNextVertex" type="xs:boolean"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="circleShape">
-        <xs:complexContent>
-            <xs:extension base="tns:shape">
-                <xs:sequence/>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="polygonShape">
-        <xs:complexContent>
-            <xs:extension base="tns:shape">
-                <xs:sequence>
-                    <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element name="m_count" type="xs:int"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="edgeShape">
-        <xs:complexContent>
-            <xs:extension base="tns:shape">
-                <xs:sequence>
-                    <xs:element name="vertex1" type="vec2" minOccurs="0"/>
-                    <xs:element name="vertex2" type="vec2" minOccurs="0"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="joint">
+  <xs:complexType name="distanceJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
         <xs:sequence>
-            <xs:element name="type" type="jointType" minOccurs="0"/>
-            <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
-            <xs:element name="bodyA" type="tns:body" minOccurs="0"/>
-            <xs:element name="bodyB" type="tns:body" minOccurs="0"/>
-            <xs:element name="collideConnected" type="xs:boolean"/>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="length" type="xs:float"/>
+          <xs:element name="frequencyHz" type="xs:float"/>
+          <xs:element name="dampingRatio" type="xs:float"/>
         </xs:sequence>
-    </xs:complexType>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="prismaticJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="referenceAngle" type="xs:float"/>
-                    <xs:element name="enableLimit" type="xs:boolean"/>
-                    <xs:element name="lowerTranslation" type="xs:float"/>
-                    <xs:element name="upperTranslation" type="xs:float"/>
-                    <xs:element name="enableMotor" type="xs:boolean"/>
-                    <xs:element name="maxMotorForce" type="xs:float"/>
-                    <xs:element name="motorSpeed" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+  <xs:complexType name="frictionJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="maxForce" type="xs:float"/>
+          <xs:element name="maxTorque" type="xs:float"/>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="distanceJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="length" type="xs:float"/>
-                    <xs:element name="frequencyHz" type="xs:float"/>
-                    <xs:element name="dampingRatio" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+  <xs:complexType name="gearJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="joint1" type="tns:joint" minOccurs="0"/>
+          <xs:element name="joint2" type="tns:joint" minOccurs="0"/>
+          <xs:element name="ratio" type="xs:float"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="frictionJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="maxForce" type="xs:float"/>
-                    <xs:element name="maxTorque" type="xs:float"/>
-                    <xs:element name="anchor" type="vec2" minOccurs="0"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+  <xs:complexType name="mouseJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="target" type="vec2" minOccurs="0"/>
+          <xs:element name="maxForce" type="xs:float"/>
+          <xs:element name="frequencyHz" type="xs:float"/>
+          <xs:element name="dampingRatio" type="xs:float"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="gearJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="joint1" type="tns:joint" minOccurs="0"/>
-                    <xs:element name="joint2" type="tns:joint" minOccurs="0"/>
-                    <xs:element name="ratio" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+  <xs:complexType name="pulleyJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="groundAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="groundAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="lengthA" type="xs:float"/>
+          <xs:element name="lengthB" type="xs:float"/>
+          <xs:element name="ratio" type="xs:float"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="mouseJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="maxForce" type="xs:float"/>
-                    <xs:element name="frequencyHz" type="xs:float"/>
-                    <xs:element name="dampingRatio" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
+  <xs:complexType name="revoluteJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="referenceAngle" type="xs:float"/>
+          <xs:element name="enableLimit" type="xs:boolean"/>
+          <xs:element name="lowerAngle" type="xs:float"/>
+          <xs:element name="upperAngle" type="xs:float"/>
+          <xs:element name="enableMotor" type="xs:boolean"/>
+          <xs:element name="motorSpeed" type="xs:float"/>
+          <xs:element name="maxMotorTorque" type="xs:float"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
-    <xs:complexType name="pulleyJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="groundAnchorA" type="vec2" minOccurs="0"/>
-                    <xs:element name="groundAnchorB" type="vec2" minOccurs="0"/>
-                    <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-                    <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
-                    <xs:element name="lengthA" type="xs:float"/>
-                    <xs:element name="lengthB" type="xs:float"/>
-                    <xs:element name="ratio" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="revoluteJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-                    <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
-                    <xs:element name="referenceAngle" type="xs:float"/>
-                    <xs:element name="enableLimit" type="xs:boolean"/>
-                    <xs:element name="lowerAngle" type="xs:float"/>
-                    <xs:element name="upperAngle" type="xs:float"/>
-                    <xs:element name="enableMotor" type="xs:boolean"/>
-                    <xs:element name="motorSpeed" type="xs:float"/>
-                    <xs:element name="maxMotorTorque" type="xs:float"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="weldJoint">
-        <xs:complexContent>
-            <xs:extension base="tns:joint">
-                <xs:sequence>
-                    <xs:element name="referenceAngle" type="xs:float"/>
-                    <xs:element name="frequencyHz" type="xs:float"/>
-                    <xs:element name="dampingRatio" type="xs:float"/>
-                    <xs:element name="anchor" type="vec2" minOccurs="0"/>
-                </xs:sequence>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    
-    <xs:complexType name="vec2">
+  <xs:complexType name="weldJoint">
+    <xs:complexContent>
+      <xs:extension base="tns:joint">
+        <xs:sequence>
+          <xs:element name="referenceAngle" type="xs:float"/>
+          <xs:element name="frequencyHz" type="xs:float"/>
+          <xs:element name="dampingRatio" type="xs:float"/>
+          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="vec2">
     <xs:sequence>
       <xs:element name="x" type="xs:float"/>
       <xs:element name="y" type="xs:float"/>
@@ -297,6 +304,5 @@
       <xs:enumeration value="CONSTANT_VOLUME"/>
     </xs:restriction>
   </xs:simpleType>
-
 </xs:schema>
 

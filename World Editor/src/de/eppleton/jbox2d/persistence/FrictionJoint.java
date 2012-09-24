@@ -30,5 +30,5 @@ public class FrictionJoint extends Joint {
      */
     public float maxTorque;
     
-    public Vec2 anchor;
+    public Vec2 localAnchorA,localAnchorB;
 }

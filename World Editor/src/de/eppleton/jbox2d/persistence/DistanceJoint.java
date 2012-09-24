@@ -5,15 +5,18 @@
 package de.eppleton.jbox2d.persistence;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.joints.JointType;
 
 @XmlRootElement
 public class DistanceJoint extends Joint {
 
+    public Vec2 localAnchorA;
+    public Vec2 localAnchorB;
+
     public DistanceJoint() {
         type = JointType.FRICTION;
     }
-  
     /**
      * The equilibrium length between the anchor points.
      */

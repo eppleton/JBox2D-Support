@@ -14,6 +14,8 @@ import org.jbox2d.dynamics.joints.JointType;
  */
 @XmlRootElement
 public class PrismaticJoint extends Joint {
+    public Vec2 localAnchorA;
+    public Vec2 localAnchorB;
 
     public PrismaticJoint() {
         this.type = JointType.PRISMATIC;

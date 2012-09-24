@@ -94,11 +94,17 @@ public class PersistenceUtil {
             org.jbox2d.dynamics.joints.JointDef newJointDef = null;
             if (joint.type == JointType.DISTANCE) {
             } else if (joint.type == JointType.FRICTION) {
+                // checked with PBDeserializer
                 FrictionJoint frictionJoint = (FrictionJoint) joint;
                 FrictionJointDef newFrictionJointDef = new FrictionJointDef();
-                newFrictionJointDef.initialize(bodyMap.get(frictionJoint.bodyA), bodyMap.get(frictionJoint.bodyB), frictionJoint.anchor);
+                newFrictionJointDef.localAnchorA.set(frictionJoint.localAnchorA);
+                newFrictionJointDef.localAnchorB.set(frictionJoint.localAnchorB);
+                newFrictionJointDef.maxForce = frictionJoint.maxForce;
+                newFrictionJointDef.maxTorque = frictionJoint.maxTorque;
                 newJointDef = newFrictionJointDef;
             } else if (joint.type == JointType.GEAR) {
+                // checked with PBDeserializer
+
                 GearJoint gearJoint = (GearJoint) joint;
                 GearJointDef newGearJointDef = new GearJointDef();
                 newGearJointDef.joint1 = jointMap.get(gearJoint.joint1);
@@ -106,33 +112,47 @@ public class PersistenceUtil {
                 newGearJointDef.ratio = gearJoint.ratio;
                 newJointDef = newGearJointDef;
             } else if (joint.type == JointType.MOUSE) {
+                // checked with PBDeserializer
+
                 MouseJoint mouseJoint = (MouseJoint) joint;
                 MouseJointDef newMouseJointDef = new MouseJointDef();
                 newMouseJointDef.dampingRatio = mouseJoint.dampingRatio;
                 newMouseJointDef.frequencyHz = mouseJoint.frequencyHz;
                 newMouseJointDef.maxForce = mouseJoint.maxForce;
+                newMouseJointDef.target.set(mouseJoint.target);
                 newJointDef = newMouseJointDef;
             } else if (joint.type == JointType.PRISMATIC) {
+                // checked with PBDeserializer
+
                 PrismaticJoint prismaticJoint = (PrismaticJoint) joint;
                 PrismaticJointDef newPrismaticJointDef = new PrismaticJointDef();
-                newPrismaticJointDef.initialize(bodyMap.get(prismaticJoint.bodyA), bodyMap.get(prismaticJoint.bodyB), prismaticJoint.anchor, prismaticJoint.axis);
                 newPrismaticJointDef.enableLimit = prismaticJoint.enableLimit;
                 newPrismaticJointDef.enableMotor = prismaticJoint.enableMotor;
                 newPrismaticJointDef.lowerTranslation = prismaticJoint.lowerTranslation;
+                newPrismaticJointDef.localAnchorA.set(prismaticJoint.localAnchorA);
+                newPrismaticJointDef.localAnchorB.set(prismaticJoint.localAnchorB);
+                newPrismaticJointDef.localAxisA.set(prismaticJoint.axis);
                 newPrismaticJointDef.maxMotorForce = prismaticJoint.maxMotorForce;
                 newPrismaticJointDef.motorSpeed = prismaticJoint.motorSpeed;
                 newPrismaticJointDef.referenceAngle = prismaticJoint.referenceAngle;
                 newPrismaticJointDef.upperTranslation = prismaticJoint.upperTranslation;
                 newJointDef = newPrismaticJointDef;
             } else if (joint.type == JointType.PULLEY) {
+                // checked with PBDeserializer
+
                 PulleyJoint pulleyJoint = (PulleyJoint) joint;
                 PulleyJointDef newPulleyJointDef = new PulleyJointDef();
-                newPulleyJointDef.initialize(bodyMap.get(joint.bodyA), bodyMap.get(joint.bodyB), pulleyJoint.groundAnchorA, pulleyJoint.groundAnchorB,
-                        pulleyJoint.localAnchorA, pulleyJoint.localAnchorB, pulleyJoint.ratio);
+
+                newPulleyJointDef.localAnchorA.set(pulleyJoint.localAnchorA);
+                newPulleyJointDef.localAnchorB.set(pulleyJoint.localAnchorB);
+                newPulleyJointDef.groundAnchorA.set(pulleyJoint.groundAnchorA);
+                newPulleyJointDef.groundAnchorB.set(pulleyJoint.groundAnchorB);
+                newPulleyJointDef.ratio = pulleyJoint.ratio;
                 newPulleyJointDef.lengthA = pulleyJoint.lengthA;
                 newPulleyJointDef.lengthB = pulleyJoint.lengthB;
                 newJointDef = newPulleyJointDef;
             } else if (joint.type == JointType.REVOLUTE) {
+                // checked with PBDeserializer
                 RevoluteJoint revoluteJoint = (RevoluteJoint) joint;
                 RevoluteJointDef newRevoluteJointDef = new RevoluteJointDef();
                 newRevoluteJointDef.enableLimit = revoluteJoint.enableLimit;
@@ -150,9 +170,13 @@ public class PersistenceUtil {
             } else if (joint.type == JointType.UNKNOWN) {
                 // not implemented yet
             } else if (joint.type == JointType.WELD) {
+                // checked with PBDeserializer
+
                 WeldJoint weldJoint = (WeldJoint) joint;
                 WeldJointDef newWeldJointDef = new WeldJointDef();
-                newWeldJointDef.initialize(bodyMap.get(joint.bodyA), bodyMap.get(joint.bodyB), weldJoint.anchor);
+                newWeldJointDef.localAnchorA.set(weldJoint.localAnchorA);
+                newWeldJointDef.localAnchorB.set(weldJoint.localAnchorB);
+
                 newWeldJointDef.dampingRatio = weldJoint.dampingRatio;
                 newWeldJointDef.frequencyHz = weldJoint.frequencyHz;
                 newWeldJointDef.referenceAngle = weldJoint.referenceAngle;
@@ -231,9 +255,8 @@ public class PersistenceUtil {
                     newEdgeShape.vertex1 = edgeShape.m_vertex1;
                     newEdgeShape.vertex2 = edgeShape.m_vertex2;
                     newShape = newEdgeShape;
-                }
-                else if (shape instanceof org.jbox2d.collision.shapes.PolygonShape){
-                    org.jbox2d.collision.shapes.PolygonShape polygonShape = (org.jbox2d.collision.shapes.PolygonShape)shape;
+                } else if (shape instanceof org.jbox2d.collision.shapes.PolygonShape) {
+                    org.jbox2d.collision.shapes.PolygonShape polygonShape = (org.jbox2d.collision.shapes.PolygonShape) shape;
                     PolygonShape newPolygonShape = new PolygonShape();
                     newPolygonShape.m_count = polygonShape.getVertexCount();
                     newPolygonShape.m_vertices = polygonShape.getVertices();
@@ -247,6 +270,105 @@ public class PersistenceUtil {
             }
             nextBody = nextBody.getNext();
         }
+        org.jbox2d.dynamics.joints.Joint nextJoint = world.getJointList();
+        while (nextJoint != null) {
+            Joint newJoint = null;
+
+            if (nextJoint instanceof org.jbox2d.dynamics.joints.DistanceJoint) {
+                // checked with PBSerializer
+
+                DistanceJoint newDistanceJoint = new DistanceJoint();
+                org.jbox2d.dynamics.joints.DistanceJoint distanceJoint = (org.jbox2d.dynamics.joints.DistanceJoint) nextJoint;
+                newDistanceJoint.localAnchorA = distanceJoint.m_localAnchorA;
+                newDistanceJoint.localAnchorB = distanceJoint.m_localAnchorB;
+                newDistanceJoint.dampingRatio = distanceJoint.getDampingRatio();
+                newDistanceJoint.frequencyHz = distanceJoint.getFrequency();
+                newDistanceJoint.length = distanceJoint.getLength();
+                newJoint = newDistanceJoint;
+            } else if (nextJoint instanceof org.jbox2d.dynamics.joints.FrictionJoint) {
+                // checked with PBSerializer
+
+                org.jbox2d.dynamics.joints.FrictionJoint frictionJoint = (org.jbox2d.dynamics.joints.FrictionJoint) nextJoint;
+                FrictionJoint newFrictionJoint = new FrictionJoint();
+                newFrictionJoint.localAnchorA = frictionJoint.getLocalAnchorA();
+                newFrictionJoint.localAnchorB = frictionJoint.getLocalAnchorB();
+                newFrictionJoint.maxForce = frictionJoint.getMaxForce();
+                newFrictionJoint.maxTorque = frictionJoint.getMaxTorque();
+                newJoint = newFrictionJoint;
+            } /*else if (nextJoint instanceof GearJoint){
+             * not implemented yet
+             }*/ else if (nextJoint instanceof org.jbox2d.dynamics.joints.MouseJoint) {
+                // checked with PBSerializer
+
+                org.jbox2d.dynamics.joints.MouseJoint mouseJoint = (org.jbox2d.dynamics.joints.MouseJoint) nextJoint;
+                MouseJoint newMouseJoint = new MouseJoint();
+                newMouseJoint.dampingRatio = mouseJoint.getDampingRatio();
+                newMouseJoint.frequencyHz = mouseJoint.getFrequency();
+                newMouseJoint.maxForce = mouseJoint.getMaxForce();
+                newMouseJoint.target = mouseJoint.getTarget();
+                newJoint = newMouseJoint;
+            } else if (nextJoint instanceof org.jbox2d.dynamics.joints.PrismaticJoint) {
+                // checked with PBSerializer
+                org.jbox2d.dynamics.joints.PrismaticJoint prismaticJoint = (org.jbox2d.dynamics.joints.PrismaticJoint) nextJoint;
+                PrismaticJoint newPrismaticJoint = new PrismaticJoint();
+                newPrismaticJoint.referenceAngle = prismaticJoint.m_referenceAngle;
+                newPrismaticJoint.enableLimit = prismaticJoint.m_enableLimit;
+                newPrismaticJoint.lowerTranslation = prismaticJoint.m_lowerTranslation;
+                newPrismaticJoint.upperTranslation = prismaticJoint.m_upperTranslation;
+                newPrismaticJoint.enableMotor = prismaticJoint.m_enableMotor;
+                newPrismaticJoint.motorSpeed = prismaticJoint.m_motorSpeed;
+                newPrismaticJoint.localAnchorA = prismaticJoint.m_localAnchorA;
+                newPrismaticJoint.localAnchorB = prismaticJoint.m_localAnchorB;
+                newPrismaticJoint.maxMotorForce = prismaticJoint.m_maxMotorForce;
+                newJoint = newPrismaticJoint;
+            } else if (nextJoint instanceof org.jbox2d.dynamics.joints.PulleyJoint) {
+                // checked with PBSerializer
+                org.jbox2d.dynamics.joints.PulleyJoint pulleyJoint = (org.jbox2d.dynamics.joints.PulleyJoint) nextJoint;
+                PulleyJoint newPulleyJoint = new PulleyJoint();
+                newPulleyJoint.localAnchorA = pulleyJoint.m_localAnchorA;
+                newPulleyJoint.localAnchorB = pulleyJoint.m_groundAnchorB;
+                newPulleyJoint.groundAnchorA = pulleyJoint.m_groundAnchorA;
+                newPulleyJoint.groundAnchorB = pulleyJoint.m_groundAnchorB;
+                newPulleyJoint.lengthA = pulleyJoint.getLengthA();
+                newPulleyJoint.lengthB = pulleyJoint.getLengthB();
+                newPulleyJoint.ratio = pulleyJoint.getRatio();
+
+                newJoint = newPulleyJoint;
+            } else if (nextJoint instanceof org.jbox2d.dynamics.joints.RevoluteJoint) {
+                // checked with PBSerializer
+
+                org.jbox2d.dynamics.joints.RevoluteJoint revoluteJoint = (org.jbox2d.dynamics.joints.RevoluteJoint) nextJoint;
+                RevoluteJoint newRevoluteJoint = new RevoluteJoint();
+                newRevoluteJoint.referenceAngle = revoluteJoint.m_referenceAngle;
+                newRevoluteJoint.enableLimit = revoluteJoint.m_enableLimit;
+                newRevoluteJoint.lowerAngle = revoluteJoint.m_lowerAngle;
+                newRevoluteJoint.upperAngle = revoluteJoint.m_upperAngle;
+                newRevoluteJoint.enableMotor = revoluteJoint.m_enableMotor;
+                newRevoluteJoint.motorSpeed = revoluteJoint.m_motorSpeed;
+                newRevoluteJoint.maxMotorTorque = revoluteJoint.m_maxMotorTorque;
+                newRevoluteJoint.localAnchorA = revoluteJoint.m_localAnchorA;
+                newRevoluteJoint.localAnchorB = revoluteJoint.m_localAnchorB;
+                newJoint = newRevoluteJoint;
+            } else if (nextJoint instanceof org.jbox2d.dynamics.joints.WeldJoint) {
+                // not available in  PBSerializer, probably incomplete...
+                org.jbox2d.dynamics.joints.WeldJoint weldJoint = (org.jbox2d.dynamics.joints.WeldJoint) nextJoint;
+                WeldJoint newWeldJoint = new WeldJoint();
+                newWeldJoint.localAnchorA = weldJoint.getLocalAnchorA();
+                newWeldJoint.localAnchorB = weldJoint.getLocalAnchorB();
+                newWeldJoint.dampingRatio = weldJoint.getDampingRatio();
+                newWeldJoint.frequencyHz = weldJoint.getFrequency();
+                newJoint = newWeldJoint;
+            }
+            if (newJoint != null) {
+                newJoint.bodyA = bodyMap.get(nextJoint.m_bodyA);
+                newJoint.bodyB = bodyMap.get(nextJoint.m_bodyB);
+                newJoint.collideConnected = nextJoint.getCollideConnected();
+                newJoint.userData = nextJoint.getUserData();
+                jointMap.put(nextJoint, newJoint);
+                result.jointList.add(newJoint);
+            }
+        }
+
         return result;
     }
 }
