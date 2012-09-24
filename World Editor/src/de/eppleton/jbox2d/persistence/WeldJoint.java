@@ -5,6 +5,7 @@
 package de.eppleton.jbox2d.persistence;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jbox2d.common.Vec2;
 
 /**
  *
@@ -27,4 +28,6 @@ public class WeldJoint extends Joint{
 	 * The damping ratio. 0 = no damping, 1 = critical damping.
 	 */
 	public float dampingRatio;
+   
+        public Vec2 anchor;
 }

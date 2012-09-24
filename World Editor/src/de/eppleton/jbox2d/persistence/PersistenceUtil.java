@@ -16,6 +16,7 @@ import org.jbox2d.dynamics.joints.MouseJointDef;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
 import org.jbox2d.dynamics.joints.PulleyJointDef;
 import org.jbox2d.dynamics.joints.RevoluteJointDef;
+import org.jbox2d.dynamics.joints.WeldJointDef;
 
 /**
  *
@@ -148,8 +149,14 @@ public class PersistenceUtil {
                 // not implemented yet
             } else if (joint.type == JointType.WELD) {
                 WeldJoint weldJoint = (WeldJoint) joint;
-                
+                WeldJointDef newWeldJointDef = new WeldJointDef();
+                newWeldJointDef.initialize(bodyMap.get(joint.bodyA),bodyMap.get(joint.bodyB), weldJoint.anchor);
+                newWeldJointDef.dampingRatio = weldJoint.dampingRatio;
+                newWeldJointDef.frequencyHz = weldJoint.frequencyHz;
+                newWeldJointDef.referenceAngle = weldJoint.referenceAngle;
+                newJointDef = newWeldJointDef;
             } else if (joint.type == JointType.WHEEL) {
+                // not implemented
             }
             if (newJointDef != null) {
                 newJointDef.bodyA = bodyMap.get(joint.bodyA);
