@@ -47,7 +47,7 @@ public class PersistenceUtil {
             bodyDef.position = b.position;
             bodyDef.type = b.type;
             bodyDef.userData = b.userData;
-            org.jbox2d.dynamics.Body body = new org.jbox2d.dynamics.Body(bodyDef, result);
+            org.jbox2d.dynamics.Body body = result.createBody(bodyDef);
             bodyMap.put(b, body);
             for (Fixture fixture : b.fixtureList) {
                 FixtureDef fd = new FixtureDef();

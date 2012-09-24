@@ -76,6 +76,8 @@ public class NewEmptyJUnitTest1 {
 
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            m.setProperty("jaxb.schemaLocation", "http://www.eppleton.de/schemas/box2d http://www.eppleton.de/schemas/Box2d.xsd");
+
             m.marshal(jaxbWorldFromWorld, System.out);
             Writer w = null;
             try {

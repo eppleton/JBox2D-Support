@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-
-<world><bodyList>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<world xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eppleton.de/schemas/box2d http://www.eppleton.de/schemas/Box2d.xsd">
+    <bodyList>
         <fixtureList>
-            <shape xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="polygonShape">
+            <shape xsi:type="polygonShape">
+                <type>POLYGON</type>
                 <radius>0.01</radius>
                 <m_vertices>
                     <x>-1.0</x>

@@ -64,10 +64,8 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
         localmodel = ModelHelper.returnAssistantModel();
         localmodel.setContext("started");
         add(new AssistantView(localmodel), BorderLayout.NORTH);
-
         scene = new WorldEditorScene(em, lkp.lookup(World.class));
         jScrollPane.setViewportView(scene.createView());
-
     }
 
     /**
