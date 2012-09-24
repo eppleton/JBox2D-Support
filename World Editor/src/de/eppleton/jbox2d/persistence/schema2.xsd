@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="vec2">
+    <xs:sequence>
+      <xs:element name="x" type="xs:float"/>
+      <xs:element name="y" type="xs:float"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="shapeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CIRCLE"/>
+      <xs:enumeration value="EDGE"/>
+      <xs:enumeration value="POLYGON"/>
+      <xs:enumeration value="CHAIN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="bodyType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STATIC"/>
+      <xs:enumeration value="KINEMATIC"/>
+      <xs:enumeration value="DYNAMIC"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="jointType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UNKNOWN"/>
+      <xs:enumeration value="REVOLUTE"/>
+      <xs:enumeration value="PRISMATIC"/>
+      <xs:enumeration value="DISTANCE"/>
+      <xs:enumeration value="PULLEY"/>
+      <xs:enumeration value="MOUSE"/>
+      <xs:enumeration value="GEAR"/>
+      <xs:enumeration value="WHEEL"/>
+      <xs:enumeration value="WELD"/>
+      <xs:enumeration value="FRICTION"/>
+      <xs:enumeration value="ROPE"/>
+      <xs:enumeration value="CONSTANT_VOLUME"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

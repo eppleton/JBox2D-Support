@@ -5,10 +5,17 @@
 package de.eppleton.jbox2d.persistence;
 
 import java.util.HashMap;
+import org.jbox2d.builders.GearJointBuilder;
 import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.Filter;
 import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.joints.FrictionJointDef;
+import org.jbox2d.dynamics.joints.GearJointDef;
+import org.jbox2d.dynamics.joints.JointType;
+import org.jbox2d.dynamics.joints.MouseJointDef;
+import org.jbox2d.dynamics.joints.PrismaticJointDef;
+import org.jbox2d.dynamics.joints.PulleyJointDef;
+import org.jbox2d.dynamics.joints.RevoluteJointDef;
 
 /**
  *
@@ -18,6 +25,8 @@ public class PersistenceUtil {
 
     public static org.jbox2d.dynamics.World getWorldFromJAXBWorld(World world) {
         HashMap<Body, org.jbox2d.dynamics.Body> bodyMap = new HashMap<Body, org.jbox2d.dynamics.Body>();
+        HashMap<Joint, org.jbox2d.dynamics.joints.Joint> jointMap = new HashMap<Joint, org.jbox2d.dynamics.joints.Joint>();
+
         org.jbox2d.dynamics.World result = new org.jbox2d.dynamics.World(world.gravity);
         for (Body b : world.bodyList) {
             BodyDef bodyDef = new BodyDef();
@@ -78,7 +87,78 @@ public class PersistenceUtil {
                 body.createFixture(fd);
             }
         }
-
+        for (Joint joint : world.jointList) {
+            org.jbox2d.dynamics.joints.JointDef newJointDef = null;
+            if (joint.type == JointType.DISTANCE) {
+            } else if (joint.type == JointType.FRICTION) {
+                FrictionJoint frictionJoint = (FrictionJoint) joint;
+                FrictionJointDef newFrictionJointDef = new FrictionJointDef();
+                newFrictionJointDef.initialize(bodyMap.get(frictionJoint.bodyA), bodyMap.get(frictionJoint.bodyB), frictionJoint.anchor);
+                newJointDef = newFrictionJointDef;
+            } else if (joint.type == JointType.GEAR) {
+                GearJoint gearJoint = (GearJoint) joint;
+                GearJointDef newGearJointDef = new GearJointDef();
+                newGearJointDef.joint1 = jointMap.get(gearJoint.joint1);
+                newGearJointDef.joint2 = jointMap.get(gearJoint.joint2);
+                newGearJointDef.ratio = gearJoint.ratio;
+                newJointDef = newGearJointDef;
+            } else if (joint.type == JointType.MOUSE) {
+                MouseJoint mouseJoint = (MouseJoint) joint;
+                MouseJointDef newMouseJointDef = new MouseJointDef();
+                newMouseJointDef.dampingRatio = mouseJoint.dampingRatio;
+                newMouseJointDef.frequencyHz = mouseJoint.frequencyHz;
+                newMouseJointDef.maxForce = mouseJoint.maxForce;
+                newJointDef = newMouseJointDef;
+            } else if (joint.type == JointType.PRISMATIC) {
+                PrismaticJoint prismaticJoint = (PrismaticJoint) joint;
+                PrismaticJointDef newPrismaticJointDef = new PrismaticJointDef();
+                newPrismaticJointDef.initialize(bodyMap.get(prismaticJoint.bodyA), bodyMap.get(prismaticJoint.bodyB), prismaticJoint.anchor, prismaticJoint.axis);
+                newPrismaticJointDef.enableLimit = prismaticJoint.enableLimit;
+                newPrismaticJointDef.enableMotor = prismaticJoint.enableMotor;
+                newPrismaticJointDef.lowerTranslation = prismaticJoint.lowerTranslation;
+                newPrismaticJointDef.maxMotorForce = prismaticJoint.maxMotorForce;
+                newPrismaticJointDef.motorSpeed = prismaticJoint.motorSpeed;
+                newPrismaticJointDef.referenceAngle = prismaticJoint.referenceAngle;
+                newPrismaticJointDef.upperTranslation = prismaticJoint.upperTranslation;
+                newJointDef = newPrismaticJointDef;
+            } else if (joint.type == JointType.PULLEY) {
+                PulleyJoint pulleyJoint = (PulleyJoint) joint;
+                PulleyJointDef newPulleyJointDef = new PulleyJointDef();
+                newPulleyJointDef.initialize(bodyMap.get(joint.bodyA), bodyMap.get(joint.bodyB), pulleyJoint.groundAnchorA, pulleyJoint.groundAnchorB,
+                        pulleyJoint.localAnchorA, pulleyJoint.localAnchorB, pulleyJoint.ratio);
+                newPulleyJointDef.lengthA = pulleyJoint.lengthA;
+                newPulleyJointDef.lengthB = pulleyJoint.lengthB;
+                newJointDef = newPulleyJointDef;
+            } else if (joint.type == JointType.REVOLUTE) {
+                RevoluteJoint revoluteJoint = (RevoluteJoint) joint;
+                RevoluteJointDef newRevoluteJointDef = new RevoluteJointDef();
+                newRevoluteJointDef.enableLimit = revoluteJoint.enableLimit;
+                newRevoluteJointDef.enableMotor = revoluteJoint.enableMotor;
+                newRevoluteJointDef.localAnchorA = revoluteJoint.localAnchorA;
+                newRevoluteJointDef.localAnchorB = revoluteJoint.localAnchorB;
+                newRevoluteJointDef.lowerAngle = revoluteJoint.lowerAngle;
+                newRevoluteJointDef.maxMotorTorque = revoluteJoint.maxMotorTorque;
+                newRevoluteJointDef.motorSpeed = revoluteJoint.motorSpeed;
+                newRevoluteJointDef.referenceAngle = revoluteJoint.referenceAngle;
+                newRevoluteJointDef.upperAngle = revoluteJoint.upperAngle;
+                newJointDef = newRevoluteJointDef;
+            } else if (joint.type == JointType.ROPE) {
+                // not implemented yet
+            } else if (joint.type == JointType.UNKNOWN) {
+                // not implemented yet
+            } else if (joint.type == JointType.WELD) {
+                WeldJoint weldJoint = (WeldJoint) joint;
+                
+            } else if (joint.type == JointType.WHEEL) {
+            }
+            if (newJointDef != null) {
+                newJointDef.bodyA = bodyMap.get(joint.bodyA);
+                newJointDef.bodyB = bodyMap.get(joint.bodyB);
+                newJointDef.collideConnected = joint.collideConnected;
+                newJointDef.userData = joint.userData;
+                jointMap.put(joint, result.createJoint(newJointDef));
+            }
+        }
 
         return result;
     }

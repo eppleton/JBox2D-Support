@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author antonepple
  */
 @XmlRootElement
-public class WeldJoint {
+public class WeldJoint extends Joint{
     /**
 	 * The body2 angle minus body1 angle in the reference state (radians).
 	 */

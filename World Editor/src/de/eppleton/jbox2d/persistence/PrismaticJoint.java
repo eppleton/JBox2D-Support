@@ -5,6 +5,7 @@
 package de.eppleton.jbox2d.persistence;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.joints.JointType;
 
 /**
@@ -45,4 +46,7 @@ public class PrismaticJoint extends Joint {
      * The desired motor speed in radians per second.
      */
     public float motorSpeed  = 0.1f;
+    
+    Vec2 anchor;
+    Vec2 axis;
 }
