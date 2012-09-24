@@ -41,7 +41,7 @@ position = 2000)
 public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewElement {
 
     private static Logger LOGGER = Logger.getLogger(Box2DWorldEditor.class.getName());
-    private transient de.eppleton.jbox2d.persistence.Box2DDataObject obj;
+    private transient de.eppleton.physics.editor.Box2DDataObject obj;
     private transient JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
     private transient final JScrollPane jScrollPane = new JScrollPane();
@@ -55,7 +55,7 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
      * Creates new form Box2DWorldEditor
      */
     public Box2DWorldEditor(Lookup lkp) {
-        obj = lkp.lookup(de.eppleton.jbox2d.persistence.Box2DDataObject.class);
+        obj = lkp.lookup(de.eppleton.physics.editor.Box2DDataObject.class);
         assert obj != null;
         name = obj.getPrimaryFile().getName();
         paletteController = Box2DPaletteController.createPalette();

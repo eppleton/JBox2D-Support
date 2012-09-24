@@ -260,6 +260,7 @@ public class PersistenceUtil {
                     PolygonShape newPolygonShape = new PolygonShape();
                     newPolygonShape.m_count = polygonShape.getVertexCount();
                     newPolygonShape.m_vertices = polygonShape.getVertices();
+                    newShape = newPolygonShape;
                 }
                 if (newShape != null) {
                     newShape.radius = shape.getRadius();

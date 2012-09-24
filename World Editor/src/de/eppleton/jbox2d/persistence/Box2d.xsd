@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<xs:schema version="1.0" targetNamespace="http://www.eppleton.de/schemas/box2d" xmlns:tns="http://www.eppleton.de/schemas/box2d" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
-  <xs:import schemaLocation="schema2.xsd"/>
+<xs:schema elementFormDefault="qualified" version="1.0" targetNamespace="http://www.eppleton.de/schemas/box2d" xmlns:tns="http://www.eppleton.de/schemas/box2d" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:element name="body" type="tns:body"/>
 
@@ -41,18 +39,18 @@
     <xs:sequence>
       <xs:element name="bodyList" type="tns:body" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="jointList" type="tns:joint" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="gravity" type="vec2" minOccurs="0"/>
+      <xs:element name="gravity" type="tns:vec2" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="body">
     <xs:sequence>
       <xs:element name="fixtureList" type="tns:fixture" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="type" type="bodyType" minOccurs="0"/>
+      <xs:element name="type" type="tns:bodyType" minOccurs="0"/>
       <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
-      <xs:element name="position" type="vec2" minOccurs="0"/>
+      <xs:element name="position" type="tns:vec2" minOccurs="0"/>
       <xs:element name="angle" type="xs:float"/>
-      <xs:element name="linearVelocity" type="vec2" minOccurs="0"/>
+      <xs:element name="linearVelocity" type="tns:vec2" minOccurs="0"/>
       <xs:element name="angularVelocity" type="xs:float"/>
       <xs:element name="linearDamping" type="xs:float"/>
       <xs:element name="angularDamping" type="xs:float"/>
@@ -73,13 +71,13 @@
       <xs:element name="restitution" type="xs:float"/>
       <xs:element name="density" type="xs:float"/>
       <xs:element name="sensor" type="xs:boolean"/>
-      <xs:element name="filter" type="filter" minOccurs="0"/>
+      <xs:element name="filter" type="tns:filter" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="shape" abstract="true">
     <xs:sequence>
-      <xs:element name="type" type="shapeType" minOccurs="0"/>
+      <xs:element name="type" type="tns:shapeType" minOccurs="0"/>
       <xs:element name="radius" type="xs:float"/>
     </xs:sequence>
   </xs:complexType>
@@ -88,10 +86,10 @@
     <xs:complexContent>
       <xs:extension base="tns:shape">
         <xs:sequence>
-          <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="m_vertices" type="tns:vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element name="m_count" type="xs:int"/>
-          <xs:element name="m_prevVertex" type="vec2" minOccurs="0"/>
-          <xs:element name="m_nextVertex" type="vec2" minOccurs="0"/>
+          <xs:element name="m_prevVertex" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="m_nextVertex" type="tns:vec2" minOccurs="0"/>
           <xs:element name="m_hasPrevVertex" type="xs:boolean"/>
           <xs:element name="m_hasNextVertex" type="xs:boolean"/>
         </xs:sequence>
@@ -111,7 +109,7 @@
     <xs:complexContent>
       <xs:extension base="tns:shape">
         <xs:sequence>
-          <xs:element name="m_vertices" type="vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="m_vertices" type="tns:vec2" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
           <xs:element name="m_count" type="xs:int"/>
         </xs:sequence>
       </xs:extension>
@@ -122,8 +120,8 @@
     <xs:complexContent>
       <xs:extension base="tns:shape">
         <xs:sequence>
-          <xs:element name="vertex1" type="vec2" minOccurs="0"/>
-          <xs:element name="vertex2" type="vec2" minOccurs="0"/>
+          <xs:element name="vertex1" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="vertex2" type="tns:vec2" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -131,7 +129,7 @@
 
   <xs:complexType name="joint">
     <xs:sequence>
-      <xs:element name="type" type="jointType" minOccurs="0"/>
+      <xs:element name="type" type="tns:jointType" minOccurs="0"/>
       <xs:element name="userData" type="xs:anyType" minOccurs="0"/>
       <xs:element name="bodyA" type="tns:body" minOccurs="0"/>
       <xs:element name="bodyB" type="tns:body" minOccurs="0"/>
@@ -143,8 +141,8 @@
     <xs:complexContent>
       <xs:extension base="tns:joint">
         <xs:sequence>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
           <xs:element name="referenceAngle" type="xs:float"/>
           <xs:element name="enableLimit" type="xs:boolean"/>
           <xs:element name="lowerTranslation" type="xs:float"/>
@@ -161,8 +159,8 @@
     <xs:complexContent>
       <xs:extension base="tns:joint">
         <xs:sequence>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
           <xs:element name="length" type="xs:float"/>
           <xs:element name="frequencyHz" type="xs:float"/>
           <xs:element name="dampingRatio" type="xs:float"/>
@@ -177,8 +175,8 @@
         <xs:sequence>
           <xs:element name="maxForce" type="xs:float"/>
           <xs:element name="maxTorque" type="xs:float"/>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -200,7 +198,7 @@
     <xs:complexContent>
       <xs:extension base="tns:joint">
         <xs:sequence>
-          <xs:element name="target" type="vec2" minOccurs="0"/>
+          <xs:element name="target" type="tns:vec2" minOccurs="0"/>
           <xs:element name="maxForce" type="xs:float"/>
           <xs:element name="frequencyHz" type="xs:float"/>
           <xs:element name="dampingRatio" type="xs:float"/>
@@ -213,10 +211,10 @@
     <xs:complexContent>
       <xs:extension base="tns:joint">
         <xs:sequence>
-          <xs:element name="groundAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="groundAnchorB" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="groundAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="groundAnchorB" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
           <xs:element name="lengthA" type="xs:float"/>
           <xs:element name="lengthB" type="xs:float"/>
           <xs:element name="ratio" type="xs:float"/>
@@ -229,8 +227,8 @@
     <xs:complexContent>
       <xs:extension base="tns:joint">
         <xs:sequence>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
           <xs:element name="referenceAngle" type="xs:float"/>
           <xs:element name="enableLimit" type="xs:boolean"/>
           <xs:element name="lowerAngle" type="xs:float"/>
@@ -250,12 +248,13 @@
           <xs:element name="referenceAngle" type="xs:float"/>
           <xs:element name="frequencyHz" type="xs:float"/>
           <xs:element name="dampingRatio" type="xs:float"/>
-          <xs:element name="localAnchorA" type="vec2" minOccurs="0"/>
-          <xs:element name="localAnchorB" type="vec2" minOccurs="0"/>
+          <xs:element name="localAnchorA" type="tns:vec2" minOccurs="0"/>
+          <xs:element name="localAnchorB" type="tns:vec2" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="vec2">
     <xs:sequence>
       <xs:element name="x" type="xs:float"/>

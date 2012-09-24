@@ -5,12 +5,10 @@
 package de.eppleton.jbox2d.persistence;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -18,6 +16,9 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
+import org.jbox2d.builders.BoxBuilder;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.BodyType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,38 +60,27 @@ public class NewEmptyJUnitTest1 {
     public void hello() {
         try {
             // create JAXB context and instantiate marshaller
-            World world = new World();
-            ArrayList<Body> bodyList = new ArrayList<Body>();
-            Body jaxbBody = new Body();
-            ArrayList<Fixture> aXBFixtures = new ArrayList<Fixture>();
-            aXBFixtures.add(new Fixture());
-            aXBFixtures.add(new Fixture());
-            jaxbBody.fixtureList = aXBFixtures;
-            bodyList.add(jaxbBody);
-            world.bodyList = bodyList;
+           org.jbox2d.dynamics.World world = new org.jbox2d.dynamics.World(new Vec2(0,-7));
 
-            ArrayList<Joint> joints = new ArrayList<Joint>();
-            world.jointList = joints;
-            joints.add(new PrismaticJoint());
-            joints.add(new Joint());
-
+            new BoxBuilder(world).position(5, 5).type(BodyType.DYNAMIC).halfHeight(1).halfWidth(1).build();
+            World jaxbWorldFromWorld = PersistenceUtil.getJAXBWorldFromWorld(world);
             final File baseDir = new File("/Users/antonepple/");
             JAXBContext context = JAXBContext.newInstance(World.class);
 
-            context.generateSchema(new SchemaOutputResolver() {
+            /*context.generateSchema(new SchemaOutputResolver() {
                 @Override
                 public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {
                     return new StreamResult(new File(baseDir, suggestedFileName));
                 }
-            });
+            });*/
 
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            m.marshal(world, System.out);
+            m.marshal(jaxbWorldFromWorld, System.out);
             Writer w = null;
             try {
                 w = new FileWriter(WORLD_XML);
-                m.marshal(world, w);
+                m.marshal(jaxbWorldFromWorld, w);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
@@ -106,7 +96,7 @@ public class NewEmptyJUnitTest1 {
             Unmarshaller um = context.createUnmarshaller();
             World world2 = (World) um.unmarshal(new FileReader(WORLD_XML));
             System.out.println("gravity "
-                    + world2.gravity.x);
+                    + world2.gravity.y);
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
