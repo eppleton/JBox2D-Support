@@ -5,6 +5,7 @@
 package de.eppleton.jbox2d.persistence;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jbox2d.dynamics.Filter;
 
 @XmlRootElement
 public class Fixture {

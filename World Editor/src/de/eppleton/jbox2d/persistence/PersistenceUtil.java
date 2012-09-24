@@ -4,11 +4,13 @@
  */
 package de.eppleton.jbox2d.persistence;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.jbox2d.builders.GearJointBuilder;
 import org.jbox2d.collision.shapes.ShapeType;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.contacts.CircleContact;
 import org.jbox2d.dynamics.joints.FrictionJointDef;
 import org.jbox2d.dynamics.joints.GearJointDef;
 import org.jbox2d.dynamics.joints.JointType;
@@ -150,7 +152,7 @@ public class PersistenceUtil {
             } else if (joint.type == JointType.WELD) {
                 WeldJoint weldJoint = (WeldJoint) joint;
                 WeldJointDef newWeldJointDef = new WeldJointDef();
-                newWeldJointDef.initialize(bodyMap.get(joint.bodyA),bodyMap.get(joint.bodyB), weldJoint.anchor);
+                newWeldJointDef.initialize(bodyMap.get(joint.bodyA), bodyMap.get(joint.bodyB), weldJoint.anchor);
                 newWeldJointDef.dampingRatio = weldJoint.dampingRatio;
                 newWeldJointDef.frequencyHz = weldJoint.frequencyHz;
                 newWeldJointDef.referenceAngle = weldJoint.referenceAngle;
@@ -171,6 +173,80 @@ public class PersistenceUtil {
     }
 
     public static World getJAXBWorldFromWorld(org.jbox2d.dynamics.World world) {
-        return null;
+        World result = new World();
+        result.gravity = world.getGravity();
+        result.bodyList = new ArrayList<Body>();
+        HashMap<org.jbox2d.dynamics.Body, Body> bodyMap = new HashMap<org.jbox2d.dynamics.Body, Body>();
+        HashMap<org.jbox2d.dynamics.joints.Joint, Joint> jointMap = new HashMap<org.jbox2d.dynamics.joints.Joint, Joint>();
+        org.jbox2d.dynamics.Body nextBody = world.getBodyList();
+        while (nextBody != null) {
+            Body body = new Body();
+            body.active = nextBody.isActive();
+            body.allowSleep = nextBody.isSleepingAllowed();
+            body.angle = nextBody.getAngle();
+            body.angularDamping = nextBody.getAngularDamping();
+            body.angularVelocity = nextBody.getAngularVelocity();
+            body.awake = nextBody.isAwake();
+            body.bullet = nextBody.isBullet();
+            body.fixedRotation = nextBody.isFixedRotation();
+            body.gravityScale = nextBody.getGravityScale();
+            body.linearDamping = nextBody.getLinearDamping();
+            body.linearVelocity = nextBody.getLinearVelocity();
+            body.position = nextBody.getPosition();
+            body.type = nextBody.getType();
+            body.userData = nextBody.getUserData();
+            result.bodyList.add(body);
+            bodyMap.put(nextBody, body);
+            body.fixtureList = new ArrayList<Fixture>();
+            org.jbox2d.dynamics.Fixture nextFixture = nextBody.getFixtureList();
+            while (nextFixture != null) {
+                Fixture fixture = new Fixture();
+                fixture.density = nextFixture.getDensity();
+                // TODO
+                fixture.filter = nextFixture.getFilterData();
+                fixture.friction = nextFixture.getFriction();
+                fixture.restitution = nextFixture.getRestitution();
+                fixture.sensor = nextFixture.isSensor();
+                fixture.userData = nextFixture.getUserData();
+                Shape newShape = null;
+                org.jbox2d.collision.shapes.Shape shape = nextFixture.getShape();
+                if (shape instanceof org.jbox2d.collision.shapes.ChainShape) {
+                    org.jbox2d.collision.shapes.ChainShape chainShape = (org.jbox2d.collision.shapes.ChainShape) shape;
+                    ChainShape newChainShape = new ChainShape();
+                    newChainShape.m_count = chainShape.m_count;
+                    newChainShape.m_hasNextVertex = chainShape.m_hasNextVertex;
+                    newChainShape.m_hasPrevVertex = chainShape.m_hasPrevVertex;
+                    newChainShape.m_vertices = chainShape.m_vertices;
+                    newChainShape.m_nextVertex = chainShape.m_nextVertex;
+                    newChainShape.m_prevVertex = chainShape.m_prevVertex;
+                    newShape = newChainShape;
+                } else if (shape instanceof org.jbox2d.collision.shapes.CircleShape) {
+                    org.jbox2d.collision.shapes.CircleShape circleShape = (org.jbox2d.collision.shapes.CircleShape) shape;
+                    CircleShape newCircleShape = new CircleShape();
+                    newCircleShape.radius = circleShape.getRadius();
+                    newShape = newCircleShape;
+                } else if (shape instanceof org.jbox2d.collision.shapes.EdgeShape) {
+                    org.jbox2d.collision.shapes.EdgeShape edgeShape = (org.jbox2d.collision.shapes.EdgeShape) shape;
+                    EdgeShape newEdgeShape = new EdgeShape();
+                    newEdgeShape.vertex1 = edgeShape.m_vertex1;
+                    newEdgeShape.vertex2 = edgeShape.m_vertex2;
+                    newShape = newEdgeShape;
+                }
+                else if (shape instanceof org.jbox2d.collision.shapes.PolygonShape){
+                    org.jbox2d.collision.shapes.PolygonShape polygonShape = (org.jbox2d.collision.shapes.PolygonShape)shape;
+                    PolygonShape newPolygonShape = new PolygonShape();
+                    newPolygonShape.m_count = polygonShape.getVertexCount();
+                    newPolygonShape.m_vertices = polygonShape.getVertices();
+                }
+                if (newShape != null) {
+                    newShape.radius = shape.getRadius();
+                    fixture.shape = newShape;
+                }
+                body.fixtureList.add(fixture);
+                nextFixture = nextFixture.getNext();
+            }
+            nextBody = nextBody.getNext();
+        }
+        return result;
     }
 }
