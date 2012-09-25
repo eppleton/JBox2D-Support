@@ -6,7 +6,6 @@ package de.eppleton.physics.editor;
 
 import de.eppleton.jbox2d.PatchedTestbedController;
 import de.eppleton.jbox2d.WorldUtilities;
-import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import de.eppleton.physics.editor.assistant.AssistantModel;
 import de.eppleton.physics.editor.assistant.AssistantView;
 import de.eppleton.physics.editor.assistant.ModelHelper;
@@ -46,7 +45,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DSimulator",
 position = 3000)
 @NbBundle.Messages("LBL_Box2D_Simulator=Simulator")
-public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement, PropertyChangeListener {
+public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiViewElement {
 
     private static Logger LOGGER = Logger.getLogger(Box2DSimulatorElement.class.getName());
     private Box2DDataObject obj;
@@ -55,9 +54,6 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     private TestbedModel model;
     private PatchedTestbedController controller;
     private boolean started = false;
-    private World world;
-    private ViewSynchronizer synchronizer;
-    private AssistantModel localmodel;
 
     /**
      * Creates new form Box2DSimulatorElement
@@ -65,13 +61,11 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
     public Box2DSimulatorElement(final Lookup lkp) {
         obj = lkp.lookup(Box2DDataObject.class);
         assert obj != null;
-        synchronizer = lkp.lookup(Box2DDataObject.ViewSynchronizer.class);
-        synchronizer.addPropertyChangeListener(this);
 
     }
 
     private void update(World newWorld) {
-        this.world = newWorld;
+
         removeAll();
         final String name = obj.getName();
         model = new TestbedModel();
@@ -99,7 +93,6 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
             public void actionPerformed(ActionEvent e) {
                 started = false;
                 controller.stop();
-                update(WorldUtilities.copy(synchronizer.getWorld()));
             }
         });
         toolbar.add(new AbstractAction("", ImageUtilities.loadImageIcon("de/eppleton/physics/editor/resources/player_pause.png", true)) {
@@ -163,6 +156,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentOpened() {
+        
     }
 
     @Override
@@ -171,6 +165,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentShowing() {
+        update(WorldUtilities.copy(obj.getWorld()));
     }
 
     @Override
@@ -182,9 +177,7 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
 
     @Override
     public void componentActivated() {
-        if (synchronizer.getWorld() != null) {
-            update(WorldUtilities.copy(synchronizer.getWorld()));
-        }
+        update(WorldUtilities.copy(obj.getWorld()));
     }
 
     @Override
@@ -213,17 +206,8 @@ public class Box2DSimulatorElement extends javax.swing.JPanel implements MultiVi
         }
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName() == ViewSynchronizer.WORLD_CHANGED) {
-            World world = (World) evt.getNewValue();
-            if (world != null) {
-                update(WorldUtilities.copy(world));
-            } else {
-                LOGGER.warning("new World is null");
-            }
-        }
-    }
+  
+           
 
     private class TestbedTestImpl extends TestbedTest {
 

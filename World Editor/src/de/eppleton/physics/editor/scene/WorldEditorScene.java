@@ -5,7 +5,6 @@
 package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.WorldUtilities;
-import de.eppleton.physics.editor.Box2DEditor;
 import de.eppleton.physics.editor.assistant.ModelHelper;
 import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
@@ -128,17 +127,17 @@ public class WorldEditorScene extends ObjectScene {
     private float offsetY = 0;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     public static String PROP_WORLD = "WORLD_CHANGE";
-    private final Updater updater;
+    
 
     public WorldEditorScene(final ExplorerManager em,
             World world) {
         this.em = em;
         setWorld(world);
-        updater = new Updater(this);
+       
     }
 
     public void update(){
-        updater.documentChange();
+        propertyChangeSupport.firePropertyChange(PROP_WORLD, null, world);
     }
     
     public void setWorld(World world) {
@@ -748,22 +747,4 @@ public class WorldEditorScene extends ObjectScene {
         }
     }
 
-    private static class Updater implements Runnable {
-
-        private static final RequestProcessor RP = new RequestProcessor(Updater.class);
-        private final RequestProcessor.Task UPDATE = RP.create(this);
-        private final WorldEditorScene worldEditorScene;
-
-        public Updater(WorldEditorScene scene) {
-            this.worldEditorScene = scene;
-        }
-
-        public void documentChange() {
-            UPDATE.schedule(2000);
-        }
-
-        public void run() {
-            worldEditorScene.changed();
-        }
-    }
 }
