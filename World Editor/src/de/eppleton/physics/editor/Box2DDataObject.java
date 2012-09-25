@@ -149,7 +149,13 @@ public class Box2DDataObject extends MultiDataObject implements PropertyChangeLi
     }
 
     private void refresh() {
+        
         StringReader reader = null;
+        try {
+            document = des.openDocument();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         try {
             JAXBContext context = JAXBContext.newInstance(de.eppleton.jbox2d.persistence.World.class);
             Unmarshaller um = context.createUnmarshaller();
@@ -159,7 +165,7 @@ public class Box2DDataObject extends MultiDataObject implements PropertyChangeLi
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         } catch (JAXBException ex) {
-            Exceptions.printStackTrace(ex);
+             // we ignore this, it's expected to happen
         }
 
     }

@@ -19,14 +19,14 @@
         </folder>
     </folder>
     <folder name="Navigator"> 
-    <folder name="Panels"> 
-        <folder name="text"> 
-            <folder name="x-box2d+xml"> 
-                <file 
-name="org-netbeans-modules-xml-text-navigator-XMLNavigatorPanel.instance"/> 
+        <folder name="Panels"> 
+            <folder name="text"> 
+                <folder name="x-box2d+xml"> 
+                    <file 
+                        name="org-netbeans-modules-xml-text-navigator-XMLNavigatorPanel.instance"/> 
+                </folder> 
             </folder> 
         </folder> 
     </folder> 
-</folder> 
 
 </filesystem>
