@@ -6,12 +6,19 @@ package de.eppleton.physics.editor;
 
 import de.eppleton.jbox2d.persistence.PersistenceUtil;
 import de.eppleton.jbox2d.persistence.World;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.netbeans.api.xml.cookies.CheckXMLCookie;
 import org.netbeans.api.xml.cookies.ValidateXMLCookie;
@@ -29,6 +36,8 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.text.DataEditorSupport;
+import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
@@ -107,25 +116,15 @@ public class Box2DDataObject extends MultiDataObject {
     public Box2DDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("text/box2d+xml", true);
-        synchronizer = new de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer();
+        
         InputSource inputSource = DataObjectAdapters.inputSource(this);
         CheckXMLCookie checkCookie = new CheckXMLSupport(inputSource);
         getCookieSet().add(checkCookie);
         ValidateXMLCookie validateXMLCookie = new ValidateXMLSupport(inputSource);
         getCookieSet().add(validateXMLCookie);
+       
+        synchronizer = new ViewSynchronizer();
         getCookieSet().assign(de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer.class, synchronizer);
-        try {
-            JAXBContext context = JAXBContext.newInstance(World.class);
-            Unmarshaller um = context.createUnmarshaller();
-            World jaxbWorld = (World) um.unmarshal(pf.getInputStream());
-            world = PersistenceUtil.getWorldFromJAXBWorld(jaxbWorld);
-            if (world != null) {
-                synchronizer.setWorld(world);
-                getCookieSet().assign(org.jbox2d.dynamics.World.class, world);
-            }
-        } catch (JAXBException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     @Override
@@ -144,8 +143,8 @@ public class Box2DDataObject extends MultiDataObject {
     public static MultiViewEditorElement createEditor(Lookup lkp) {
         return new MultiViewEditorElement(lkp);
     }
-    
-     public static class ViewSynchronizer {
+
+    public static class ViewSynchronizer {
 
         private static Logger LOGGER = Logger.getLogger(de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer.class.getName());
         private org.jbox2d.dynamics.World oldWorld;
@@ -162,9 +161,14 @@ public class Box2DDataObject extends MultiDataObject {
             p.removePropertyChangeListener(WORLD_CHANGED, l);
         }
 
+        public void updateFromVisualEditor() {
+        }
+
         public void setWorld(org.jbox2d.dynamics.World newWorld) {
             // assert newWorld != null; // this clashes with template system
-            if (newWorld == null) return;
+            if (newWorld == null) {
+                return;
+            }
             LOGGER.info("Updating World");
             oldWorld = newWorld;
             PropertyChangeListener[] propertyChangeListeners = p.getPropertyChangeListeners();
@@ -178,4 +182,8 @@ public class Box2DDataObject extends MultiDataObject {
             return oldWorld;
         }
     }
+
+    
+
+   
 }

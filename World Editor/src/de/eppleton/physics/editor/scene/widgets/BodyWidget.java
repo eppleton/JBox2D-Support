@@ -103,6 +103,7 @@ public class BodyWidget extends Widget implements Dependency {
                 body.getPosition().y = WorldUtilities.sceneToWorld(newY, scene.getScale(), scene.getOffsetY(), true);
                 x = newX;
                 y = newY;
+                scene.update();
             }
         }
 

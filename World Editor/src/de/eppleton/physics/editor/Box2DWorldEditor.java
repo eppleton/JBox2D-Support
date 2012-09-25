@@ -4,18 +4,34 @@
  */
 package de.eppleton.physics.editor;
 
+import de.eppleton.jbox2d.persistence.PersistenceUtil;
+import de.eppleton.physics.editor.Box2DDataObject.ViewSynchronizer;
 import de.eppleton.physics.editor.assistant.AssistantModel;
 import de.eppleton.physics.editor.assistant.AssistantView;
 import de.eppleton.physics.editor.assistant.ModelHelper;
 import de.eppleton.physics.editor.palette.Box2DPaletteController;
 import de.eppleton.physics.editor.scene.WorldEditorScene;
 import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import org.jbox2d.dynamics.World;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -24,6 +40,9 @@ import org.netbeans.spi.palette.PaletteController;
 import org.openide.awt.UndoRedo;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.text.DataEditorSupport;
+import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
@@ -50,6 +69,11 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
     private transient PaletteController paletteController;
     private transient ExplorerManager em = new ExplorerManager();
     private final AssistantModel localmodel;
+    private World world;
+    private TextDocumentListener textDocumentListener;
+    private StyledDocument document;
+    private ViewSynchronizer synchronizer;
+    private DataEditorSupport des;
 
     /**
      * Creates new form Box2DWorldEditor
@@ -64,8 +88,32 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
         localmodel = ModelHelper.returnAssistantModel();
         localmodel.setContext("started");
         add(new AssistantView(localmodel), BorderLayout.NORTH);
-        scene = new WorldEditorScene(em, lkp.lookup(World.class));
+        synchronizer = lkp.lookup(ViewSynchronizer.class);
+        try {
+            JAXBContext context = JAXBContext.newInstance(de.eppleton.jbox2d.persistence.World.class);
+            Unmarshaller um = context.createUnmarshaller();
+            de.eppleton.jbox2d.persistence.World jaxbWorld = (de.eppleton.jbox2d.persistence.World) um.unmarshal(obj.getPrimaryFile().getInputStream());
+            world = PersistenceUtil.getWorldFromJAXBWorld(jaxbWorld);
+            if (world != null) {
+                synchronizer.setWorld(world);
+
+            }
+        } catch (FileNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (JAXBException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        scene = new WorldEditorScene(em,world);
+        scene.addPropertyChangeListener(new WorldPropertyListener());
         jScrollPane.setViewportView(scene.createView());
+        des = lkp.lookup(DataEditorSupport.class);
+        document = des.getDocument();
+        textDocumentListener = new TextDocumentListener();
+        try {
+            des.openDocument().addDocumentListener(textDocumentListener);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     /**
@@ -170,5 +218,89 @@ public class Box2DWorldEditor extends javax.swing.JPanel implements MultiViewEle
 
     @Override
     public void componentShowing() {
+    }
+
+    private void refresh() {
+        StringReader reader = null;
+        try {
+            JAXBContext context = JAXBContext.newInstance(de.eppleton.jbox2d.persistence.World.class);
+            Unmarshaller um = context.createUnmarshaller();
+            reader = new StringReader(document.getText(0, document.getLength()));
+            de.eppleton.jbox2d.persistence.World jaxbWorld = (de.eppleton.jbox2d.persistence.World) um.unmarshal(reader);
+            world = PersistenceUtil.getWorldFromJAXBWorld(jaxbWorld);
+            if (world != null) {
+                synchronizer.setWorld(world);
+            }
+           scene.setWorld(world);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (JAXBException ex) {
+            Exceptions.printStackTrace(ex);
+        } 
+
+    }
+
+    private class TextDocumentListener implements DocumentListener {
+
+        public void insertUpdate(DocumentEvent e) {
+            refresh();
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            refresh();
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            refresh();
+        }
+    }
+      private class WorldPropertyListener implements PropertyChangeListener{
+
+        @Override
+        public void propertyChange(PropertyChangeEvent pce) {
+              try {
+                  document = des.openDocument();
+              } catch (IOException ex) {
+                  Exceptions.printStackTrace(ex);
+              }
+              
+            if (document == null)
+               throw new IllegalStateException("Document not exists");
+            try {
+                DocChanger ch = new DocChanger(document);
+                document.removeDocumentListener(textDocumentListener);
+                NbDocument.runAtomic(document, ch);
+            } finally {
+                document.addDocumentListener(textDocumentListener);
+            }
+        }       
+      }
+    
+    
+    private class DocChanger implements Runnable {
+
+        StyledDocument doc;
+
+        public DocChanger(StyledDocument doc) {
+            this.doc = doc;
+        }
+
+        public void run() {
+            try {
+                de.eppleton.jbox2d.persistence.World jaxbWorldFromWorld = PersistenceUtil.getJAXBWorldFromWorld(world);
+                StringWriter stringWriter = new StringWriter();
+                JAXBContext context = JAXBContext.newInstance(de.eppleton.jbox2d.persistence.World.class);
+                Marshaller m = context.createMarshaller();
+                m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                m.setProperty("jaxb.schemaLocation", "http://www.eppleton.de/schemas/box2d http://www.eppleton.de/schemas/Box2d.xsd");
+                m.marshal(jaxbWorldFromWorld, stringWriter);
+                doc.remove(doc.getStartPosition().getOffset(), doc.getLength());
+                doc.insertString(doc.getStartPosition().getOffset(), stringWriter.toString(), null);
+            } catch (JAXBException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (BadLocationException bex) {
+                Exceptions.printStackTrace(bex);
+            }
+        }
     }
 }

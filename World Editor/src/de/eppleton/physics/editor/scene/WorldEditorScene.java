@@ -5,6 +5,7 @@
 package de.eppleton.physics.editor.scene;
 
 import de.eppleton.jbox2d.WorldUtilities;
+import de.eppleton.physics.editor.Box2DEditor;
 import de.eppleton.physics.editor.assistant.ModelHelper;
 import de.eppleton.physics.editor.nodes.FakeChildFactory;
 import de.eppleton.physics.editor.palette.items.B2DActiveEditorDrop;
@@ -23,6 +24,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,6 +69,7 @@ import org.openide.nodes.Node;
 import org.openide.text.ActiveEditorDrop;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
+import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -108,7 +112,7 @@ public class WorldEditorScene extends ObjectScene {
     private WidgetAction createAction = new CreatePolygonPointsAction();
     private ArrayList<DotWidget> bodyParts = new ArrayList<DotWidget>();
     private ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget>();
-    private final World world;
+    private World world;
     private transient ResizeProvider resizeProvider;
     private transient LayerWidget mainLayer;
     private transient LayerWidget connectionLayer;
@@ -122,16 +126,33 @@ public class WorldEditorScene extends ObjectScene {
     private int scale = 30;
     private float offsetX = 0;
     private float offsetY = 0;
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    public static String PROP_WORLD = "WORLD_CHANGE";
+    private final Updater updater;
 
     public WorldEditorScene(final ExplorerManager em,
-            final World world) {
+            World world) {
         this.em = em;
+        setWorld(world);
+        updater = new Updater(this);
+    }
+
+    public void update(){
+        updater.documentChange();
+    }
+    
+    public void setWorld(World world) {
         initScene();
         this.world = world;
         addBodiesFromWorld(world);
     }
 
     public final void initScene() {
+        removeChildren();
+//        Set<?> sceneobjects = getObjects();
+//        for (Object object : objects) {
+//            if (object != null && objects.)removeObject(objects);
+//        }
         // setup layers
         backgroundLayer = new LayerWidget(this);
         addChild(backgroundLayer);
@@ -222,6 +243,28 @@ public class WorldEditorScene extends ObjectScene {
         repaint();
         revalidate(false);
         validate();
+    }
+
+    public void changed() {
+        propertyChangeSupport.firePropertyChange(PROP_WORLD, null, world);
+    }
+
+    /**
+     * Add PropertyChangeListener.
+     *
+     * @param listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove PropertyChangeListener.
+     *
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     private Widget createBackgroundWidget(int x, int y, int width, int height) {
@@ -325,7 +368,7 @@ public class WorldEditorScene extends ObjectScene {
         return createRevoluteJointAction;
     }
 
-    private  class CreateRevoluteJointAction extends WidgetAction.Adapter {
+    private class CreateRevoluteJointAction extends WidgetAction.Adapter {
 
         private Widget first;
 
@@ -345,7 +388,7 @@ public class WorldEditorScene extends ObjectScene {
                                 WorldUtilities.sceneToWorld(targetPoint.y, scale, offsetX, true));
                         Body targetBody = (Body) ((ObjectScene) widget.getScene()).findObject(widget);
 
-                        Joint build = new RevoluteJointBuilder(world, sourceBody, targetBody,targetVec).build();
+                        Joint build = new RevoluteJointBuilder(world, sourceBody, targetBody, targetVec).build();
                         addJoint(build);
                     }
 
@@ -626,7 +669,7 @@ public class WorldEditorScene extends ObjectScene {
                 if (event.getButton() == MouseEvent.BUTTON1
                         || event.getButton() == MouseEvent.BUTTON2) {
 
-                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this,widget.convertLocalToScene(event.getPoint()));
+                    DotWidget blackDotWidget = new DotWidget(WorldEditorScene.this, widget.convertLocalToScene(event.getPoint()));
                     if (bodyParts.size() == Settings.maxPolygonVertices) {
                         ConnectionWidget conn = new ConnectionWidget(WorldEditorScene.this);
                         conn.setTargetAnchor(AnchorFactory.createCircularAnchor(widget, 3));
@@ -702,6 +745,25 @@ public class WorldEditorScene extends ObjectScene {
                 }
             }
             return WidgetAction.State.REJECTED;
+        }
+    }
+
+    private static class Updater implements Runnable {
+
+        private static final RequestProcessor RP = new RequestProcessor(Updater.class);
+        private final RequestProcessor.Task UPDATE = RP.create(this);
+        private final WorldEditorScene worldEditorScene;
+
+        public Updater(WorldEditorScene scene) {
+            this.worldEditorScene = scene;
+        }
+
+        public void documentChange() {
+            UPDATE.schedule(2000);
+        }
+
+        public void run() {
+            worldEditorScene.changed();
         }
     }
 }

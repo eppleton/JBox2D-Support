@@ -51,6 +51,8 @@ public class PolygonWidget extends Widget {
     protected Rectangle calculateClientArea() {
         return shape.getBounds();
     }
+    int oldWidth;
+    int oldHeight;
 
     @Override
     protected void paintWidget() {
@@ -59,13 +61,19 @@ public class PolygonWidget extends Widget {
         Color fg = getForeground();
         Color c = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 100);
         g.setPaint(c);
-
-        transform(shape.getBounds(), getBounds());
+        if (oldWidth != getBounds().width || oldHeight != getBounds().height) {
+            transform(shape.getBounds(), getBounds());
+            worldScene.update();
+            oldWidth = getBounds().width;
+            oldHeight = getBounds().height;
+        }
         g.fill(shape);
         g.setPaint(fg);
         g.draw(shape);
         g.setColor(fg);
         g.setPaint(paint);
+
+
     }
 
     public void transform(Rectangle oldBounds, Rectangle newBounds) {
