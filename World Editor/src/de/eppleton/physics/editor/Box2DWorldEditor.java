@@ -33,7 +33,7 @@ import org.openide.windows.TopComponent;
 @MultiViewElement.Registration(
     displayName = "#LBL_Box2D_VISUAL",
 iconBase = "de/eppleton/jbox2d/persistence/box2d_logo.png",
-mimeType = "text/box2d+xml",
+mimeType = "text/x-box2d+xml",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DVisual",
 position = 2000)

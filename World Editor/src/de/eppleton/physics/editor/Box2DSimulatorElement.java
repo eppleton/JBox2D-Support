@@ -40,7 +40,7 @@ import org.openide.windows.TopComponent;
 @MultiViewElement.Registration(
     displayName = "#LBL_Box2D_Simulator",
 iconBase = "de/eppleton/physics/editor/tar.png",
-mimeType = "text/box2d+xml",
+mimeType = "text/x-box2d+xml",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "Box2DSimulator",
 position = 3000)

@@ -49,61 +49,61 @@ import org.xml.sax.InputSource;
 })
 @MIMEResolver.ExtensionRegistration(
     displayName = "#LBL_Box2D_LOADER",
-mimeType = "text/box2d+xml",
+mimeType = "text/x-box2d+xml",
 extension = {"b2x"})
 @DataObject.Registration(
-    mimeType = "text/box2d+xml",
+    mimeType = "text/x-box2d+xml",
 iconBase = "de/eppleton/jbox2d/persistence/box2d_logo.png",
 displayName = "#LBL_Box2D_LOADER",
 position = 300)
 @ActionReferences({
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
     position = 100,
     separatorAfter = 200),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
     position = 300),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
     position = 400,
     separatorAfter = 500),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
     position = 600),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
     position = 700,
     separatorAfter = 800),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
     position = 900,
     separatorAfter = 1000),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
     position = 1100,
     separatorAfter = 1200),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
     position = 1300),
     @ActionReference(
-        path = "Loaders/text/box2d+xml/Actions",
+        path = "Loaders/text/x-box2d+xml/Actions",
     id =
     @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
     position = 1400)
@@ -118,7 +118,7 @@ public class Box2DDataObject extends MultiDataObject implements PropertyChangeLi
 
     public Box2DDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        registerEditor("text/box2d+xml", true);
+        registerEditor("text/x-box2d+xml", true);
         InputSource inputSource = DataObjectAdapters.inputSource(this);
         CheckXMLCookie checkCookie = new CheckXMLSupport(inputSource);
         getCookieSet().add(checkCookie);
@@ -167,7 +167,7 @@ public class Box2DDataObject extends MultiDataObject implements PropertyChangeLi
     @MultiViewElement.Registration(
         displayName = "#LBL_Box2D_EDITOR",
     iconBase = "de/eppleton/jbox2d/persistence/box2d_logo.png",
-    mimeType = "text/box2d+xml",
+    mimeType = "text/x-box2d+xml",
     persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
     preferredID = "Box2D",
     position = 1000)
