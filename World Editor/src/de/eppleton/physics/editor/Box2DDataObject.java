@@ -172,7 +172,7 @@ public class Box2DDataObject extends MultiDataObject implements PropertyChangeLi
 
     @MultiViewElement.Registration(
         displayName = "#LBL_Box2D_EDITOR",
-    iconBase = "de/eppleton/jbox2d/persistence/box2d_logo.png",
+    iconBase = "de/eppleton/physics/editor/box2d_logo.png",
     mimeType = "text/x-box2d+xml",
     persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
     preferredID = "Box2D",

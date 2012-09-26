@@ -24,6 +24,7 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
+                <package>de.eppleton.jbox2d.persistence</package>
                 <package>org.box2d.proto</package>
                 <package>org.jbox2d.builders</package>
                 <package>org.jbox2d.callbacks</package>
